@@ -1,0 +1,160 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StudyBee - BRACU CSE Resource Hub</title>
+
+    <link rel="stylesheet" href="{% static 'resources/css/home.css' %}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="topbar">
+        <a href="{% url 'home' %}" class="brand">
+            <div class="logo-mark">🐝</div>
+            <div>
+                <h1>StudyBee</h1>
+                <p>Your BRACU study hive</p>
+            </div>
+        </a>
+<nav class="nav-links">
+    <button type="button" class="nav-about-btn" id="aboutOpen">About</button>
+    <a href="/admin/">Admin</a>
+</nav>
+    </header>
+
+    <section class="hero">
+
+        <div class="hero-bg"></div>
+
+        <div class="hero-shape shape-one">✦</div>
+        <div class="hero-shape shape-two">📚</div>
+        <div class="hero-shape shape-three">🍯</div>
+        <div class="hero-shape shape-four">✏️</div>
+
+        <div class="hero-inner">
+
+            <div class="hero-text">
+                <div class="mini-label">
+                    <span>BRACU CSE</span>
+                    <span>Resource Hive</span>
+                </div>
+
+                <h2>
+                    Gather your course resources<br>
+                    without the chaos.
+                </h2>
+
+                <p>
+                    Find slides, notes, lab files, videos, questions and useful links
+                    neatly organized by courses and syllabus.
+                </p>
+            </div>
+
+            <div class="hero-visual">
+    <img src="{% static 'resources/images/hero.jpg' %}" alt="Study resources">
+</div>
+
+        </div>
+    </section>
+
+    <section class="search-wrapper">
+        <form method="GET" class="search-card">
+            <label>What course are you looking for?</label>
+
+            <div class="search-row">
+                <input type="text" id="courseSearchInput" placeholder="Search by course code or title...">
+                <button type="submit">Search</button>
+            </div>
+        </form>
+    </section>
+
+
+
+
+    <main class="container" id="course-directory">
+
+        <div class="section-header">
+            <div>
+                <span class="section-kicker">Course shelf</span>
+                <h2>Browse CSE courses</h2>
+                <p>Pick a course and open its organized study resources.</p>
+            </div>
+        </div>
+
+        <div class="course-grid">
+            {% for course in courses %}
+                <a href="{% url 'course_detail' course.id %}" class="course-card reveal">
+                    <div class="course-icon">
+                        {{ course.course_code|slice:":3" }}
+                    </div>
+
+                    <div class="course-info">
+                        <h3>{{ course.course_code }}</h3>
+                        <p class="course-title">{{ course.course_title }}</p>
+
+                        <p class="resource-count">
+                            {{ course.resource_count }} resource{% if course.resource_count != 1 %}s{% endif %} available
+                        </p>
+                    </div>
+
+                    <div class="card-arrow">→</div>
+                </a>
+            {% empty %}
+                <div class="empty reveal">
+                    <p>No courses found.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+    </main>
+
+
+    <footer class="site-footer">
+    <div class="footer-inner">
+        <div>
+            <h3>StudyBee 🐝</h3>
+            <p>Your BRACU study hive for organized course resources.</p>
+
+            <p class="footer-disclaimer">
+    Materials are collected from publicly shared Facebook posts and student-shared resources.
+    StudyBee only organizes them for easier access and is not an official BRACU website.
+</p>
+        </div>
+
+        <p class="footer-note">Made for BRACU students</p>
+        <p class="footer-note">
+    <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">Report an issue</a>
+</p>
+    </div>
+</footer>
+
+<div class="about-modal" id="aboutModal">
+    <div class="about-modal-card">
+        <button type="button" class="about-close" id="aboutClose">×</button>
+
+        <span class="about-kicker">About StudyBee</span>
+        <h2>A cleaner way to find BRACU course resources.</h2>
+
+        <p>
+            StudyBee is a student-made BRACU course resource hub that organizes publicly shared materials,
+            links, videos, notes, questions, and useful files in one place.
+        </p>
+
+        <p>
+            It is built to help students find resources faster without scrolling through scattered posts,
+            folders, and links.
+        </p>
+
+        <p class="about-note">
+            Course materials may vary by semester, so always follow your current faculty instructions.
+        </p>
+    </div>
+</div>
+
+<script src="{% static 'resources/js/home.js' %}"></script>
+
+</body>
+</html>

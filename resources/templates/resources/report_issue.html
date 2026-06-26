@@ -1,0 +1,83 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Report Issue - StudyBee</title>
+
+    <link rel="stylesheet" href="{% static 'resources/css/course.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="topbar">
+        <a href="{% url 'home' %}" class="brand">
+            <div class="logo-mark">🐝</div>
+            <div>
+                <h1>StudyBee</h1>
+                <p>Your BRACU study hive</p>
+            </div>
+        </a>
+
+        <nav class="nav-links">
+            <a href="{% url 'home' %}">Courses</a>
+            <a href="/admin/">Admin</a>
+        </nav>
+    </header>
+
+    <main class="page">
+        <a href="{{ next_url }}" class="back-link">{{ back_label }}</a>
+
+        <section class="report-card">
+            <div class="section-title">
+                <span>Help improve StudyBee</span>
+                <h2>Report an issue</h2>
+            </div>
+
+            <p class="report-intro">
+                Found a broken link, wrong resource, or want something removed? Submit it here and it will appear in the admin panel.
+            </p>
+
+            <form method="post" class="report-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next_url }}">
+
+                <div class="report-field">
+                    <label>Issue type</label>
+                    {{ form.issue_type }}
+                    {{ form.issue_type.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Course code</label>
+                    {{ form.course_code }}
+                    {{ form.course_code.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Resource title or link</label>
+                    {{ form.resource_title_or_link }}
+                    {{ form.resource_title_or_link.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Details</label>
+                    {{ form.details }}
+                    {{ form.details.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Contact email</label>
+                    {{ form.contact_email }}
+                    {{ form.contact_email.errors }}
+                </div>
+
+                <button type="submit" class="btn primary-btn report-submit">
+                    Submit Report
+                </button>
+            </form>
+        </section>
+    </main>
+
+</body>
+</html>

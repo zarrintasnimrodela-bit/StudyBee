@@ -1,0 +1,41 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Report Submitted - StudyBee</title>
+
+    <link rel="stylesheet" href="{% static 'resources/css/course.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="topbar">
+        <a href="{% url 'home' %}" class="brand">
+            <div class="logo-mark">🐝</div>
+            <div>
+                <h1>StudyBee</h1>
+                <p>Your BRACU study hive</p>
+            </div>
+        </a>
+
+        <nav class="nav-links">
+            <a href="{% url 'home' %}">Courses</a>
+            <a href="/admin/">Admin</a>
+        </nav>
+    </header>
+
+    <main class="page">
+        <section class="report-card success-card">
+            <div class="empty-icon">🍯</div>
+            <h2>Report submitted</h2>
+            <p>Thanks for helping improve StudyBee. The report is now saved for admin review.</p>
+
+            <a href="{{ next_url }}" class="btn primary-btn">
+    {{ back_label }}
+</a>
+        </section>
+    </main>
+
+</body>
+</html>

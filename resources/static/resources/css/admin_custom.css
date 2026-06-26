@@ -1,0 +1,58 @@
+/* Make Django admin use more page width */
+#content {
+    width: auto !important;
+    max-width: 1400px !important;
+    margin: 30px auto !important;
+    padding: 0 40px !important;
+}
+
+/* Make the admin dashboard layout wider */
+.dashboard #content {
+    max-width: 1500px !important;
+}
+
+/* Make the app list wider */
+#content-main {
+    width: 70% !important;
+}
+
+/* Recent actions panel */
+#content-related {
+    width: 26% !important;
+    margin-right: 0 !important;
+}
+
+/* Make tables use available space */
+.results {
+    width: 100% !important;
+}
+
+#changelist {
+    width: 100% !important;
+}
+
+/* Improve admin form width */
+.form-row {
+    max-width: 1000px;
+}
+
+.aligned label {
+    width: 180px;
+}
+
+.submit-row {
+    max-width: 1000px;
+}
+
+/* For smaller screens */
+@media (max-width: 900px) {
+    #content {
+        padding: 0 18px !important;
+    }
+
+    #content-main,
+    #content-related {
+        width: 100% !important;
+        float: none !important;
+    }
+}

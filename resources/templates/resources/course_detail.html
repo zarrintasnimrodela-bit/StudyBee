@@ -1,0 +1,370 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ course.course_code }} - StudyBee</title>
+
+    <link rel="stylesheet" href="{% static 'resources/css/course.css' %}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="topbar">
+        <a href="{% url 'home' %}" class="brand">
+            <div class="logo-mark">🐝</div>
+            <div>
+                <h1>StudyBee</h1>
+                <p>Your BRACU study hive</p>
+            </div>
+        </a>
+
+        <nav class="nav-links">
+            <a href="{% url 'home' %}">Courses</a>
+            <a href="/admin/">Admin</a>
+        </nav>
+    </header>
+
+    <main class="page">
+
+        <a href="{% url 'home' %}" class="back-link">← Back to courses</a>
+
+        <section class="course-hero">
+            <div>
+                <div class="mini-label">
+                    <span>{{ course.course_code }}</span>
+                    <span>Course Resource Hive</span>
+                </div>
+
+                <h1>{{ course.course_code }} - {{ course.course_title }}</h1>
+
+                <div class="course-quick-info">
+
+                    <p>
+                        <strong>Hard prerequisite:</strong>
+                        {% if course.hard_prerequisite %}
+                            {{ course.hard_prerequisite }}
+                        {% else %}
+                            None
+                        {% endif %}
+                    </p>
+
+                    {% if course.soft_prerequisite %}
+                        <p>
+                            <strong>Soft prerequisite:</strong>
+                            {{ course.soft_prerequisite }}
+                        </p>
+                    {% endif %}
+
+                    <p class="lab-pill">
+    {{ course.get_lab_type_display }}
+</p>
+
+                </div>
+            </div>
+
+            <div class="course-bubble">
+                <span>Resources</span>
+                <strong>{{ all_resources_count }}</strong>
+            </div>
+        </section>
+
+        <div class="course-content-layout">
+
+            <aside class="filter-sidebar">
+
+                <section class="filter-panel">
+
+                    <div class="filter-group">
+                        <p>Resource type</p>
+
+                        <div class="filter-row">
+
+                            <a href="{% url 'course_detail' course.id %}{% if exam_part or search_query %}?{% if exam_part %}exam_part={{ exam_part }}{% endif %}{% if search_query %}{% if exam_part %}&{% endif %}q={{ search_query }}{% endif %}{% endif %}"
+                               class="filter-chip {% if not category %}active{% endif %}">
+                                All Types
+                            </a>
+
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=SLIDE{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="filter-chip {% if category == 'SLIDE' %}active{% endif %}">
+                                Slides
+                            </a>
+
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=NOTE{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="filter-chip {% if category == 'NOTE' %}active{% endif %}">
+                                Notes
+                            </a>
+
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="filter-chip {% if category == 'QUESTION' %}active{% endif %}">
+                                Questions
+                            </a>
+
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=LAB{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="filter-chip {% if category == 'LAB' %}active{% endif %}">
+                                Lab Files
+                            </a>
+
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=VIDEO{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="filter-chip {% if category == 'VIDEO' %}active{% endif %}">
+                                Videos
+                            </a>
+
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=BOOK{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="filter-chip {% if category == 'BOOK' %}active{% endif %}">
+                                Books
+                            </a>
+
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=LINK{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="filter-chip {% if category == 'LINK' %}active{% endif %}">
+                                Links
+                            </a>
+
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=OTHER{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="filter-chip {% if category == 'OTHER' %}active{% endif %}">
+                                Other
+                            </a>
+
+                        </div>
+                    </div>
+
+                    {% if category == 'QUESTION' %}
+                        <div class="filter-group question-filter">
+                            <p>Question type</p>
+
+                            <div class="filter-row">
+
+                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION{% if search_query %}&q={{ search_query }}{% endif %}"
+                                   class="filter-chip {% if not question_type %}active{% endif %}">
+                                    All Questions
+                                </a>
+
+                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION&question_type=PAST_EXAM{% if search_query %}&q={{ search_query }}{% endif %}"
+                                   class="filter-chip {% if question_type == 'PAST_EXAM' %}active{% endif %}">
+                                    Past Exam
+                                </a>
+
+                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION&question_type=ASSIGNMENT{% if search_query %}&q={{ search_query }}{% endif %}"
+                                   class="filter-chip {% if question_type == 'ASSIGNMENT' %}active{% endif %}">
+                                    Assignments
+                                </a>
+
+                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION&question_type=QUIZ{% if search_query %}&q={{ search_query }}{% endif %}"
+                                   class="filter-chip {% if question_type == 'QUIZ' %}active{% endif %}">
+                                    Quizzes
+                                </a>
+
+                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION&question_type=PRACTICE{% if search_query %}&q={{ search_query }}{% endif %}"
+                                   class="filter-chip {% if question_type == 'PRACTICE' %}active{% endif %}">
+                                    Practice Sheet
+                                </a>
+
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="filter-group">
+                        <p>Syllabus</p>
+
+                        <div class="filter-row">
+
+                            <a href="{% url 'course_detail' course.id %}{% if category or question_type or search_query %}?{% if category %}category={{ category }}{% endif %}{% if question_type %}{% if category %}&{% endif %}question_type={{ question_type }}{% endif %}{% if search_query %}{% if category or question_type %}&{% endif %}q={{ search_query }}{% endif %}{% endif %}"
+                               class="filter-chip {% if not exam_part %}active{% endif %}">
+                                All
+                            </a>
+
+                            <a href="?exam_part=MIDTERM{% if category %}&category={{ category }}{% endif %}{% if question_type %}&question_type={{ question_type }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="filter-chip {% if exam_part == 'MIDTERM' %}active{% endif %}">
+                                Midterm
+                            </a>
+
+                            <a href="?exam_part=FINAL{% if category %}&category={{ category }}{% endif %}{% if question_type %}&question_type={{ question_type }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="filter-chip {% if exam_part == 'FINAL' %}active{% endif %}">
+                                Final
+                            </a>
+
+                            <a href="?exam_part=GENERAL{% if category %}&category={{ category }}{% endif %}{% if question_type %}&question_type={{ question_type }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                               class="filter-chip {% if exam_part == 'GENERAL' %}active{% endif %}">
+                                General
+                            </a>
+
+                        </div>
+                    </div>
+
+                </section>
+
+<div class="sidebar-help-card">
+    <h3>Need help?</h3>
+    <p>Found a broken link, wrong material, or want something removed?</p>
+    <p>Some links may only be accessible with a BRACU GSuite account.</p>
+    <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">Report an issue</a>
+</div>
+
+</aside>
+
+            <div class="resource-main-area">
+
+                <section class="resource-section">
+
+                    <div class="section-title">
+                        <span>Resource shelf</span>
+                        <h2>Available materials</h2>
+                    </div>
+
+                    <div class="resource-list">
+                        {% for resource in resources %}
+                            <article class="resource-card reveal">
+
+                                <div class="badges">
+                                    <span class="badge">{{ resource.get_exam_part_display }}</span>
+                                    <span class="badge">{{ resource.get_category_display }}</span>
+
+                                    {% if resource.question_type %}
+                                        <span class="badge">{{ resource.get_question_type_display }}</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="resource-main-row">
+                                    <div class="resource-text">
+
+                                        <div class="title-line">
+                                            <h3>{{ resource.title }}</h3>
+
+                                            {% if resource.semester %}
+                                                <span class="semester-pill">{{ resource.semester }}</span>
+                                            {% endif %}
+                                        </div>
+
+                                        {% if resource.description %}
+                                            <p class="description">{{ resource.description }}</p>
+                                        {% endif %}
+
+                                        <p class="resource-date">
+                                            Last updated: {{ resource.updated_at|date:"M d, Y" }}
+                                        </p>
+
+                                    </div>
+
+                                    <div class="resource-actions">
+    {% if resource.file %}
+        <button
+            type="button"
+            class="btn primary-btn preview-btn"
+            data-file-url="{{ resource.file.url }}"
+            data-file-title="{{ resource.title }}">
+            Open
+        </button>
+    {% endif %}
+
+    {% if resource.external_link %}
+        <button
+            type="button"
+            class="btn link-btn external-preview-btn"
+            data-external-url="{{ resource.external_link }}"
+            data-external-title="{{ resource.title }}">
+            Open
+        </button>
+    {% endif %}
+
+    {% if resource.category == 'QUESTION' %}
+        {% if resource.solution_file %}
+            <button
+                type="button"
+                class="btn solution-btn preview-btn"
+                data-file-url="{{ resource.solution_file.url }}"
+                data-file-title="{{ resource.title }} - Solution">
+                Solution
+            </button>
+        {% elif resource.solution_link %}
+            <button
+                type="button"
+                class="btn solution-btn external-preview-btn"
+                data-external-url="{{ resource.solution_link }}"
+                data-external-title="{{ resource.title }} - Solution">
+                Solution
+            </button>
+        {% endif %}
+    {% endif %}
+</div>
+                                </div>
+
+                            </article>
+                        {% empty %}
+                            <div class="empty-state">
+                                <div class="empty-icon">🍯</div>
+                                <h3>No resources found</h3>
+                                <p>Try another filter or report/suggest a resource.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <div class="preview-modal" id="previewModal">
+    <div class="preview-content">
+        <div class="preview-header">
+            <div class="preview-title-area">
+                <span class="preview-kicker">StudyBee Preview</span>
+                <h3 id="previewTitle">File Preview</h3>
+            </div>
+
+            <div class="preview-header-actions">
+                <a
+                    href="#"
+                    class="preview-open-tab-btn"
+                    id="previewOpenTab"
+                    target="_blank"
+                    style="display: none;">
+                    Open in New Tab
+                </a>
+
+                <a
+                    href="#"
+                    class="preview-download-btn"
+                    id="previewDownload"
+                    download
+                    style="display: none;">
+                    Download
+                </a>
+
+                <button type="button" class="preview-close" id="previewClose">×</button>
+            </div>
+        </div>
+
+        <div class="preview-body" id="previewBody">
+            <!-- File preview loads here -->
+        </div>
+    </div>
+</div>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div>
+                <h3>StudyBee 🐝</h3>
+                <p>Your BRACU study hive for organized course resources.</p>
+
+                <p class="footer-disclaimer">
+                    Materials are collected from publicly shared Facebook posts and student-shared resources. StudyBee only organizes them for easier access and is not an official BRACU website.
+                </p>
+            </div>
+
+            <p class="footer-note">Made for BRACU students</p>
+
+        </div>
+    </footer>
+
+    <script src="{% static 'resources/js/home.js' %}"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
+
+    <script src="{% static 'resources/js/course.js' %}"></script>
+
+</body>
+</html>
