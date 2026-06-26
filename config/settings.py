@@ -21,15 +21,32 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = os.environ.get(
-    "ALLOWED_HOSTS",
-    "127.0.0.1,localhost"
-).split(",")
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get(
+        "ALLOWED_HOSTS",
+        "127.0.0.1,localhost,.railway.app,.up.railway.app"
+    ).split(",")
+    if host.strip()
+]
 
-CSRF_TRUSTED_ORIGINS = os.environ.get(
-    "CSRF_TRUSTED_ORIGINS",
-    "http://127.0.0.1:8000,http://localhost:8000"
-).split(",")
+railway_public_domain = os.environ.get("RAILWAY_PUBLIC_DOMAIN")
+
+if railway_public_domain:
+    ALLOWED_HOSTS.append(railway_public_domain)
+
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        "CSRF_TRUSTED_ORIGINS",
+        "http://127.0.0.1:8000,http://localhost:8000,https://*.railway.app,https://*.up.railway.app"
+    ).split(",")
+    if origin.strip()
+]
+
+if railway_public_domain:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{railway_public_domain}")
 
 
 # Application definition
