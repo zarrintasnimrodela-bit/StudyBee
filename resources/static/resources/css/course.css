@@ -1535,3 +1535,99 @@ body::after {
         line-height: 1.55;
     }
 }
+
+@media (max-width: 900px) {
+    html,
+    body {
+        min-height: 0 !important;
+        height: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    body {
+        display: block !important;
+    }
+
+    .page {
+        flex: none !important;
+        min-height: 0 !important;
+        margin: 22px auto 28px !important;
+        padding-bottom: 0 !important;
+    }
+
+    .course-layout {
+        min-height: 0 !important;
+        gap: 22px !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .resource-section {
+        min-height: 0 !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .course-hero {
+        margin-bottom: 22px !important;
+        padding: 26px 24px !important;
+    }
+
+    .course-hero h1 {
+        font-size: 30px !important;
+        line-height: 1.1 !important;
+    }
+
+    .course-quick-info p,
+    .lab-pill {
+        font-size: 13px !important;
+    }
+
+    .filter-panel,
+    .sidebar-help-card {
+        padding: 22px !important;
+    }
+
+    .filter-chip {
+        font-size: 13px !important;
+        padding: 9px 13px !important;
+    }
+
+    .resource-section h2 {
+        font-size: 28px !important;
+    }
+
+    .empty {
+        padding: 38px 22px !important;
+        margin-bottom: 0 !important;
+    }
+
+    .empty h3 {
+        font-size: 20px !important;
+    }
+
+    .empty p {
+        font-size: 15px !important;
+    }
+
+    .site-footer {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding: 30px 24px !important;
+    }
+
+    .footer-inner {
+        gap: 18px !important;
+    }
+
+    .site-footer h3 {
+        font-size: 24px !important;
+    }
+
+    .site-footer p,
+    .footer-disclaimer,
+    .footer-note {
+        font-size: 13px !important;
+        line-height: 1.55 !important;
+    }
+}

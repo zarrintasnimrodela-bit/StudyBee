@@ -1090,3 +1090,85 @@ body::after {
         line-height: 1.55;
     }
 }
+
+@media (max-width: 900px) {
+    html,
+    body {
+        min-height: 0 !important;
+        height: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    body {
+        display: block !important;
+    }
+
+    .hero {
+        padding-bottom: 34px !important;
+    }
+
+    .hero-text h2 {
+        font-size: 46px !important;
+        line-height: 0.96 !important;
+    }
+
+    .hero-text p {
+        font-size: 16px !important;
+        line-height: 1.55 !important;
+    }
+
+    .search-wrapper {
+        margin-bottom: 42px !important;
+    }
+
+    .container {
+        margin-bottom: 42px !important;
+        padding-bottom: 0 !important;
+        min-height: 0 !important;
+    }
+
+    .section-header h2 {
+        font-size: 30px !important;
+    }
+
+    .section-header p {
+        font-size: 15px !important;
+    }
+
+    .course-card {
+        padding: 22px !important;
+    }
+
+    .course-info h3 {
+        font-size: 20px !important;
+    }
+
+    .course-title {
+        font-size: 14px !important;
+    }
+
+    .resource-count {
+        font-size: 13px !important;
+    }
+
+    .site-footer {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding: 30px 24px !important;
+    }
+
+    .footer-inner {
+        gap: 18px !important;
+    }
+
+    .site-footer h3 {
+        font-size: 24px !important;
+    }
+
+    .site-footer p,
+    .footer-disclaimer,
+    .footer-note {
+        font-size: 13px !important;
+        line-height: 1.55 !important;
+    }
+}
