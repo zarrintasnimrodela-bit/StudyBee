@@ -27,6 +27,64 @@ body {
     color: var(--ink);
     display: flex;
     flex-direction: column;
+    animation: pageFadeIn 0.55s ease both;
+}
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.28;
+    z-index: -1;
+    pointer-events: none;
+}
+
+body::before {
+    background: #ffc466;
+    top: 120px;
+    left: -80px;
+    animation: blobMoveOne 9s ease-in-out infinite;
+}
+
+body::after {
+    background: #ff9f68;
+    right: -90px;
+    bottom: 140px;
+    animation: blobMoveTwo 10s ease-in-out infinite;
+}
+
+@keyframes blobMoveOne {
+    0%, 100% {
+        transform: translate(0, 0);
+    }
+
+    50% {
+        transform: translate(35px, 45px);
+    }
+}
+
+@keyframes blobMoveTwo {
+    0%, 100% {
+        transform: translate(0, 0);
+    }
+
+    50% {
+        transform: translate(-45px, -30px);
+    }
 }
 
 /* Top navbar */
@@ -147,8 +205,7 @@ body {
     content: "";
     position: absolute;
     inset: 0;
-    background-image:
-        radial-gradient(rgba(255, 159, 104, 0.14) 1.2px, transparent 1.2px);
+    background-image: radial-gradient(rgba(255, 159, 104, 0.14) 1.2px, transparent 1.2px);
     background-size: 24px 24px;
     opacity: 0.5;
     pointer-events: none;
@@ -157,6 +214,10 @@ body {
 .course-hero > * {
     position: relative;
     z-index: 2;
+}
+
+.course-hero-info {
+    min-width: 0;
 }
 
 .mini-label {
@@ -193,14 +254,6 @@ body {
     line-height: 0.98;
     letter-spacing: -1.5px;
     color: #111827;
-}
-
-.course-hero p {
-    margin: 14px 0 0;
-    font-size: 18px;
-    line-height: 1.6;
-    color: #475569;
-    font-weight: 800;
 }
 
 .course-quick-info {
@@ -258,7 +311,7 @@ body {
     line-height: 1;
 }
 
-/* Course page two-column layout */
+/* Layout */
 .course-content-layout {
     margin-top: 28px;
     display: grid;
@@ -424,7 +477,7 @@ body {
     background: rgba(255, 255, 255, 0.92);
     border: 1px solid rgba(255, 159, 104, 0.22);
     border-radius: 24px;
-    padding: 20px 24px;
+    padding: 22px 34px;
     box-shadow: 0 14px 34px rgba(23, 32, 51, 0.07);
     transition: 0.25s ease;
 }
@@ -453,16 +506,16 @@ body {
 }
 
 .resource-main-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 310px;
     align-items: center;
-    justify-content: space-between;
-    gap: 28px;
+    gap: 26px;
     margin-top: 8px;
 }
 
 .resource-text {
-    flex: 1;
     min-width: 0;
+    padding-left: 4px;
 }
 
 .title-line {
@@ -507,19 +560,19 @@ body {
 }
 
 .resource-actions {
+    width: 310px;
+    min-width: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
     justify-content: flex-end;
     align-items: center;
-    flex-shrink: 0;
-    min-width: 130px;
+    gap: 10px;
 }
 
 .btn {
     display: inline-block;
     text-decoration: none;
-    padding: 10px 16px;
+    padding: 11px 18px;
     border-radius: 999px;
     font-weight: 1000;
     transition: 0.2s ease;
@@ -533,16 +586,32 @@ body {
     transform: translateY(-2px);
 }
 
-.primary-btn {
-    background: #172033;
-    color: white;
-    box-shadow: 0 14px 26px rgba(23, 32, 51, 0.16);
+.resource-actions .btn {
+    width: auto;
+    min-width: 145px;
+    text-align: center;
+    justify-content: center;
 }
 
-.link-btn {
+.primary-btn,
+.link-btn,
+.resource-actions .primary-btn,
+.resource-actions .link-btn {
     background: #ff9f68;
     color: white;
     box-shadow: 0 14px 26px rgba(255, 159, 104, 0.22);
+}
+
+.solution-btn {
+    background: #172033;
+    color: white;
+    border: 1px solid #172033;
+    box-shadow: 0 14px 26px rgba(23, 32, 51, 0.16);
+}
+
+.solution-btn:hover {
+    background: #0f172a;
+    color: white;
 }
 
 .download-btn {
@@ -620,6 +689,20 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 14px;
+}
+
+.preview-title-area {
+    min-width: 0;
+}
+
+.preview-kicker {
+    display: block;
+    color: #ea580c;
+    font-size: 11px;
+    font-weight: 1000;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .preview-header h3 {
@@ -627,6 +710,13 @@ body {
     font-family: "Baloo 2", cursive;
     font-size: 26px;
     color: #172033;
+}
+
+.preview-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
 }
 
 .preview-close {
@@ -643,6 +733,37 @@ body {
 
 .preview-close:hover {
     transform: scale(1.05);
+}
+
+.preview-download-btn {
+    text-decoration: none;
+    background: #172033;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-weight: 1000;
+    font-size: 14px;
+    box-shadow: 0 12px 24px rgba(23, 32, 51, 0.14);
+}
+
+.preview-download-btn:hover {
+    transform: translateY(-2px);
+}
+
+.preview-open-tab-btn {
+    text-decoration: none;
+    background: #fff8ec;
+    color: #9a3412;
+    border: 1px solid rgba(255, 159, 104, 0.38);
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-weight: 1000;
+    font-size: 14px;
+}
+
+.preview-open-tab-btn:hover {
+    background: #ffe1cc;
+    transform: translateY(-2px);
 }
 
 .preview-body {
@@ -716,6 +837,17 @@ body {
     color: #64748b;
     font-weight: 800;
     margin-bottom: 18px;
+}
+
+.preview-access-note {
+    background: #fff3d1;
+    border: 1px solid rgba(255, 159, 104, 0.32);
+    color: #7c2d12;
+    padding: 12px 14px;
+    border-radius: 16px;
+    font-weight: 900;
+    line-height: 1.5;
+    margin: 14px 0;
 }
 
 /* PDF viewer */
@@ -803,7 +935,7 @@ body {
 .reveal {
     opacity: 0;
     transform: translateY(26px) scale(0.97);
-    transition: opacity 0.55s ease, transform 0.55s ease;
+    transition: opacity 0.85s ease, transform 0.85s ease;
 }
 
 .reveal.show {
@@ -860,6 +992,10 @@ body {
     font-size: 13px;
     line-height: 1.5;
     color: rgba(255, 255, 255, 0.58) !important;
+}
+
+.mobile-report-footer {
+    display: none !important;
 }
 
 /* Report issue page */
@@ -964,62 +1100,287 @@ body {
     }
 }
 
-/* Tablet */
+/* Tablet and mobile */
 @media (max-width: 900px) {
+    html,
+    body {
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+
     .topbar {
-        padding: 0 24px;
+        min-height: 64px;
+        padding: 10px 18px;
+    }
+
+    .brand {
+        gap: 10px;
+    }
+
+    .brand h1 {
+        font-size: 24px;
+    }
+
+    .brand p {
+        font-size: 11px;
+    }
+
+    .logo-mark {
+        width: 42px;
+        height: 42px;
+        font-size: 22px;
+    }
+
+    .nav-links a {
+        font-size: 12px;
+        padding: 7px 9px;
     }
 
     .page {
+        flex: none;
         width: 90%;
+        min-height: 0;
+        margin: 18px auto 26px;
+        padding-bottom: 0;
+    }
+
+    .back-link {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+
+    .course-hero {
+        min-height: 0;
+        height: auto;
+        display: block;
+        position: relative;
+        padding: 24px 22px 18px;
+        margin-bottom: 20px;
+    }
+
+    .course-hero-info {
+        width: 100%;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .course-hero .mini-label {
+        width: fit-content;
+        max-width: calc(100% - 86px);
+        margin: 0 0 24px;
+    }
+
+    .course-hero .course-bubble {
+        position: absolute;
+        top: 24px;
+        right: 22px;
+        width: 68px;
+        height: 48px;
+        min-width: 68px;
+        border-radius: 17px;
+        padding: 6px 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transform: none;
+        margin: 0;
+        box-shadow: 0 12px 26px rgba(23, 32, 51, 0.08);
+    }
+
+    .course-hero .course-bubble span {
+        font-size: 7.5px;
+        line-height: 1;
+        margin: 0 0 3px;
+        letter-spacing: 0.4px;
+    }
+
+    .course-hero .course-bubble strong {
+        font-size: 22px;
+        line-height: 1;
+        margin: 0;
+    }
+
+    .course-hero h1 {
+        margin: 0 0 14px;
+        font-size: 24px;
+        line-height: 1.15;
+        padding-right: 0;
+    }
+
+    .course-quick-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .course-quick-info p,
+    .lab-pill {
+        font-size: 11.5px;
+        padding: 11px 14px;
+        margin-bottom: 0;
     }
 
     .course-content-layout {
         grid-template-columns: 1fr;
+        gap: 18px;
+        margin-top: 22px;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        min-height: 0;
     }
 
-    .course-content-layout .resource-section {
-        margin-top: 10px;
+    .filter-panel {
+        padding: 18px;
+    }
+
+    .filter-group p {
+        font-size: 15px;
     }
 
     .filter-chip {
-        font-size: 14px;
+        font-size: 11.5px;
+        padding: 8px 11px;
     }
 
-    .resource-actions {
-        min-width: 0;
-    }
-}
-
-/* Mobile */
-@media (max-width: 700px) {
-    .nav-links {
+    .sidebar-help-card {
         display: none;
     }
 
-    .course-hero {
-        padding: 30px 24px;
-        flex-direction: column;
-        align-items: flex-start;
+    .resource-section {
+        min-height: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding-bottom: 0;
     }
 
-    .course-hero h1 {
-        font-size: 34px;
+    .section-title span {
+        font-size: 10px;
     }
 
-    .course-bubble {
-        width: 112px;
-        height: 112px;
-        min-width: 112px;
+    .section-title h2 {
+        font-size: 23px;
+    }
+
+    .empty-state {
+        padding: 34px 20px;
+        margin-bottom: 0;
+    }
+
+    .empty-state h3 {
+        font-size: 18px;
+    }
+
+    .empty-state p {
+        font-size: 12.5px;
+    }
+
+    .resource-card {
+        padding: 20px;
     }
 
     .resource-main-row {
+        display: flex;
         flex-direction: column;
         align-items: flex-start;
+        gap: 14px;
+    }
+
+    .resource-text {
+        padding-left: 0;
     }
 
     .resource-actions {
+        width: auto;
         justify-content: flex-start;
+    }
+
+    .resource-actions .btn {
+        min-width: 110px;
+    }
+
+    .site-footer {
+        margin-top: auto;
+        margin-bottom: 0;
+        padding: 16px 20px;
+    }
+
+    .footer-inner {
+        width: min(1680px, 92vw);
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        align-items: start;
+    }
+
+    .footer-inner > div {
+        width: 100%;
+    }
+
+    .footer-inner h3 {
+        font-size: 18px;
+        margin-bottom: 3px;
+    }
+
+    .footer-inner p {
+        margin-top: 0;
+        margin-bottom: 7px;
+    }
+
+    .footer-disclaimer {
+        font-size: 9px;
+        line-height: 1.45;
+        margin-bottom: 3px !important;
+    }
+
+    .footer-note {
+        font-size: 11px;
+        margin: 0;
+        white-space: normal;
+    }
+
+    .mobile-report-footer {
+        display: inline-flex !important;
+    }
+
+    .footer-inner > .footer-note:nth-of-type(1) {
+        justify-self: start;
+    }
+
+    .footer-inner > .footer-note:nth-of-type(2) {
+        justify-self: end;
+        margin-top: -37px;
+    }
+
+    .mobile-report-footer a {
+        color: #ffc466;
+        font-weight: 1000;
+        text-decoration: none;
+    }
+
+    .mobile-report-footer a:hover {
+        color: #fff3d1;
+    }
+
+    .report-card,
+    .success-card {
+        width: 100%;
+        padding: 24px;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 700px) {
+    .nav-links {
+        display: none;
     }
 
     .preview-modal {
@@ -1032,8 +1393,33 @@ body {
         border-radius: 20px;
     }
 
+    .preview-header {
+        padding: 12px 14px;
+        gap: 10px;
+    }
+
     .preview-header h3 {
         font-size: 20px;
+    }
+
+    .preview-kicker {
+        font-size: 9px;
+    }
+
+    .preview-header-actions {
+        gap: 6px;
+    }
+
+    .preview-open-tab-btn,
+    .preview-download-btn {
+        font-size: 11px;
+        padding: 8px 10px;
+    }
+
+    .preview-close {
+        width: 36px;
+        height: 36px;
+        font-size: 24px;
     }
 
     .pdf-toolbar {
@@ -1043,591 +1429,489 @@ body {
     .pdf-canvas-wrap {
         padding: 12px;
     }
-
-    .footer-inner {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .footer-note {
-        white-space: normal;
-    }
 }
 
-/* Small mobile */
+/* Very small mobile */
 @media (max-width: 520px) {
-    .topbar {
-        min-height: 82px;
-    }
-
-    .brand h1 {
-        font-size: 28px;
-    }
-
-    .brand p {
-        font-size: 12px;
-    }
-
-    .logo-mark {
-        width: 44px;
-        height: 44px;
-    }
-
     .course-hero h1 {
-        font-size: 31px;
+        font-size: 23px;
     }
 
-    .course-hero p {
-        font-size: 16px;
+    .course-quick-info p,
+    .lab-pill {
+        font-size: 11px;
+        padding: 10px 12px;
     }
 
-    .filter-panel {
+    .resource-card {
         padding: 18px;
     }
 
-    .resource-card {
-        padding: 22px;
-    }
-
-    .report-card,
-    .success-card {
-        width: 100%;
+    .resource-card h3 {
+        font-size: 20px;
     }
 }
 
-.solution-btn {
-    background: #fff1b8;
-    color: #7c2d12;
-    border: 1px solid rgba(250, 204, 21, 0.55);
-    box-shadow: 0 14px 26px rgba(250, 204, 21, 0.16);
+/* MATCH RESOURCE PAGE MOBILE FOOTER WITH HOMEPAGE */
+.mobile-report-footer {
+    display: none !important;
 }
 
-.solution-btn:hover {
-    background: #facc15;
-    color: #172033;
+@media (max-width: 900px) {
+    .site-footer {
+        padding: 16px 20px !important;
+    }
+
+    .footer-inner {
+        width: 82% !important;
+        margin: 0 auto !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+        align-items: start !important;
+    }
+
+    .footer-inner > div {
+        width: 100% !important;
+    }
+
+    .footer-inner h3 {
+        font-size: 18px !important;
+        line-height: 1 !important;
+        margin: 0 0 8px !important;
+    }
+
+    .footer-inner > div > p:not(.footer-disclaimer) {
+        font-size: 11px !important;
+        line-height: 1.45 !important;
+        margin: 0 0 8px !important;
+        color: rgba(255, 255, 255, 0.72) !important;
+        font-weight: 800 !important;
+    }
+
+    .footer-disclaimer {
+        max-width: 100% !important;
+        font-size: 9px !important;
+        line-height: 1.45 !important;
+        margin: 0 0 10px !important;
+        color: rgba(255, 255, 255, 0.58) !important;
+        font-weight: 800 !important;
+    }
+
+    .footer-note {
+        font-size: 11px !important;
+        line-height: 1.2 !important;
+        margin: 0 !important;
+        white-space: normal !important;
+        color: rgba(255, 255, 255, 0.72) !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-report-footer {
+        display: inline-flex !important;
+        justify-self: end !important;
+        margin-top: -27px !important;
+    }
+
+    .mobile-report-footer a {
+        color: #ffc466 !important;
+        font-size: 11px !important;
+        font-weight: 1000 !important;
+        text-decoration: none !important;
+    }
+
+    .mobile-report-footer a:hover {
+        color: #fff3d1 !important;
+    }
 }
 
-.preview-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+/* Mobile course hero top pills */
+.mobile-label-text {
+    display: none;
 }
 
-.preview-download-btn {
-    text-decoration: none;
-    background: #172033;
-    color: white;
-    padding: 10px 14px;
-    border-radius: 999px;
-    font-weight: 1000;
-    font-size: 14px;
-    box-shadow: 0 12px 24px rgba(23, 32, 51, 0.14);
+@media (max-width: 900px) {
+    .desktop-label-text {
+        display: none !important;
+    }
+
+    .mobile-label-text {
+        display: inline !important;
+    }
+
+    .course-hero .mini-label {
+        max-width: none !important;
+        width: 210px !important;
+        height: 48px !important;
+        margin: 0 0 24px !important;
+        padding: 7px 11px !important;
+        display: inline-flex !important;
+        justify-content: flex-start !important;
+        white-space: nowrap !important;
+    }
+
+    .course-hero .mini-label span:first-child {
+        flex-shrink: 0 !important;
+    }
+
+    .course-hero .mini-label span:last-child {
+        white-space: nowrap !important;
+    }
+
+    .course-hero .course-bubble {
+        width: 82px !important;
+        height: 48px !important;
+        min-width: 82px !important;
+        top: 24px !important;
+        right: 22px !important;
+        border-radius: 17px !important;
+    }
 }
 
-.preview-download-btn:hover {
-    transform: translateY(-2px);
-}
+/* MOBILE RESOURCE CARD COMPACT LAYOUT */
+@media (max-width: 900px) {
+    .resource-list {
+        justify-items: center !important;
+    }
 
-.preview-open-tab-btn {
-    text-decoration: none;
-    background: #fff8ec;
-    color: #9a3412;
-    border: 1px solid rgba(255, 159, 104, 0.38);
-    padding: 10px 14px;
-    border-radius: 999px;
-    font-weight: 1000;
-    font-size: 14px;
-}
-
-.preview-open-tab-btn:hover {
-    background: #ffe1cc;
-    transform: translateY(-2px);
-}
-
-/* Better resource card inner spacing */
-.resource-card {
-    padding: 22px 34px;
-}
-
-.resource-main-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 170px;
-    align-items: center;
-    gap: 26px;
-}
-
-.resource-text {
-    padding-left: 4px;
-}
-
-.resource-actions {
-    min-width: 0;
-    width: 170px;
-    justify-content: flex-start;
-}
-
-.resource-actions .btn {
-    width: 100%;
-    text-align: center;
-    justify-content: center;
-}
-
-/* Make single Open button look more balanced */
-.resource-actions .primary-btn,
-.resource-actions .link-btn,
-.resource-actions .solution-btn {
-    padding: 11px 18px;
-}
-
-/* If there are two buttons like Open + Solution, stack cleanly */
-.resource-actions {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 9px;
-}
-
-/* Mobile: go back to normal stacked layout */
-@media (max-width: 700px) {
     .resource-card {
-        padding: 22px;
+        width: 88% !important;
+        max-width: 390px !important;
+        padding: 18px 20px !important;
+        border-radius: 24px !important;
+    }
+
+    .badges {
+        gap: 7px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .badge {
+        font-size: 11px !important;
+        padding: 5px 9px !important;
     }
 
     .resource-main-row {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        align-items: start !important;
+        gap: 12px !important;
+        width: 100% !important;
+        margin-top: 0 !important;
     }
 
     .resource-text {
-        padding-left: 0;
+        min-width: 0 !important;
+        padding-left: 0 !important;
     }
 
-    .resource-actions {
-        width: auto;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-    }
-
-    .resource-actions .btn {
-        width: auto;
-    }
-}
-
-/* Resource action buttons: side-by-side when possible */
-.resource-card {
-    padding: 22px 34px;
-}
-.resource-main-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 280px;
-    align-items: center;
-    gap: 26px;
-}
-
-.resource-actions {
-    width: 280px;
-    min-width: 0;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 10px;
-}
-
-.resource-actions .btn {
-    width: auto;
-    min-width: 138px;
-    text-align: center;
-    justify-content: center;
-}
-
-/* Keep all Open buttons orange */
-.resource-actions .primary-btn,
-.resource-actions .link-btn {
-    background: #ff9f68;
-    color: white;
-    box-shadow: 0 14px 26px rgba(255, 159, 104, 0.22);
-}
-
-/* Make Solution darker */
-.solution-btn {
-    background: #172033;
-    color: white;
-    border: 1px solid #172033;
-    box-shadow: 0 14px 26px rgba(23, 32, 51, 0.16);
-}
-
-.solution-btn:hover {
-    background: #0f172a;
-    color: white;
-}
-
-/* If screen gets smaller, allow wrapping */
-@media (max-width: 900px) {
-    .resource-main-row {
-        grid-template-columns: minmax(0, 1fr) 240px;
-    }
-
-    .resource-actions {
-        width: 240px;
-        flex-wrap: wrap;
-    }
-
-    .resource-actions .btn {
-        min-width: 110px;
-    }
-}
-
-/* Mobile: buttons go below text */
-@media (max-width: 700px) {
-    .resource-main-row {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .resource-actions {
-        width: auto;
-        justify-content: flex-start;
-    }
-
-    .resource-actions .btn {
-        min-width: 110px;
-    }
-}
-
-.resource-main-row {
-    grid-template-columns: minmax(0, 1fr) 310px;
-}
-
-.resource-actions {
-    width: 310px;
-    gap: 10px;
-}
-
-.resource-actions .btn {
-    min-width: 145px;
-}
-
-.reveal {
-    opacity: 0;
-    transform: translateY(26px) scale(0.97);
-    transition: opacity 0.85s ease, transform 0.85s ease;
-}
-
-.reveal.show {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-}
-
-body {
-    animation: pageFadeIn 0.55s ease both;
-}
-
-@keyframes pageFadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-body::before,
-body::after {
-    content: "";
-    position: fixed;
-    width: 260px;
-    height: 260px;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.28;
-    z-index: -1;
-    pointer-events: none;
-}
-
-body::before {
-    background: #ffc466;
-    top: 120px;
-    left: -80px;
-    animation: blobMoveOne 9s ease-in-out infinite;
-}
-
-body::after {
-    background: #ff9f68;
-    right: -90px;
-    bottom: 140px;
-    animation: blobMoveTwo 10s ease-in-out infinite;
-}
-
-@keyframes blobMoveOne {
-    0%, 100% {
-        transform: translate(0, 0);
-    }
-
-    50% {
-        transform: translate(35px, 45px);
-    }
-}
-
-@keyframes blobMoveTwo {
-    0%, 100% {
-        transform: translate(0, 0);
-    }
-
-    50% {
-        transform: translate(-45px, -30px);
-    }
-}
-
-.about-modal {
-    align-items: center;
-    justify-content: center;
-}
-
-.about-modal-card {
-    max-height: 85vh;
-    overflow-y: auto;
-}
-
-.preview-access-note {
-    background: #fff3d1;
-    border: 1px solid rgba(255, 159, 104, 0.32);
-    color: #7c2d12;
-    padding: 12px 14px;
-    border-radius: 16px;
-    font-weight: 900;
-    line-height: 1.5;
-    margin: 14px 0;
-}
-
-@media (max-width: 700px) {
-    html,
-    body {
-        min-height: auto;
-    }
-
-    body {
-        display: block;
-        overflow-x: hidden;
-    }
-
-    .page {
-        width: 90%;
-        margin: 22px auto 34px;
-        padding-bottom: 0;
-    }
-
-    .topbar {
-        padding: 12px 22px;
-    }
-
-    .brand h1 {
-        font-size: 30px;
-    }
-
-    .brand p {
-        font-size: 13px;
-    }
-
-    .nav-links a {
-        font-size: 13px;
-        padding: 8px 10px;
-    }
-
-    .back-link {
-        font-size: 14px;
-        padding: 10px 15px;
-    }
-
-    .course-hero {
-        padding: 26px 24px;
-        margin-bottom: 22px;
-    }
-
-    .course-hero h1 {
-        font-size: 30px;
-        line-height: 1.1;
-    }
-
-    .course-quick-info p,
-    .lab-pill {
-        font-size: 13px;
-    }
-
-    .resource-bubble {
-        width: 86px;
-        height: 86px;
-    }
-
-    .resource-bubble span {
-        font-size: 30px;
-    }
-
-    .course-layout {
-        gap: 22px;
-        margin-top: 0;
-    }
-
-    .filter-panel,
-    .sidebar-help-card {
-        padding: 22px;
-    }
-
-    .filter-title {
-        font-size: 14px;
-    }
-
-    .filter-chip {
-        font-size: 13px;
-        padding: 9px 13px;
-    }
-
-    .sidebar-help-card h3 {
-        font-size: 22px;
-    }
-
-    .sidebar-help-card p {
-        font-size: 14px;
-        line-height: 1.5;
-    }
-
-    .resource-section {
-        min-height: auto;
-    }
-
-    .section-kicker {
-        font-size: 12px;
-    }
-
-    .resource-section h2 {
-        font-size: 28px;
-    }
-
-    .empty {
-        padding: 42px 22px;
-        margin-bottom: 0;
-    }
-
-    .empty h3,
-    .empty p {
-        font-size: 15px;
-    }
-
-    .site-footer {
-        margin-top: 0;
-        padding: 30px 24px;
-    }
-
-    .footer-inner {
-        gap: 18px;
-    }
-
-    .site-footer h3 {
-        font-size: 24px;
-    }
-
-    .site-footer p,
-    .footer-disclaimer,
-    .footer-note {
-        font-size: 13px;
-        line-height: 1.55;
-    }
-}
-
-@media (max-width: 900px) {
-    html,
-    body {
-        min-height: 0 !important;
-        height: auto !important;
-        overflow-x: hidden !important;
-    }
-
-    body {
+    .title-line {
         display: block !important;
     }
 
-    .page {
-        flex: none !important;
-        min-height: 0 !important;
-        margin: 22px auto 28px !important;
-        padding-bottom: 0 !important;
+    .resource-card h3 {
+        font-size: 19px !important;
+        line-height: 1.05 !important;
+        margin: 0 !important;
+        word-break: break-word !important;
     }
 
-    .course-layout {
-        min-height: 0 !important;
-        gap: 22px !important;
-        margin-bottom: 0 !important;
-        padding-bottom: 0 !important;
+    .semester-pill {
+        margin-top: 6px !important;
+        font-size: 10.5px !important;
+        padding: 3px 8px !important;
     }
 
-    .resource-section {
-        min-height: 0 !important;
-        margin-bottom: 0 !important;
-        padding-bottom: 0 !important;
+    .description {
+        font-size: 12px !important;
+        line-height: 1.45 !important;
+        margin-top: 7px !important;
     }
 
-    .course-hero {
-        margin-bottom: 22px !important;
-        padding: 26px 24px !important;
+    .resource-date {
+        font-size: 11px !important;
+        margin-top: 7px !important;
     }
 
-    .course-hero h1 {
-        font-size: 30px !important;
-        line-height: 1.1 !important;
+    .resource-actions {
+        width: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 7px !important;
+        justify-content: flex-start !important;
+        align-items: flex-end !important;
     }
 
-    .course-quick-info p,
-    .lab-pill {
-        font-size: 13px !important;
+    .resource-actions .btn {
+        min-width: 88px !important;
+        width: 88px !important;
+        padding: 9px 10px !important;
+        font-size: 12px !important;
+        line-height: 1 !important;
+    }
+}
+
+/* EXTRA COMPACT MOBILE RESOURCE CARDS */
+@media (max-width: 900px) {
+    .resource-list {
+        gap: 14px !important;
+        justify-items: center !important;
     }
 
-    .filter-panel,
-    .sidebar-help-card {
-        padding: 22px !important;
+    .resource-card {
+        width: 82% !important;
+        max-width: 360px !important;
+        padding: 14px 16px !important;
+        border-radius: 22px !important;
     }
 
-    .filter-chip {
-        font-size: 13px !important;
-        padding: 9px 13px !important;
+    .badges {
+        gap: 6px !important;
+        margin-bottom: 10px !important;
     }
 
-    .resource-section h2 {
-        font-size: 28px !important;
+    .badge {
+        font-size: 9.8px !important;
+        padding: 4px 8px !important;
     }
 
-    .empty {
-        padding: 38px 22px !important;
-        margin-bottom: 0 !important;
-    }
-
-    .empty h3 {
-        font-size: 20px !important;
-    }
-
-    .empty p {
-        font-size: 15px !important;
-    }
-
-    .site-footer {
+    .resource-main-row {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 82px !important;
+        align-items: start !important;
+        gap: 10px !important;
         margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        padding: 30px 24px !important;
+    }
+
+    .resource-card h3 {
+        font-size: 16.5px !important;
+        line-height: 1.05 !important;
+        margin: 0 !important;
+    }
+
+    .semester-pill {
+        margin-top: 5px !important;
+        font-size: 9px !important;
+        padding: 3px 7px !important;
+    }
+
+    .description {
+        font-size: 11px !important;
+        line-height: 1.35 !important;
+        margin-top: 5px !important;
+    }
+
+    .resource-date {
+        font-size: 9.8px !important;
+        margin-top: 6px !important;
+        line-height: 1.2 !important;
+    }
+
+    .resource-actions {
+        width: 82px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        align-items: flex-end !important;
+    }
+
+    .resource-actions .btn {
+        min-width: 82px !important;
+        width: 82px !important;
+        padding: 8px 8px !important;
+        font-size: 11px !important;
+        line-height: 1 !important;
+    }
+}
+
+/* Make mobile resource cards wider */
+@media (max-width: 900px) {
+    .resource-card {
+        width: 96% !important;
+        max-width: none !important;
+    }
+
+    .resource-list {
+        justify-items: stretch !important;
+    }
+}
+
+.mini-label span:last-child {
+    color: #a85518 !important;
+    font-size: 13px !important;
+    font-weight: 1000 !important;
+}
+
+@media (max-width: 700px) {
+    .pdf-canvas-wrap {
+        padding: 10px !important;
+        justify-content: flex-start !important;
+    }
+
+    #pdfCanvas {
+        max-width: none !important;
+    }
+}
+
+@media (max-width: 700px) {
+    .pdf-canvas-wrap {
+        padding: 10px !important;
+        justify-content: center !important;
+        align-items: flex-start !important;
+        overflow-x: auto !important;
+        overflow-y: auto !important;
+    }
+
+    #pdfCanvas {
+        max-width: none !important;
+        height: auto !important;
+    }
+}
+
+@media (min-width: 901px) {
+    .site-footer .footer-inner {
+        width: min(1400px, 80vw);
+    }
+}
+
+/* Desktop resource page inward spacing */
+@media (min-width: 901px) {
+    .page {
+        width: min(1540px, 86vw);
+    }
+
+    .course-content-layout {
+        grid-template-columns: 320px minmax(0, 1fr);
+        gap: 34px;
+    }
+
+    .resource-main-area {
+        max-width: 100%;
+    }
+
+    .resource-card {
+        max-width: 100%;
+    }
+}
+
+/* Make mobile top hero pills thinner */
+@media (max-width: 900px) {
+    .course-hero .mini-label {
+        height: 38px !important;
+        padding: 5px 9px !important;
+        margin-bottom: 20px !important;
+        border-radius: 999px !important;
+    }
+
+    .course-hero .mini-label span:first-child {
+        padding: 5px 9px !important;
+        font-size: 11px !important;
+    }
+
+    .course-hero .mini-label span:last-child {
+        font-size: 12px !important;
+    }
+
+    .course-hero .course-bubble {
+        height: 38px !important;
+        width: 82px !important;
+        min-width: 82px !important;
+        padding: 4px 8px !important;
+        border-radius: 15px !important;
+    }
+
+    .course-hero .course-bubble span {
+        font-size: 7px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .course-hero .course-bubble strong {
+        font-size: 18px !important;
+    }
+}
+
+@media (max-width: 900px) {
+    .course-hero .mini-label {
+        width: fit-content !important;
+        max-width: 240px !important;
+        height: 38px !important;
+        padding: 5px 8px !important;
+        gap: 8px !important;
+        margin-bottom: 20px !important;
+        border-radius: 999px !important;
+    }
+
+    .course-hero .mini-label span:first-child {
+        padding: 5px 9px !important;
+        font-size: 11px !important;
+    }
+
+    .course-hero .mini-label span:last-child {
+        font-size: 12px !important;
+        white-space: nowrap !important;
+    }
+}
+
+/* Resource page mobile footer simplified */
+.mobile-footer-disclaimer {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .site-footer {
+        padding: 18px 20px !important;
     }
 
     .footer-inner {
-        gap: 18px !important;
+        width: 82% !important;
+        margin: 0 auto !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
     }
 
-    .site-footer h3 {
-        font-size: 24px !important;
+    .footer-inner h3 {
+        font-size: 18px !important;
+        line-height: 1 !important;
+        margin: 0 0 10px !important;
     }
 
-    .site-footer p,
-    .footer-disclaimer,
+    .footer-tagline {
+        display: none !important;
+    }
+
+    .desktop-footer-disclaimer {
+        display: none !important;
+    }
+
+    .mobile-footer-disclaimer {
+        display: block !important;
+        font-size: 10px !important;
+        line-height: 1.45 !important;
+        margin: 0 0 12px !important;
+        color: rgba(255, 255, 255, 0.62) !important;
+        font-weight: 800 !important;
+        max-width: 100% !important;
+    }
+
     .footer-note {
-        font-size: 13px !important;
-        line-height: 1.55 !important;
+        font-size: 11px !important;
+        line-height: 1.2 !important;
+        margin: 0 !important;
+        color: rgba(255, 255, 255, 0.72) !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-report-footer {
+        display: inline-flex !important;
+        justify-self: end !important;
+        margin-top: -22px !important;
+    }
+
+    .mobile-report-footer a {
+        color: #ffc466 !important;
+        font-size: 11px !important;
+        font-weight: 1000 !important;
+        text-decoration: none !important;
     }
 }

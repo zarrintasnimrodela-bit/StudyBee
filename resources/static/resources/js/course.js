@@ -4,10 +4,20 @@
             "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js";
     }
 
-    let currentPdf = null;
-    let currentPage = 1;
-    let currentScale = 1.35;
-    let currentRenderTask = null;
+let currentPdf = null;
+let currentPage = 1;
+let currentScale = getDefaultPdfZoom();
+let currentRenderTask = null;
+
+function getDefaultPdfZoom() {
+    if (window.innerWidth <= 700) {
+        return 1.2;
+    }
+
+    return 1;
+}
+
+
 
     function animateResourceCards() {
         const cards = document.querySelectorAll(".resource-card.reveal");
@@ -119,7 +129,7 @@
         function resetPdfState() {
             currentPdf = null;
             currentPage = 1;
-            currentScale = 1.35;
+            currentScale = getDefaultPdfZoom();
 
             if (currentRenderTask) {
                 currentRenderTask.cancel();
@@ -316,6 +326,31 @@
             }
         }
 
+function getResponsivePdfScale(page) {
+    const canvasWrap = document.querySelector(".pdf-canvas-wrap");
+    const normalViewport = page.getViewport({ scale: 1 });
+
+    if (!canvasWrap) {
+        return currentScale;
+    }
+
+    if (window.innerWidth <= 700) {
+        const availableWidth = canvasWrap.clientWidth - 24;
+        const fitScale = availableWidth / normalViewport.width;
+
+        return fitScale * currentScale;
+    }
+
+    if (window.innerWidth <= 1000) {
+        const availableWidth = canvasWrap.clientWidth - 36;
+        const fitScale = availableWidth / normalViewport.width;
+
+        return fitScale * currentScale;
+    }
+
+    return 1.35 * currentScale;
+}
+
         async function renderPdfPage(pageNumber) {
             if (!currentPdf) {
                 return;
@@ -339,7 +374,7 @@
 
             try {
                 const page = await currentPdf.getPage(currentPage);
-                const viewport = page.getViewport({ scale: currentScale });
+                const viewport = page.getViewport({ scale: getResponsivePdfScale(page) });
 
                 const outputScale = window.devicePixelRatio || 1;
                 const context = canvas.getContext("2d");

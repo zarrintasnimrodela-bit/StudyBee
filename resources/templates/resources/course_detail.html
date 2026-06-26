@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ course.course_code }} - StudyBee</title>
 
     <link rel="stylesheet" href="{% static 'resources/css/course.css' %}">
@@ -31,16 +32,15 @@
         <a href="{% url 'home' %}" class="back-link">← Back to courses</a>
 
         <section class="course-hero">
-            <div>
+            <div class="course-hero-info">
                 <div class="mini-label">
-                    <span>{{ course.course_code }}</span>
-                    <span>Course Resource Hive</span>
-                </div>
+    <span>{{ course.course_code }}</span>
+    <span>Resource Hive</span>
+</div>
 
                 <h1>{{ course.course_code }} - {{ course.course_title }}</h1>
 
                 <div class="course-quick-info">
-
                     <p>
                         <strong>Hard prerequisite:</strong>
                         {% if course.hard_prerequisite %}
@@ -58,9 +58,8 @@
                     {% endif %}
 
                     <p class="lab-pill">
-    {{ course.get_lab_type_display }}
-</p>
-
+                        {{ course.get_lab_type_display }}
+                    </p>
                 </div>
             </div>
 
@@ -194,14 +193,14 @@
 
                 </section>
 
-<div class="sidebar-help-card">
-    <h3>Need help?</h3>
-    <p>Found a broken link, wrong material, or want something removed?</p>
-    <p>Some links may only be accessible with a BRACU GSuite account.</p>
-    <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">Report an issue</a>
-</div>
+                <div class="sidebar-help-card">
+                    <h3>Need help?</h3>
+                    <p>Found a broken link, wrong material, or want something removed?</p>
+                    <p>Some links may only be accessible with a BRACU GSuite account.</p>
+                    <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">Report an issue</a>
+                </div>
 
-</aside>
+            </aside>
 
             <div class="resource-main-area">
 
@@ -247,46 +246,46 @@
                                     </div>
 
                                     <div class="resource-actions">
-    {% if resource.file %}
-        <button
-            type="button"
-            class="btn primary-btn preview-btn"
-            data-file-url="{{ resource.file.url }}"
-            data-file-title="{{ resource.title }}">
-            Open
-        </button>
-    {% endif %}
+                                        {% if resource.file %}
+                                            <button
+                                                type="button"
+                                                class="btn primary-btn preview-btn"
+                                                data-file-url="{{ resource.file.url }}"
+                                                data-file-title="{{ resource.title }}">
+                                                Open
+                                            </button>
+                                        {% endif %}
 
-    {% if resource.external_link %}
-        <button
-            type="button"
-            class="btn link-btn external-preview-btn"
-            data-external-url="{{ resource.external_link }}"
-            data-external-title="{{ resource.title }}">
-            Open
-        </button>
-    {% endif %}
+                                        {% if resource.external_link %}
+                                            <button
+                                                type="button"
+                                                class="btn link-btn external-preview-btn"
+                                                data-external-url="{{ resource.external_link }}"
+                                                data-external-title="{{ resource.title }}">
+                                                Open
+                                            </button>
+                                        {% endif %}
 
-    {% if resource.category == 'QUESTION' %}
-        {% if resource.solution_file %}
-            <button
-                type="button"
-                class="btn solution-btn preview-btn"
-                data-file-url="{{ resource.solution_file.url }}"
-                data-file-title="{{ resource.title }} - Solution">
-                Solution
-            </button>
-        {% elif resource.solution_link %}
-            <button
-                type="button"
-                class="btn solution-btn external-preview-btn"
-                data-external-url="{{ resource.solution_link }}"
-                data-external-title="{{ resource.title }} - Solution">
-                Solution
-            </button>
-        {% endif %}
-    {% endif %}
-</div>
+                                        {% if resource.category == 'QUESTION' %}
+                                            {% if resource.solution_file %}
+                                                <button
+                                                    type="button"
+                                                    class="btn solution-btn preview-btn"
+                                                    data-file-url="{{ resource.solution_file.url }}"
+                                                    data-file-title="{{ resource.title }} - Solution">
+                                                    Solution
+                                                </button>
+                                            {% elif resource.solution_link %}
+                                                <button
+                                                    type="button"
+                                                    class="btn solution-btn external-preview-btn"
+                                                    data-external-url="{{ resource.solution_link }}"
+                                                    data-external-title="{{ resource.title }} - Solution">
+                                                    Solution
+                                                </button>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
                                 </div>
 
                             </article>
@@ -308,62 +307,71 @@
     </main>
 
     <div class="preview-modal" id="previewModal">
-    <div class="preview-content">
-        <div class="preview-header">
-            <div class="preview-title-area">
-                <span class="preview-kicker">StudyBee Preview</span>
-                <h3 id="previewTitle">File Preview</h3>
+        <div class="preview-content">
+            <div class="preview-header">
+                <div class="preview-title-area">
+                    <span class="preview-kicker">StudyBee Preview</span>
+                    <h3 id="previewTitle">File Preview</h3>
+                </div>
+
+                <div class="preview-header-actions">
+                    <a
+                        href="#"
+                        class="preview-open-tab-btn"
+                        id="previewOpenTab"
+                        target="_blank"
+                        style="display: none;">
+                        Open in New Tab
+                    </a>
+
+                    <a
+                        href="#"
+                        class="preview-download-btn"
+                        id="previewDownload"
+                        download
+                        style="display: none;">
+                        Download
+                    </a>
+
+                    <button type="button" class="preview-close" id="previewClose">×</button>
+                </div>
             </div>
 
-            <div class="preview-header-actions">
-                <a
-                    href="#"
-                    class="preview-open-tab-btn"
-                    id="previewOpenTab"
-                    target="_blank"
-                    style="display: none;">
-                    Open in New Tab
-                </a>
-
-                <a
-                    href="#"
-                    class="preview-download-btn"
-                    id="previewDownload"
-                    download
-                    style="display: none;">
-                    Download
-                </a>
-
-                <button type="button" class="preview-close" id="previewClose">×</button>
+            <div class="preview-body" id="previewBody">
+                <!-- File preview loads here -->
             </div>
-        </div>
-
-        <div class="preview-body" id="previewBody">
-            <!-- File preview loads here -->
         </div>
     </div>
-</div>
 
     <footer class="site-footer">
-        <div class="footer-inner">
-            <div>
-                <h3>StudyBee 🐝</h3>
-                <p>Your BRACU study hive for organized course resources.</p>
+    <div class="footer-inner">
+        <div>
+            <h3>StudyBee 🐝</h3>
 
-                <p class="footer-disclaimer">
-                    Materials are collected from publicly shared Facebook posts and student-shared resources. StudyBee only organizes them for easier access and is not an official BRACU website.
-                </p>
-            </div>
+            <p class="footer-tagline">
+                Your BRACU study hive for organized course resources.
+            </p>
 
-            <p class="footer-note">Made for BRACU students</p>
+            <p class="footer-disclaimer desktop-footer-disclaimer">
+                Materials are collected from publicly shared Facebook posts and student-shared resources.
+                StudyBee only organizes them for easier access and is not an official BRACU website.
+                Some Google Drive or document links may require you to sign in with your BRACU GSuite account.
+            </p>
 
+            <p class="footer-disclaimer mobile-footer-disclaimer">
+                Some links may require you to sign in with your BRACU GSuite account.
+            </p>
         </div>
-    </footer>
 
-    <script src="{% static 'resources/js/home.js' %}"></script>
+        <p class="footer-note">Made for BRACU students</p>
+
+        <p class="footer-note mobile-report-footer">
+            <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">Report an issue</a>
+        </p>
+    </div>
+</footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
-
     <script src="{% static 'resources/js/course.js' %}"></script>
 
 </body>
