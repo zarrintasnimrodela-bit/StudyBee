@@ -1,18 +1,20 @@
 const revealElements = document.querySelectorAll(".reveal");
 
-const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add("show");
-        }
+if (revealElements.length) {
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("show");
+            }
+        });
+    }, {
+        threshold: 0.12
     });
-}, {
-    threshold: 0.12
-});
 
-revealElements.forEach((element) => {
-    revealObserver.observe(element);
-});
+    revealElements.forEach((element) => {
+        revealObserver.observe(element);
+    });
+}
 
 document.addEventListener("click", function (event) {
     const courseLink = event.target.closest(".course-card");

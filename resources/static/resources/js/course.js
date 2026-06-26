@@ -382,38 +382,39 @@
         }
 
         function getYouTubeEmbedUrl(url) {
-            try {
-                const parsedUrl = new URL(url);
+        try {
+            const parsedUrl = new URL(url);
+            const hostname = parsedUrl.hostname;
 
-                if (parsedUrl.hostname.includes("youtube.com")) {
-                    const videoId = parsedUrl.searchParams.get("v");
+            if (hostname.includes("youtube.com")) {
+                const videoId = parsedUrl.searchParams.get("v");
 
-                    if (videoId) {
-                        return `https://www.youtube.com/embed/${videoId}`;
-                    }
-
-                    if (parsedUrl.pathname.startsWith("/shorts/")) {
-                        const shortsId = parsedUrl.pathname.split("/shorts/")[1];
-
-                        if (shortsId) {
-                            return `https://www.youtube.com/embed/${shortsId}`;
-                        }
-                    }
+                if (videoId) {
+                    return `https://www.youtube.com/embed/${videoId}`;
                 }
 
-                if (parsedUrl.hostname.includes("youtu.be")) {
-                    const videoId = parsedUrl.pathname.replace("/", "");
+                if (parsedUrl.pathname.startsWith("/shorts/")) {
+                    const shortsId = parsedUrl.pathname.split("/shorts/")[1];
 
-                    if (videoId) {
-                        return `https://www.youtube.com/embed/${videoId}`;
+                    if (shortsId) {
+                        return `https://www.youtube.com/embed/${shortsId}`;
                     }
                 }
-
-                return null;
-            } catch (error) {
-                return null;
             }
+
+            if (hostname.includes("youtu.be")) {
+                const videoId = parsedUrl.pathname.replace("/", "");
+
+                if (videoId) {
+                    return `https://www.youtube.com/embed/${videoId}`;
+                }
+            }
+
+            return null;
+        } catch (error) {
+            return null;
         }
+    }
 
         function getGoogleDrivePreviewUrl(url) {
             try {

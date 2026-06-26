@@ -1,10 +1,10 @@
-from django.shortcuts import render, get_object_or_404
 from django.db.models import Count, Q
-from .models import Course, Resource
-from django.shortcuts import redirect
-from .forms import ReportIssueForm
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
+
+from .forms import ReportIssueForm
+from .models import Course, Resource
 
 
 def home(request):

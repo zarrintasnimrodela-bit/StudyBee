@@ -29,13 +29,13 @@ class Course(models.Model):
         max_length=250,
         blank=True,
         help_text="Example: CSE220, CSE221. Leave empty if there is no hard prerequisite."
-)
+    )
 
     soft_prerequisite = models.CharField(
         max_length=250,
         blank=True,
         help_text="Example: CSE370. Optional course that helps but is not mandatory."
-)
+    )
 
     lab_type = models.CharField(
         max_length=20,
@@ -124,15 +124,15 @@ class Resource(models.Model):
     )
 
     solution_file = models.FileField(
-    upload_to='resources/solutions/',
-    blank=True,
-    null=True,
-    help_text="Optional. Upload solution/answer file only for question resources."
+        upload_to='resources/solutions/',
+        blank=True,
+        null=True,
+        help_text="Optional. Upload solution/answer file only for question resources."
     )
 
     solution_link = models.URLField(
-    blank=True,
-    help_text="Optional. Paste solution/answer link only for question resources."
+        blank=True,
+        help_text="Optional. Paste solution/answer link only for question resources."
     )
 
     semester = models.CharField(

@@ -5,20 +5,20 @@ from .models import Course, Resource, ReportIssue
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     list_display = (
-    'course_code',
-    'course_title',
-    'hard_prerequisite',
-    'soft_prerequisite',
-    'lab_type',
-    'resource_count',
-)
+        'course_code',
+        'course_title',
+        'hard_prerequisite',
+        'soft_prerequisite',
+        'lab_type',
+        'resource_count',
+    )
 
     search_fields = (
-    'course_code',
-    'course_title',
-    'hard_prerequisite',
-    'soft_prerequisite',
-)
+        'course_code',
+        'course_title',
+        'hard_prerequisite',
+        'soft_prerequisite',
+    )
 
     list_filter = (
         'lab_type',
@@ -29,13 +29,13 @@ class CourseAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Course Information', {
             'fields': (
-    'course_code',
-    'course_title',
-    'description',
-    'hard_prerequisite',
-    'soft_prerequisite',
-    'lab_type',
-)
+                'course_code',
+                'course_title',
+                'description',
+                'hard_prerequisite',
+                'soft_prerequisite',
+                'lab_type',
+            )
         }),
     )
 
@@ -101,19 +101,19 @@ class ResourceAdmin(admin.ModelAdmin):
         }),
 
         ('Main Resource', {
-    'fields': (
-        'file',
-        'external_link',
-    )
-}),
+            'fields': (
+                'file',
+                'external_link',
+            )
+        }),
 
-('Solution / Answer', {
-    'fields': (
-        'solution_file',
-        'solution_link',
-    ),
-    'description': 'Optional. Only use this for question resources if a solution/answer is available.'
-}),
+        ('Solution / Answer', {
+            'fields': (
+                'solution_file',
+                'solution_link',
+            ),
+            'description': 'Optional. Only use this for question resources if a solution/answer is available.'
+        }),
 
         ('4. Optional Description', {
             'fields': (
