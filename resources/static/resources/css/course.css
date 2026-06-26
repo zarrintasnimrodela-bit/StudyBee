@@ -1401,3 +1401,137 @@ body::after {
     line-height: 1.5;
     margin: 14px 0;
 }
+
+@media (max-width: 700px) {
+    html,
+    body {
+        min-height: auto;
+    }
+
+    body {
+        display: block;
+        overflow-x: hidden;
+    }
+
+    .page {
+        width: 90%;
+        margin: 22px auto 34px;
+        padding-bottom: 0;
+    }
+
+    .topbar {
+        padding: 12px 22px;
+    }
+
+    .brand h1 {
+        font-size: 30px;
+    }
+
+    .brand p {
+        font-size: 13px;
+    }
+
+    .nav-links a {
+        font-size: 13px;
+        padding: 8px 10px;
+    }
+
+    .back-link {
+        font-size: 14px;
+        padding: 10px 15px;
+    }
+
+    .course-hero {
+        padding: 26px 24px;
+        margin-bottom: 22px;
+    }
+
+    .course-hero h1 {
+        font-size: 30px;
+        line-height: 1.1;
+    }
+
+    .course-quick-info p,
+    .lab-pill {
+        font-size: 13px;
+    }
+
+    .resource-bubble {
+        width: 86px;
+        height: 86px;
+    }
+
+    .resource-bubble span {
+        font-size: 30px;
+    }
+
+    .course-layout {
+        gap: 22px;
+        margin-top: 0;
+    }
+
+    .filter-panel,
+    .sidebar-help-card {
+        padding: 22px;
+    }
+
+    .filter-title {
+        font-size: 14px;
+    }
+
+    .filter-chip {
+        font-size: 13px;
+        padding: 9px 13px;
+    }
+
+    .sidebar-help-card h3 {
+        font-size: 22px;
+    }
+
+    .sidebar-help-card p {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .resource-section {
+        min-height: auto;
+    }
+
+    .section-kicker {
+        font-size: 12px;
+    }
+
+    .resource-section h2 {
+        font-size: 28px;
+    }
+
+    .empty {
+        padding: 42px 22px;
+        margin-bottom: 0;
+    }
+
+    .empty h3,
+    .empty p {
+        font-size: 15px;
+    }
+
+    .site-footer {
+        margin-top: 0;
+        padding: 30px 24px;
+    }
+
+    .footer-inner {
+        gap: 18px;
+    }
+
+    .site-footer h3 {
+        font-size: 24px;
+    }
+
+    .site-footer p,
+    .footer-disclaimer,
+    .footer-note {
+        font-size: 13px;
+        line-height: 1.55;
+    }
+}

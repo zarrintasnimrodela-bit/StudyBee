@@ -961,3 +961,132 @@ body::after {
     color: #fff3d1;
     text-decoration: none;
 }
+
+@media (max-width: 700px) {
+    html,
+    body {
+        min-height: auto;
+    }
+
+    body {
+        display: block;
+        overflow-x: hidden;
+    }
+
+    .topbar {
+        padding: 12px 22px;
+    }
+
+    .brand h1 {
+        font-size: 30px;
+    }
+
+    .brand p {
+        font-size: 13px;
+    }
+
+    .nav-links a,
+    .nav-about-btn {
+        font-size: 13px;
+        padding: 8px 10px;
+    }
+
+    .hero {
+        padding: 28px 24px 34px;
+    }
+
+    .hero-inner {
+        gap: 24px;
+    }
+
+    .hero-text h2 {
+        font-size: 48px;
+        line-height: 0.95;
+    }
+
+    .hero-text p {
+        font-size: 17px;
+        line-height: 1.55;
+    }
+
+    .mini-label span {
+        font-size: 12px;
+    }
+
+    .search-wrapper {
+        margin: -22px auto 44px;
+        width: 88%;
+    }
+
+    .search-card {
+        padding: 22px;
+    }
+
+    .search-card label {
+        font-size: 16px;
+    }
+
+    .search-row input {
+        font-size: 15px;
+        padding: 16px 18px;
+    }
+
+    .search-row button {
+        font-size: 14px;
+        padding: 15px 20px;
+    }
+
+    .container {
+        width: 88%;
+        margin: 0 auto 44px;
+        padding-bottom: 0;
+    }
+
+    .section-kicker {
+        font-size: 12px;
+    }
+
+    .section-header h2 {
+        font-size: 30px;
+    }
+
+    .section-header p {
+        font-size: 15px;
+    }
+
+    .course-card {
+        padding: 22px;
+    }
+
+    .course-info h3 {
+        font-size: 20px;
+    }
+
+    .course-title {
+        font-size: 14px;
+    }
+
+    .resource-count {
+        font-size: 13px;
+    }
+
+    .site-footer {
+        margin-top: 0;
+        padding: 30px 24px;
+    }
+
+    .footer-inner {
+        gap: 18px;
+    }
+
+    .site-footer h3 {
+        font-size: 24px;
+    }
+
+    .site-footer p,
+    .footer-disclaimer,
+    .footer-note {
+        font-size: 13px;
+        line-height: 1.55;
+    }
+}
