@@ -222,13 +222,33 @@
                                     <article class="resource-card reveal">
 
                                         <div class="badges">
-                                            <span class="badge">{{ resource.get_exam_part_display }}</span>
-                                            <span class="badge">{{ resource.get_category_display }}</span>
+    <div class="badge-left">
+        <span class="badge">{{ resource.get_exam_part_display }}</span>
+        <span class="badge">{{ resource.get_category_display }}</span>
 
-                                            {% if resource.question_type %}
-                                                <span class="badge">{{ resource.get_question_type_display }}</span>
-                                            {% endif %}
-                                        </div>
+        {% if resource.question_type %}
+            <span class="badge">{{ resource.get_question_type_display }}</span>
+        {% endif %}
+    </div>
+
+    {% if resource.file %}
+        <button
+            type="button"
+            class="copy-link-btn"
+            data-copy-url="{{ request.scheme }}://{{ request.get_host }}{{ resource.file.url }}"
+            title="Copy resource link">
+            🔗
+        </button>
+    {% elif resource.external_link %}
+        <button
+            type="button"
+            class="copy-link-btn"
+            data-copy-url="{{ resource.external_link }}"
+            title="Copy resource link">
+            🔗
+        </button>
+    {% endif %}
+</div>
 
                                         <div class="resource-main-row">
                                             <div class="resource-text">
@@ -291,6 +311,8 @@
                                                         </button>
                                                     {% endif %}
                                                 {% endif %}
+
+                                               
                                             </div>
                                         </div>
 

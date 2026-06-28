@@ -675,3 +675,38 @@ function getResponsivePdfScale(page) {
     animateResourceCards();
     setupPreviewModal();
 })();
+
+
+function setupCopyResourceLinks() {
+    document.addEventListener("click", async function (event) {
+        const copyButton = event.target.closest(".copy-link-btn");
+
+        if (!copyButton) {
+            return;
+        }
+
+        const url = copyButton.getAttribute("data-copy-url");
+
+        if (!url) {
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(url);
+
+            const oldText = copyButton.textContent;
+            copyButton.textContent = "✓";
+            copyButton.classList.add("copied");
+
+            setTimeout(function () {
+                copyButton.textContent = oldText;
+                copyButton.classList.remove("copied");
+            }, 1200);
+
+        } catch (error) {
+            window.prompt("Copy this link:", url);
+        }
+    });
+}
+
+setupCopyResourceLinks();
