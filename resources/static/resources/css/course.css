@@ -2032,8 +2032,8 @@ body::after {
 }
 
 .copy-link-btn {
-    width: 34px;
-    height: 30px;
+    width: 30px;
+    height: 27px;
 
     display: inline-flex;
     align-items: center;
@@ -2044,14 +2044,14 @@ body::after {
     border-radius: 999px;
 
     color: #7c2d12;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 900;
 
     cursor: pointer;
     transition: 0.2s ease;
 
     margin-left: auto;
-    margin-right: -12px;
+    margin-right: -8px;
     flex-shrink: 0;
 
     box-shadow: 0 5px 12px rgba(255, 159, 104, 0.10);
@@ -2067,4 +2067,13 @@ body::after {
     background: #172033;
     color: white;
     border-color: #172033;
+}
+
+@media (max-width: 900px) {
+    .copy-link-btn {
+        width: 28px;
+        height: 25px;
+        font-size: 12px;
+        margin-right: -4px;
+    }
 }
