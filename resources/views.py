@@ -1,4 +1,7 @@
-from django.db.models import Count, Q
+from collections import defaultdict
+
+from django.db.models.functions import Lower
+from django.db.models import Count, Q, Case, When, IntegerField
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -36,17 +39,12 @@ def course_detail(request, course_id):
 
     all_resources_count = course.resources.count()
 
-    resources = course.resources.all().order_by(
-        'exam_part',
-        'category',
-        'question_type',
-        '-uploaded_at'
-    )
-
     exam_part = request.GET.get('exam_part', '')
     category = request.GET.get('category', '')
     question_type = request.GET.get('question_type', '')
     search_query = request.GET.get('q', '')
+
+    resources = course.resources.all()
 
     if exam_part:
         resources = resources.filter(exam_part=exam_part)
@@ -63,15 +61,28 @@ def course_detail(request, course_id):
             Q(description__icontains=search_query)
         )
 
+    resources = resources.order_by('title')
+
+    resources = resources.order_by(Lower('title'))
+
+    grouped_dict = defaultdict(list)
+
+    for resource in resources:
+        grouped_dict[resource.get_category_display()].append(resource)
+
+    grouped_resources = sorted(grouped_dict.items(), key=lambda item: item[0])
+
     return render(request, 'resources/course_detail.html', {
         'course': course,
         'resources': resources,
+        'grouped_resources': grouped_resources,
         'all_resources_count': all_resources_count,
         'exam_part': exam_part,
         'category': category,
         'question_type': question_type,
         'search_query': search_query,
     })
+
 
 def get_safe_next_url(request):
     next_url = request.POST.get('next') or request.GET.get('next') or reverse('home')

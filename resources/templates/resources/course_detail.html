@@ -34,9 +34,9 @@
         <section class="course-hero">
             <div class="course-hero-info">
                 <div class="mini-label">
-    <span>{{ course.course_code }}</span>
-    <span>Resource Hive</span>
-</div>
+                    <span>{{ course.course_code }}</span>
+                    <span>Resource Hive</span>
+                </div>
 
                 <h1>{{ course.course_code }} - {{ course.course_title }}</h1>
 
@@ -212,90 +212,102 @@
                     </div>
 
                     <div class="resource-list">
-                        {% for resource in resources %}
-                            <article class="resource-card reveal">
 
-                                <div class="badges">
-                                    <span class="badge">{{ resource.get_exam_part_display }}</span>
-                                    <span class="badge">{{ resource.get_category_display }}</span>
+                        {% for section_name, section_resources in grouped_resources %}
 
-                                    {% if resource.question_type %}
-                                        <span class="badge">{{ resource.get_question_type_display }}</span>
-                                    {% endif %}
-                                </div>
+                            <div class="resource-type-section">
+                                <h2 class="resource-type-heading">{{ section_name }}</h2>
 
-                                <div class="resource-main-row">
-                                    <div class="resource-text">
+                                {% for resource in section_resources %}
+                                    <article class="resource-card reveal">
 
-                                        <div class="title-line">
-                                            <h3>{{ resource.title }}</h3>
+                                        <div class="badges">
+                                            <span class="badge">{{ resource.get_exam_part_display }}</span>
+                                            <span class="badge">{{ resource.get_category_display }}</span>
 
-                                            {% if resource.semester %}
-                                                <span class="semester-pill">{{ resource.semester }}</span>
+                                            {% if resource.question_type %}
+                                                <span class="badge">{{ resource.get_question_type_display }}</span>
                                             {% endif %}
                                         </div>
 
-                                        {% if resource.description %}
-                                            <p class="description">{{ resource.description }}</p>
-                                        {% endif %}
+                                        <div class="resource-main-row">
+                                            <div class="resource-text">
 
-                                        <p class="resource-date">
-                                            Last updated: {{ resource.updated_at|date:"M d, Y" }}
-                                        </p>
+                                                <div class="title-line">
+                                                    <h3>{{ resource.title }}</h3>
 
-                                    </div>
+                                                    {% if resource.semester %}
+                                                        <span class="semester-pill">{{ resource.semester }}</span>
+                                                    {% endif %}
+                                                </div>
 
-                                    <div class="resource-actions">
-                                        {% if resource.file %}
-                                            <button
-                                                type="button"
-                                                class="btn primary-btn preview-btn"
-                                                data-file-url="{{ resource.file.url }}"
-                                                data-file-title="{{ resource.title }}">
-                                                Open
-                                            </button>
-                                        {% endif %}
+                                                {% if resource.description %}
+                                                    <p class="description">{{ resource.description }}</p>
+                                                {% endif %}
 
-                                        {% if resource.external_link %}
-                                            <button
-                                                type="button"
-                                                class="btn link-btn external-preview-btn"
-                                                data-external-url="{{ resource.external_link }}"
-                                                data-external-title="{{ resource.title }}">
-                                                Open
-                                            </button>
-                                        {% endif %}
+                                                <p class="resource-date">
+                                                    Last updated: {{ resource.updated_at|date:"M d, Y" }}
+                                                </p>
 
-                                        {% if resource.category == 'QUESTION' %}
-                                            {% if resource.solution_file %}
-                                                <button
-                                                    type="button"
-                                                    class="btn solution-btn preview-btn"
-                                                    data-file-url="{{ resource.solution_file.url }}"
-                                                    data-file-title="{{ resource.title }} - Solution">
-                                                    Solution
-                                                </button>
-                                            {% elif resource.solution_link %}
-                                                <button
-                                                    type="button"
-                                                    class="btn solution-btn external-preview-btn"
-                                                    data-external-url="{{ resource.solution_link }}"
-                                                    data-external-title="{{ resource.title }} - Solution">
-                                                    Solution
-                                                </button>
-                                            {% endif %}
-                                        {% endif %}
-                                    </div>
-                                </div>
+                                            </div>
 
-                            </article>
+                                            <div class="resource-actions">
+                                                {% if resource.file %}
+                                                    <button
+                                                        type="button"
+                                                        class="btn primary-btn preview-btn"
+                                                        data-file-url="{{ resource.file.url }}"
+                                                        data-file-title="{{ resource.title }}">
+                                                        Open
+                                                    </button>
+                                                {% endif %}
+
+                                                {% if resource.external_link %}
+                                                    <button
+                                                        type="button"
+                                                        class="btn link-btn external-preview-btn"
+                                                        data-external-url="{{ resource.external_link }}"
+                                                        data-external-title="{{ resource.title }}">
+                                                        Open
+                                                    </button>
+                                                {% endif %}
+
+                                                {% if resource.category == 'QUESTION' %}
+                                                    {% if resource.solution_file %}
+                                                        <button
+                                                            type="button"
+                                                            class="btn solution-btn preview-btn"
+                                                            data-file-url="{{ resource.solution_file.url }}"
+                                                            data-file-title="{{ resource.title }} - Solution">
+                                                            Solution
+                                                        </button>
+                                                    {% elif resource.solution_link %}
+                                                        <button
+                                                            type="button"
+                                                            class="btn solution-btn external-preview-btn"
+                                                            data-external-url="{{ resource.solution_link }}"
+                                                            data-external-title="{{ resource.title }} - Solution">
+                                                            Solution
+                                                        </button>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                    </article>
+                                {% endfor %}
+                            </div>
+
                         {% empty %}
+
                             <div class="empty-state">
                                 <div class="empty-icon">🍯</div>
                                 <h3>No resources found</h3>
                                 <p>Try another filter or report/suggest a resource.</p>
                             </div>
+
                         {% endfor %}
+
                     </div>
 
                 </section>
@@ -344,32 +356,32 @@
     </div>
 
     <footer class="site-footer">
-    <div class="footer-inner">
-        <div>
-            <h3>StudyBee 🐝</h3>
+        <div class="footer-inner">
+            <div>
+                <h3>StudyBee 🐝</h3>
 
-            <p class="footer-tagline">
-                Your BRACU study hive for organized course resources.
-            </p>
+                <p class="footer-tagline">
+                    Your BRACU study hive for organized course resources.
+                </p>
 
-            <p class="footer-disclaimer desktop-footer-disclaimer">
-                Materials are collected from publicly shared Facebook posts and student-shared resources.
-                StudyBee only organizes them for easier access and is not an official BRACU website.
-                Some Google Drive or document links may require you to sign in with your BRACU GSuite account.
-            </p>
+                <p class="footer-disclaimer desktop-footer-disclaimer">
+                    Materials are collected from publicly shared Facebook posts and student-shared resources.
+                    StudyBee only organizes them for easier access and is not an official BRACU website.
+                    Some Google Drive or document links may require you to sign in with your BRACU GSuite account.
+                </p>
 
-            <p class="footer-disclaimer mobile-footer-disclaimer">
-                Some links may require you to sign in with your BRACU GSuite account.
+                <p class="footer-disclaimer mobile-footer-disclaimer">
+                    Some links may require you to sign in with your BRACU GSuite account.
+                </p>
+            </div>
+
+            <p class="footer-note">Made for BRACU students</p>
+
+            <p class="footer-note mobile-report-footer">
+                <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">Report an issue</a>
             </p>
         </div>
-
-        <p class="footer-note">Made for BRACU students</p>
-
-        <p class="footer-note mobile-report-footer">
-            <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">Report an issue</a>
-        </p>
-    </div>
-</footer>
+    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
     <script src="{% static 'resources/js/course.js' %}"></script>
