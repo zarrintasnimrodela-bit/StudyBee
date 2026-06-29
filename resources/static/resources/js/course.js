@@ -497,15 +497,15 @@
                     }
                 }
 
-                const folderMatch = parsedUrl.pathname.match(/\/drive\/folders\/([^/?#]+)/);
+               const folderMatch = parsedUrl.pathname.match(/\/drive\/folders\/([^/?#]+)/);
 
-                if (folderMatch && folderMatch[1]) {
-                    return {
-                        type: "folder",
-                        previewUrl: `https://drive.google.com/embeddedfolderview?id=${folderMatch[1]}#grid`
-                    };
-                }
-
+if (folderMatch && folderMatch[1]) {
+    const folderId = folderMatch[1];
+    return {
+        type: "folder",
+        previewUrl: `https://drive.google.com/embeddedfolderview?id=${folderMatch[1]}#list`
+    };
+}
                 return {
                     type: "unknown",
                     previewUrl: url
@@ -552,17 +552,19 @@
                         <iframe class="preview-frame" src="${drivePreviewUrl.previewUrl}" allow="autoplay"></iframe>
                     `;
                 } else if (drivePreviewUrl.type === "folder") {
-                    previewBody.innerHTML = `
-                        <div class="preview-folder-wrap">
-                            ${googleAccessNote}
+    previewBody.innerHTML = `
+        <div class="preview-folder-wrap">
+            <p class="preview-access-note">
+                This Google Drive folder may require BRACU GSuite access. If the preview does not load properly, use Open Original.
+            </p>
 
-                            <iframe
-                                class="preview-frame"
-                                src="${drivePreviewUrl.previewUrl}">
-                            </iframe>
-                        </div>
-                    `;
-                } else {
+            <iframe
+                class="preview-frame drive-folder-frame"
+                src="${drivePreviewUrl.previewUrl}">
+            </iframe>
+        </div>
+    `;
+} else {
                     showFallback(
                         "Preview may not be available",
                         "This Google link may not allow opening inside StudyBee.",
