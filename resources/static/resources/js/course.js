@@ -4,20 +4,18 @@
             "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js";
     }
 
-let currentPdf = null;
-let currentPage = 1;
-let currentScale = getDefaultPdfZoom();
-let currentRenderTask = null;
+    let currentPdf = null;
+    let currentPage = 1;
+    let currentScale = getDefaultPdfZoom();
+    let currentRenderTask = null;
 
-function getDefaultPdfZoom() {
-    if (window.innerWidth <= 700) {
-        return 1.2;
+    function getDefaultPdfZoom() {
+        if (window.innerWidth <= 700) {
+            return 1.2;
+        }
+
+        return 1;
     }
-
-    return 1;
-}
-
-
 
     function animateResourceCards() {
         const cards = document.querySelectorAll(".resource-card.reveal");
@@ -326,30 +324,30 @@ function getDefaultPdfZoom() {
             }
         }
 
-function getResponsivePdfScale(page) {
-    const canvasWrap = document.querySelector(".pdf-canvas-wrap");
-    const normalViewport = page.getViewport({ scale: 1 });
+        function getResponsivePdfScale(page) {
+            const canvasWrap = document.querySelector(".pdf-canvas-wrap");
+            const normalViewport = page.getViewport({ scale: 1 });
 
-    if (!canvasWrap) {
-        return currentScale;
-    }
+            if (!canvasWrap) {
+                return currentScale;
+            }
 
-    if (window.innerWidth <= 700) {
-        const availableWidth = canvasWrap.clientWidth - 24;
-        const fitScale = availableWidth / normalViewport.width;
+            if (window.innerWidth <= 700) {
+                const availableWidth = canvasWrap.clientWidth - 24;
+                const fitScale = availableWidth / normalViewport.width;
 
-        return fitScale * currentScale;
-    }
+                return fitScale * currentScale;
+            }
 
-    if (window.innerWidth <= 1000) {
-        const availableWidth = canvasWrap.clientWidth - 36;
-        const fitScale = availableWidth / normalViewport.width;
+            if (window.innerWidth <= 1000) {
+                const availableWidth = canvasWrap.clientWidth - 36;
+                const fitScale = availableWidth / normalViewport.width;
 
-        return fitScale * currentScale;
-    }
+                return fitScale * currentScale;
+            }
 
-    return 1.35 * currentScale;
-}
+            return 1.35 * currentScale;
+        }
 
         async function renderPdfPage(pageNumber) {
             if (!currentPdf) {
@@ -417,39 +415,39 @@ function getResponsivePdfScale(page) {
         }
 
         function getYouTubeEmbedUrl(url) {
-        try {
-            const parsedUrl = new URL(url);
-            const hostname = parsedUrl.hostname;
+            try {
+                const parsedUrl = new URL(url);
+                const hostname = parsedUrl.hostname;
 
-            if (hostname.includes("youtube.com")) {
-                const videoId = parsedUrl.searchParams.get("v");
+                if (hostname.includes("youtube.com")) {
+                    const videoId = parsedUrl.searchParams.get("v");
 
-                if (videoId) {
-                    return `https://www.youtube.com/embed/${videoId}`;
-                }
+                    if (videoId) {
+                        return `https://www.youtube.com/embed/${videoId}`;
+                    }
 
-                if (parsedUrl.pathname.startsWith("/shorts/")) {
-                    const shortsId = parsedUrl.pathname.split("/shorts/")[1];
+                    if (parsedUrl.pathname.startsWith("/shorts/")) {
+                        const shortsId = parsedUrl.pathname.split("/shorts/")[1];
 
-                    if (shortsId) {
-                        return `https://www.youtube.com/embed/${shortsId}`;
+                        if (shortsId) {
+                            return `https://www.youtube.com/embed/${shortsId}`;
+                        }
                     }
                 }
-            }
 
-            if (hostname.includes("youtu.be")) {
-                const videoId = parsedUrl.pathname.replace("/", "");
+                if (hostname.includes("youtu.be")) {
+                    const videoId = parsedUrl.pathname.replace("/", "");
 
-                if (videoId) {
-                    return `https://www.youtube.com/embed/${videoId}`;
+                    if (videoId) {
+                        return `https://www.youtube.com/embed/${videoId}`;
+                    }
                 }
-            }
 
-            return null;
-        } catch (error) {
-            return null;
+                return null;
+            } catch (error) {
+                return null;
+            }
         }
-    }
 
         function getGoogleDrivePreviewUrl(url) {
             try {
@@ -499,12 +497,12 @@ function getResponsivePdfScale(page) {
                     }
                 }
 
-                const folderMatch = parsedUrl.pathname.match(/\/drive\/folders\/([^/]+)/);
+                const folderMatch = parsedUrl.pathname.match(/\/drive\/folders\/([^/?#]+)/);
 
                 if (folderMatch && folderMatch[1]) {
                     return {
                         type: "folder",
-                        previewUrl: url
+                        previewUrl: `https://drive.google.com/embeddedfolderview?id=${folderMatch[1]}#grid`
                     };
                 }
 
@@ -554,13 +552,16 @@ function getResponsivePdfScale(page) {
                         <iframe class="preview-frame" src="${drivePreviewUrl.previewUrl}" allow="autoplay"></iframe>
                     `;
                 } else if (drivePreviewUrl.type === "folder") {
-                    showFallback(
-                        "Drive folder preview",
-                        "Google Drive folders cannot always be previewed inside StudyBee. Please open it directly.",
-                        safeUrl,
-                        "Open Drive Folder",
-                        googleAccessNote
-                    );
+                    previewBody.innerHTML = `
+                        <div class="preview-folder-wrap">
+                            ${googleAccessNote}
+
+                            <iframe
+                                class="preview-frame"
+                                src="${drivePreviewUrl.previewUrl}">
+                            </iframe>
+                        </div>
+                    `;
                 } else {
                     showFallback(
                         "Preview may not be available",
@@ -669,44 +670,42 @@ function getResponsivePdfScale(page) {
         });
     }
 
+    function setupCopyResourceLinks() {
+        document.addEventListener("click", async function (event) {
+            const copyButton = event.target.closest(".copy-link-btn");
+
+            if (!copyButton) {
+                return;
+            }
+
+            const url = copyButton.getAttribute("data-copy-url");
+
+            if (!url) {
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(url);
+
+                const oldText = copyButton.textContent;
+                copyButton.textContent = "✓";
+                copyButton.classList.add("copied");
+
+                setTimeout(function () {
+                    copyButton.textContent = oldText;
+                    copyButton.classList.remove("copied");
+                }, 1200);
+
+            } catch (error) {
+                window.prompt("Copy this link:", url);
+            }
+        });
+    }
+
     document.addEventListener("click", handleFilterClick);
     window.addEventListener("popstate", handleBackForward);
 
     animateResourceCards();
     setupPreviewModal();
+    setupCopyResourceLinks();
 })();
-
-
-function setupCopyResourceLinks() {
-    document.addEventListener("click", async function (event) {
-        const copyButton = event.target.closest(".copy-link-btn");
-
-        if (!copyButton) {
-            return;
-        }
-
-        const url = copyButton.getAttribute("data-copy-url");
-
-        if (!url) {
-            return;
-        }
-
-        try {
-            await navigator.clipboard.writeText(url);
-
-            const oldText = copyButton.textContent;
-            copyButton.textContent = "✓";
-            copyButton.classList.add("copied");
-
-            setTimeout(function () {
-                copyButton.textContent = oldText;
-                copyButton.classList.remove("copied");
-            }, 1200);
-
-        } catch (error) {
-            window.prompt("Copy this link:", url);
-        }
-    });
-}
-
-setupCopyResourceLinks();
