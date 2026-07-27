@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -135,16 +136,85 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files
+# Static and media files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-
-# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+USE_CLOUD_STORAGE = os.environ.get(
+    "USE_CLOUD_STORAGE",
+    "False",
+).strip().lower() in {"1", "true", "yes", "on"}
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "location": MEDIA_ROOT,
+            "base_url": MEDIA_URL,
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+if USE_CLOUD_STORAGE:
+    supabase_storage_settings = {
+        "SUPABASE_S3_ACCESS_KEY_ID": os.environ.get("SUPABASE_S3_ACCESS_KEY_ID"),
+        "SUPABASE_S3_SECRET_ACCESS_KEY": os.environ.get("SUPABASE_S3_SECRET_ACCESS_KEY"),
+        "SUPABASE_S3_BUCKET_NAME": os.environ.get("SUPABASE_S3_BUCKET_NAME"),
+        "SUPABASE_S3_ENDPOINT_URL": os.environ.get("SUPABASE_S3_ENDPOINT_URL"),
+        "SUPABASE_S3_REGION": os.environ.get("SUPABASE_S3_REGION"),
+        "SUPABASE_PUBLIC_MEDIA_URL": os.environ.get("SUPABASE_PUBLIC_MEDIA_URL"),
+    }
+
+    missing_storage_settings = [
+        name
+        for name, value in supabase_storage_settings.items()
+        if not value
+    ]
+
+    if missing_storage_settings:
+        raise ImproperlyConfigured(
+            "Cloud storage is enabled, but these environment variables are "
+            f"missing: {', '.join(missing_storage_settings)}"
+        )
+
+    public_media_url = supabase_storage_settings[
+        "SUPABASE_PUBLIC_MEDIA_URL"
+    ].rstrip("/")
+
+    STORAGES["default"] = {
+        "BACKEND": "config.storage_backends.SupabaseMediaStorage",
+        "OPTIONS": {
+            "access_key": supabase_storage_settings[
+                "SUPABASE_S3_ACCESS_KEY_ID"
+            ],
+            "secret_key": supabase_storage_settings[
+                "SUPABASE_S3_SECRET_ACCESS_KEY"
+            ],
+            "bucket_name": supabase_storage_settings[
+                "SUPABASE_S3_BUCKET_NAME"
+            ],
+            "endpoint_url": supabase_storage_settings[
+                "SUPABASE_S3_ENDPOINT_URL"
+            ].rstrip("/"),
+            "region_name": supabase_storage_settings[
+                "SUPABASE_S3_REGION"
+            ],
+            "addressing_style": "path",
+            "signature_version": "s3v4",
+            "default_acl": None,
+            "file_overwrite": False,
+            "querystring_auth": False,
+            "public_base_url": public_media_url,
+        },
+    }
+
+    MEDIA_URL = f"{public_media_url}/"
 
 
 # Security behind Railway proxy
