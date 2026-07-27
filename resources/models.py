@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from .validators import validate_resource_file
 
 
 class Course(models.Model):
@@ -113,6 +114,7 @@ class Resource(models.Model):
 
     file = models.FileField(
         upload_to='resources/',
+        validators=[validate_resource_file],
         blank=True,
         null=True,
         help_text="Upload file here if you want to store the file directly."
@@ -125,6 +127,7 @@ class Resource(models.Model):
 
     solution_file = models.FileField(
         upload_to='resources/solutions/',
+        validators=[validate_resource_file],
         blank=True,
         null=True,
         help_text="Optional. Upload solution/answer file only for question resources."
@@ -159,7 +162,8 @@ class Resource(models.Model):
                 errors['question_type'] = "Question type should only be selected when category is Questions."
 
         if self.category != 'QUESTION' and (self.solution_file or self.solution_link):
-           raise ValidationError("Solutions can only be added for question resources.")
+            errors['solution_file'] = "Solutions can only be added for question resources."
+            errors['solution_link'] = "Solutions can only be added for question resources."
 
         if errors:
             raise ValidationError(errors)
