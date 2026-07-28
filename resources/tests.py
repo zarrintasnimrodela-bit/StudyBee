@@ -146,6 +146,49 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, self.slide.title)
         self.assertNotContains(response, self.note.title)
 
+
+    def test_course_resources_are_paginated(self):
+        for index in range(30):
+            Resource.objects.create(
+                course=self.course,
+                title=f"Extra Resource {index:02d}",
+                category="NOTE",
+                exam_part="GENERAL",
+                external_link=f"https://example.com/resource-{index}",
+            )
+
+        first_page = self.get_course()
+        second_page = self.get_course(page=2)
+
+        self.assertEqual(first_page.status_code, 200)
+        self.assertEqual(second_page.status_code, 200)
+        self.assertTrue(first_page.context["page_obj"].has_next())
+        self.assertEqual(first_page.context["page_obj"].number, 1)
+        self.assertEqual(second_page.context["page_obj"].number, 2)
+        self.assertLessEqual(
+            len(first_page.context["page_obj"].object_list),
+            10,
+        )
+        self.assertContains(
+            first_page,
+            "There are more resources.",
+        )
+        self.assertContains(first_page, "Next")
+        self.assertContains(second_page, "Previous")
+
+        rendered_html = first_page.content.decode("utf-8")
+        resource_list_position = rendered_html.find(
+            'class="resource-list"'
+        )
+        pagination_position = rendered_html.find(
+            'class="resource-pagination-panel"'
+        )
+
+        self.assertGreater(
+            pagination_position,
+            resource_list_position,
+        )
+
     def test_missing_course_returns_404(self):
         response = self.client.get(
             reverse("course_detail", args=[999999])

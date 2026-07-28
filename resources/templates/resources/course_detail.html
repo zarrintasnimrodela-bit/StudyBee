@@ -7,7 +7,7 @@
     <title>{{ course.course_code }} - StudyBee</title>
 
     <link rel="stylesheet" href="{% static 'resources/css/course.css' %}">
-    <link rel="stylesheet" href="{% static 'resources/css/pdf_viewer.css' %}?v=4.3">
+    <link rel="stylesheet" href="{% static 'resources/css/pdf_viewer.css' %}?v=6.6">
 
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -81,47 +81,47 @@
 
                         <div class="filter-row">
 
-                            <a href="{% url 'course_detail' course.id %}{% if exam_part or search_query %}?{% if exam_part %}exam_part={{ exam_part }}{% endif %}{% if search_query %}{% if exam_part %}&{% endif %}q={{ search_query }}{% endif %}{% endif %}"
+                            <a href="{% url 'course_detail' course.id %}{% if exam_part or search_query %}?{% if exam_part %}exam_part={{ exam_part }}{% endif %}{% if search_query %}{% if exam_part %}&{% endif %}q={{ search_query|urlencode }}{% endif %}{% endif %}"
                                class="filter-chip {% if not category %}active{% endif %}">
                                 All Types
                             </a>
 
-                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=SLIDE{% if search_query %}&q={{ search_query }}{% endif %}"
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=SLIDE{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                class="filter-chip {% if category == 'SLIDE' %}active{% endif %}">
                                 Slides
                             </a>
 
-                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=NOTE{% if search_query %}&q={{ search_query }}{% endif %}"
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=NOTE{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                class="filter-chip {% if category == 'NOTE' %}active{% endif %}">
                                 Notes
                             </a>
 
-                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION{% if search_query %}&q={{ search_query }}{% endif %}"
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                class="filter-chip {% if category == 'QUESTION' %}active{% endif %}">
                                 Questions
                             </a>
 
-                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=LAB{% if search_query %}&q={{ search_query }}{% endif %}"
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=LAB{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                class="filter-chip {% if category == 'LAB' %}active{% endif %}">
                                 Lab Files
                             </a>
 
-                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=VIDEO{% if search_query %}&q={{ search_query }}{% endif %}"
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=VIDEO{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                class="filter-chip {% if category == 'VIDEO' %}active{% endif %}">
                                 Videos
                             </a>
 
-                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=BOOK{% if search_query %}&q={{ search_query }}{% endif %}"
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=BOOK{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                class="filter-chip {% if category == 'BOOK' %}active{% endif %}">
                                 Books
                             </a>
 
-                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=LINK{% if search_query %}&q={{ search_query }}{% endif %}"
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=LINK{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                class="filter-chip {% if category == 'LINK' %}active{% endif %}">
                                 Links
                             </a>
 
-                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=OTHER{% if search_query %}&q={{ search_query }}{% endif %}"
+                            <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=OTHER{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                class="filter-chip {% if category == 'OTHER' %}active{% endif %}">
                                 Other
                             </a>
@@ -135,27 +135,27 @@
 
                             <div class="filter-row">
 
-                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION{% if search_query %}&q={{ search_query }}{% endif %}"
+                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                    class="filter-chip {% if not question_type %}active{% endif %}">
                                     All Questions
                                 </a>
 
-                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION&question_type=PAST_EXAM{% if search_query %}&q={{ search_query }}{% endif %}"
+                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION&question_type=PAST_EXAM{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                    class="filter-chip {% if question_type == 'PAST_EXAM' %}active{% endif %}">
                                     Past Exam
                                 </a>
 
-                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION&question_type=ASSIGNMENT{% if search_query %}&q={{ search_query }}{% endif %}"
+                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION&question_type=ASSIGNMENT{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                    class="filter-chip {% if question_type == 'ASSIGNMENT' %}active{% endif %}">
                                     Assignments
                                 </a>
 
-                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION&question_type=QUIZ{% if search_query %}&q={{ search_query }}{% endif %}"
+                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION&question_type=QUIZ{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                    class="filter-chip {% if question_type == 'QUIZ' %}active{% endif %}">
                                     Quizzes
                                 </a>
 
-                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION&question_type=PRACTICE{% if search_query %}&q={{ search_query }}{% endif %}"
+                                <a href="?{% if exam_part %}exam_part={{ exam_part }}&{% endif %}category=QUESTION&question_type=PRACTICE{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                    class="filter-chip {% if question_type == 'PRACTICE' %}active{% endif %}">
                                     Practice Sheet
                                 </a>
@@ -169,22 +169,22 @@
 
                         <div class="filter-row">
 
-                            <a href="{% url 'course_detail' course.id %}{% if category or question_type or search_query %}?{% if category %}category={{ category }}{% endif %}{% if question_type %}{% if category %}&{% endif %}question_type={{ question_type }}{% endif %}{% if search_query %}{% if category or question_type %}&{% endif %}q={{ search_query }}{% endif %}{% endif %}"
+                            <a href="{% url 'course_detail' course.id %}{% if category or question_type or search_query %}?{% if category %}category={{ category }}{% endif %}{% if question_type %}{% if category %}&{% endif %}question_type={{ question_type }}{% endif %}{% if search_query %}{% if category or question_type %}&{% endif %}q={{ search_query|urlencode }}{% endif %}{% endif %}"
                                class="filter-chip {% if not exam_part %}active{% endif %}">
                                 All
                             </a>
 
-                            <a href="?exam_part=MIDTERM{% if category %}&category={{ category }}{% endif %}{% if question_type %}&question_type={{ question_type }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                            <a href="?exam_part=MIDTERM{% if category %}&category={{ category }}{% endif %}{% if question_type %}&question_type={{ question_type }}{% endif %}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                class="filter-chip {% if exam_part == 'MIDTERM' %}active{% endif %}">
                                 Midterm
                             </a>
 
-                            <a href="?exam_part=FINAL{% if category %}&category={{ category }}{% endif %}{% if question_type %}&question_type={{ question_type }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                            <a href="?exam_part=FINAL{% if category %}&category={{ category }}{% endif %}{% if question_type %}&question_type={{ question_type }}{% endif %}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                class="filter-chip {% if exam_part == 'FINAL' %}active{% endif %}">
                                 Final
                             </a>
 
-                            <a href="?exam_part=GENERAL{% if category %}&category={{ category }}{% endif %}{% if question_type %}&question_type={{ question_type }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                            <a href="?exam_part=GENERAL{% if category %}&category={{ category }}{% endif %}{% if question_type %}&question_type={{ question_type }}{% endif %}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
                                class="filter-chip {% if exam_part == 'GENERAL' %}active{% endif %}">
                                 General
                             </a>
@@ -207,19 +207,80 @@
 
                 <section class="resource-section">
 
-                    <div class="section-title">
-                        <span>Resource shelf</span>
-                        <h2>Available materials</h2>
+                    <div class="section-title resource-section-heading">
+                        <div>
+                            <span>Resource shelf</span>
+                            <h2>Available materials</h2>
+                        </div>
+
+                        {% if page_obj.paginator.count %}
+                            <div class="resource-heading-tools">
+                                <p class="resource-range-summary">
+                                    Showing
+                                    <strong>{{ page_obj.start_index }}–{{ page_obj.end_index }}</strong>
+                                    of
+                                    <strong>{{ page_obj.paginator.count }}</strong>
+                                    resource{{ page_obj.paginator.count|pluralize }}
+                                </p>
+
+                                {% if page_obj.paginator.num_pages > 1 %}
+                                    <nav
+                                        class="resource-top-pagination"
+                                        aria-label="Quick resource page navigation">
+
+                                        {% if page_obj.has_previous %}
+                                            <a
+                                                href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+                                                aria-label="Previous resource page">
+                                                ←
+                                            </a>
+                                        {% else %}
+                                            <span
+                                                class="disabled-page-arrow"
+                                                aria-hidden="true">
+                                                ←
+                                            </span>
+                                        {% endif %}
+
+                                        <span class="top-page-status">
+                                            Page {{ page_obj.number }}
+                                            of {{ page_obj.paginator.num_pages }}
+                                        </span>
+
+                                        {% if page_obj.has_next %}
+                                            <a
+                                                href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}"
+                                                aria-label="Next resource page">
+                                                →
+                                            </a>
+                                        {% else %}
+                                            <span
+                                                class="disabled-page-arrow"
+                                                aria-hidden="true">
+                                                →
+                                            </span>
+                                        {% endif %}
+                                    </nav>
+                                {% endif %}
+                            </div>
+                        {% endif %}
                     </div>
 
                     <div class="resource-list">
 
-                        {% for section_name, section_resources in grouped_resources %}
+                        {% for section in grouped_resources %}
 
                             <div class="resource-type-section">
-                                <h2 class="resource-type-heading">{{ section_name }}</h2>
+                                <div class="resource-type-title-row">
+                                    <h2 class="resource-type-heading">
+                                        {{ section.name }}
+                                        {% if section.continued_from_previous %}
+                                            <span class="section-continuation">continued</span>
+                                        {% endif %}
+                                    </h2>
+                                </div>
 
-                                {% for resource in section_resources %}
+                                {% for resource in section.resources %}
                                     <article class="resource-card reveal">
 
                                         <div class="badges">
@@ -278,7 +339,8 @@
                                                         type="button"
                                                         class="btn primary-btn preview-btn"
                                                         data-file-url="{{ resource.file.url }}"
-                                                        data-file-title="{{ resource.title }}">
+                                                        data-file-title="{{ resource.title }}"
+                                                        data-download-url="{% url 'download_resource_file' resource.id 'resource' %}">
                                                         Open
                                                     </button>
                                                 {% endif %}
@@ -299,7 +361,8 @@
                                                             type="button"
                                                             class="btn solution-btn preview-btn"
                                                             data-file-url="{{ resource.solution_file.url }}"
-                                                            data-file-title="{{ resource.title }} - Solution">
+                                                            data-file-title="{{ resource.title }} - Solution"
+                                                            data-download-url="{% url 'download_resource_file' resource.id 'solution' %}">
                                                             Solution
                                                         </button>
                                                     {% elif resource.solution_link %}
@@ -319,6 +382,12 @@
 
                                     </article>
                                 {% endfor %}
+
+                                {% if section.continues_next %}
+                                    <p class="section-continues-note">
+                                        More {{ section.name|lower }} continue on the next page.
+                                    </p>
+                                {% endif %}
                             </div>
 
                         {% empty %}
@@ -332,6 +401,78 @@
                         {% endfor %}
 
                     </div>
+
+                    {% if page_obj.paginator.num_pages > 1 %}
+                        <div class="resource-pagination-panel">
+                            <div class="pagination-message">
+                                {% if page_obj.has_next %}
+                                    <strong>There are more resources.</strong>
+                                    <span>
+                                        {{ remaining_resources }}
+                                        resource{{ remaining_resources|pluralize }}
+                                        remain after this page.
+                                    </span>
+                                {% else %}
+                                    <strong>You reached the final page.</strong>
+                                    <span>
+                                        All matching resources have now been shown.
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <nav
+                                class="resource-pagination"
+                                aria-label="Resource pages">
+
+                                {% if page_obj.has_previous %}
+                                    <a
+                                        class="pagination-arrow"
+                                        href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                                        ← Previous
+                                    </a>
+                                {% else %}
+                                    <span
+                                        class="pagination-arrow pagination-disabled"
+                                        aria-hidden="true">
+                                        ← Previous
+                                    </span>
+                                {% endif %}
+
+                                <div class="pagination-numbers">
+                                    {% for item in pagination_items %}
+                                        {% if item.ellipsis %}
+                                            <span class="pagination-ellipsis">…</span>
+                                        {% elif item.current %}
+                                            <span
+                                                class="current-page"
+                                                aria-current="page">
+                                                {{ item.number }}
+                                            </span>
+                                        {% else %}
+                                            <a
+                                                href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ item.number }}">
+                                                {{ item.number }}
+                                            </a>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+
+                                {% if page_obj.has_next %}
+                                    <a
+                                        class="pagination-arrow pagination-next"
+                                        href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}">
+                                        Next →
+                                    </a>
+                                {% else %}
+                                    <span
+                                        class="pagination-arrow pagination-next pagination-disabled"
+                                        aria-hidden="true">
+                                        Next →
+                                    </span>
+                                {% endif %}
+                            </nav>
+                        </div>
+                    {% endif %}
 
                 </section>
 
@@ -406,8 +547,15 @@
         </div>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="{% static 'resources/js/course.js' %}?v=4.3"></script>
+    <script type="module">
+        import * as pdfjsLib from "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.7.284/build/pdf.min.mjs";
+
+        window.pdfjsLib = pdfjsLib;
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.7.284/build/pdf.worker.min.mjs";
+
+        await import("{% static 'resources/js/course.js' %}?v=6.2");
+    </script>
 
 </body>
 </html>

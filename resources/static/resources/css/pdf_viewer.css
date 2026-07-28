@@ -225,3 +225,326 @@
     margin-left: auto;
     margin-right: auto;
 }
+
+
+/* Step 6.2: adaptive image preview and reliable zoom */
+.image-viewer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    background: #111b2d;
+}
+
+.image-toolbar {
+    flex: 0 0 auto;
+}
+
+.image-scroll-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    overflow: auto;
+    padding: 20px;
+    background: #111b2d;
+    overscroll-behavior: contain;
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+}
+
+.image-preview-stage {
+    position: relative;
+    display: block;
+    min-width: 100%;
+    min-height: 100%;
+}
+
+.image-preview-content {
+    position: absolute;
+    display: block;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
+    transition:
+        width 0.14s ease,
+        height 0.14s ease,
+        left 0.14s ease,
+        top 0.14s ease;
+}
+
+/* Step 6.4: pagination above and below the resource list */
+.resource-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.resource-heading-tools {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.resource-range-summary {
+    margin: 0;
+    color: #53647a;
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.resource-range-summary strong {
+    color: #10213d;
+}
+
+.resource-top-pagination {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    border: 1px solid rgba(244, 111, 57, 0.22);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 8px 22px rgba(40, 32, 26, 0.07);
+}
+
+.resource-top-pagination a,
+.resource-top-pagination .disabled-page-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.resource-top-pagination a {
+    color: #fff;
+    background: #10213d;
+    transition: transform 0.15s ease;
+}
+
+.resource-top-pagination a:hover {
+    transform: translateY(-1px);
+}
+
+.resource-top-pagination .disabled-page-arrow {
+    color: #a6afbb;
+    background: #edf0f4;
+}
+
+.top-page-status {
+    padding: 0 4px;
+    color: #10213d;
+    font-size: 14px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.resource-type-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.resource-type-title-row .resource-type-heading {
+    margin-bottom: 0;
+    flex: 1 1 auto;
+}
+
+.section-continuation {
+    display: inline-flex;
+    margin-left: 8px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    color: #9a3c13;
+    background: #fff0e4;
+    font-family: inherit;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 800;
+    vertical-align: middle;
+}
+
+.section-continues-note {
+    margin: 12px 0 0;
+    padding: 10px 14px;
+    border-radius: 14px;
+    color: #6a4d3c;
+    background: rgba(255, 244, 232, 0.85);
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.resource-pagination-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    width: fit-content;
+    max-width: 100%;
+    margin: 22px auto 0;
+    padding: 10px 14px;
+    border: 1px solid rgba(244, 111, 57, 0.24);
+    border-radius: 18px;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 250, 242, 0.99),
+            rgba(255, 239, 226, 0.97)
+        );
+    box-shadow: 0 9px 24px rgba(40, 32, 26, 0.08);
+}
+
+.pagination-message {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 0;
+    color: #53647a;
+    font-size: 14px;
+    text-align: left;
+}
+
+.pagination-message strong {
+    color: #10213d;
+}
+
+.resource-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.resource-pagination a,
+.resource-pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    min-height: 34px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.resource-pagination a {
+    color: #10213d;
+    background: #fff;
+    border: 1px solid rgba(244, 111, 57, 0.28);
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.resource-pagination a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 7px 18px rgba(40, 32, 26, 0.1);
+}
+
+.pagination-numbers {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+.resource-pagination .current-page {
+    color: #fff;
+    background: #10213d;
+}
+
+.pagination-arrow,
+.pagination-next {
+    white-space: nowrap;
+}
+
+.pagination-disabled {
+    color: #a6afbb !important;
+    background: rgba(237, 240, 244, 0.85);
+    border: 1px solid rgba(166, 175, 187, 0.2);
+}
+
+.pagination-ellipsis {
+    min-width: auto !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+    color: #718096;
+}
+
+@media (max-width: 700px) {
+    .image-scroll-container {
+        padding: 10px;
+    }
+
+    .resource-section-heading {
+        align-items: flex-start;
+    }
+
+    .resource-heading-tools {
+        width: 100%;
+        justify-content: space-between;
+        margin-left: 0;
+    }
+
+    .resource-range-summary {
+        white-space: normal;
+    }
+
+    .resource-top-pagination {
+        margin-left: auto;
+    }
+
+    .resource-type-title-row {
+        align-items: flex-start;
+    }
+
+    .resource-pagination-panel {
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+        border-radius: 18px;
+    }
+
+    .pagination-message {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .resource-pagination {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .pagination-numbers {
+        order: -1;
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .resource-pagination a,
+    .resource-pagination span {
+        min-height: 36px;
+        padding: 7px 10px;
+        font-size: 14px;
+    }
+}

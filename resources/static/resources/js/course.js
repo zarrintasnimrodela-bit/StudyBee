@@ -1,7 +1,7 @@
 (function () {
     if (window.pdfjsLib) {
         pdfjsLib.GlobalWorkerOptions.workerSrc =
-            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+            "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.7.284/build/pdf.worker.min.mjs";
     }
 
     let currentPdf = null;
@@ -19,9 +19,49 @@
     let pdfGeneration = 0;
     const pdfRenderTasks = new Map();
     let pdfResizeTimer = null;
+    let currentImageScale = 1;
+    let currentImageBaseWidth = 0;
+    let currentImageNaturalWidth = 0;
+    let currentImageNaturalHeight = 0;
 
     function getDefaultPdfZoom() {
         return 1;
+    }
+
+
+    function getSafeHttpUrl(value) {
+        try {
+            const parsedUrl = new URL(value, window.location.href);
+
+            if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+                return null;
+            }
+
+            return parsedUrl;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function hostnameMatches(hostname, allowedDomain) {
+        const normalizedHost = hostname.toLowerCase().replace(/\.$/, "");
+        const normalizedDomain = allowedDomain.toLowerCase();
+
+        return normalizedHost === normalizedDomain ||
+            normalizedHost.endsWith(`.${normalizedDomain}`);
+    }
+
+    function hasSafeId(value) {
+        return /^[A-Za-z0-9_-]+$/.test(value || "");
+    }
+
+    function replaceChildrenFromSource(target, source) {
+        const importedNodes = Array.from(
+            source.childNodes,
+            (node) => document.importNode(node, true)
+        );
+
+        target.replaceChildren(...importedNodes);
     }
 
     function animateResourceCards() {
@@ -47,14 +87,14 @@
         const currentResourceSection = document.querySelector(".resource-section");
 
         if (newFilterPanel && currentFilterPanel) {
-            currentFilterPanel.innerHTML = newFilterPanel.innerHTML;
+            replaceChildrenFromSource(currentFilterPanel, newFilterPanel);
         }
 
         if (newResourceSection && currentResourceSection) {
             currentResourceSection.classList.add("is-changing");
 
             setTimeout(() => {
-                currentResourceSection.innerHTML = newResourceSection.innerHTML;
+                replaceChildrenFromSource(currentResourceSection, newResourceSection);
                 currentResourceSection.classList.remove("is-changing");
                 animateResourceCards();
             }, 160);
@@ -137,6 +177,10 @@
             currentScale = getDefaultPdfZoom();
             currentPdfOrientation = "balanced";
             currentPdfBaseWidth = PDF_MAX_WIDTHS.balanced;
+            currentImageScale = 1;
+            currentImageBaseWidth = 0;
+            currentImageNaturalWidth = 0;
+            currentImageNaturalHeight = 0;
 
             if (previewContent) {
                 previewContent.classList.remove(
@@ -190,8 +234,16 @@
                 return;
             }
 
-            previewDownload.href = url;
+            const parsedUrl = getSafeHttpUrl(url);
+
+            if (!parsedUrl) {
+                hideHeaderDownload();
+                return;
+            }
+
+            previewDownload.href = parsedUrl.href;
             previewDownload.textContent = label;
+            previewDownload.rel = "noopener noreferrer";
 
             if (shouldDownload) {
                 previewDownload.setAttribute("download", "");
@@ -221,7 +273,15 @@
                 return;
             }
 
-            previewOpenTab.href = url;
+            const parsedUrl = getSafeHttpUrl(url);
+
+            if (!parsedUrl) {
+                hideOpenTab();
+                return;
+            }
+
+            previewOpenTab.href = parsedUrl.href;
+            previewOpenTab.rel = "noopener noreferrer";
             previewOpenTab.style.display = "inline-block";
         }
 
@@ -234,27 +294,36 @@
             previewOpenTab.style.display = "none";
         }
 
-        function isImageUrl(url) {
-            const lowerUrl = url.toLowerCase();
+        function getUrlPathname(url) {
+            const parsedUrl = getSafeHttpUrl(url);
+            return parsedUrl ? parsedUrl.pathname.toLowerCase() : "";
+        }
 
-            return lowerUrl.endsWith(".jpg") ||
-                lowerUrl.endsWith(".jpeg") ||
-                lowerUrl.endsWith(".png") ||
-                lowerUrl.endsWith(".gif") ||
-                lowerUrl.endsWith(".webp");
+        function isImageUrl(url) {
+            const pathname = getUrlPathname(url);
+
+            return pathname.endsWith(".jpg") ||
+                pathname.endsWith(".jpeg") ||
+                pathname.endsWith(".png") ||
+                pathname.endsWith(".gif") ||
+                pathname.endsWith(".webp");
         }
 
         function isPdfUrl(url) {
-            return url.toLowerCase().endsWith(".pdf");
+            return getUrlPathname(url).endsWith(".pdf");
         }
 
         function isGoogleResource(url) {
-            const lowerUrl = url.toLowerCase();
+            const parsedUrl = getSafeHttpUrl(url);
 
-            return lowerUrl.includes("drive.google.com") ||
-                lowerUrl.includes("docs.google.com") ||
-                lowerUrl.includes("sheets.google.com") ||
-                lowerUrl.includes("slides.google.com");
+            if (!parsedUrl) {
+                return false;
+            }
+
+            return hostnameMatches(parsedUrl.hostname, "drive.google.com") ||
+                hostnameMatches(parsedUrl.hostname, "docs.google.com") ||
+                hostnameMatches(parsedUrl.hostname, "sheets.google.com") ||
+                hostnameMatches(parsedUrl.hostname, "slides.google.com");
         }
 
         function getGoogleAccessNote(url) {
@@ -262,42 +331,108 @@
                 return "";
             }
 
-            return `
-                <p class="preview-access-note">
-                    This Google Drive or document link may require you to sign in with your BRACU GSuite account.
-                </p>
-            `;
+            return "This Google Drive or document link may require you to sign in with your BRACU GSuite account.";
+        }
+
+        function createSafeExternalLink(url, label, className) {
+            const parsedUrl = getSafeHttpUrl(url);
+
+            if (!parsedUrl) {
+                return null;
+            }
+
+            const link = document.createElement("a");
+            link.href = parsedUrl.href;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.className = className;
+            link.textContent = label;
+            return link;
+        }
+
+        function createPreviewIframe(url, className, allow = "") {
+            const parsedUrl = getSafeHttpUrl(url);
+
+            if (!parsedUrl) {
+                return null;
+            }
+
+            const iframe = document.createElement("iframe");
+            iframe.src = parsedUrl.href;
+            iframe.className = className;
+            iframe.referrerPolicy = "strict-origin-when-cross-origin";
+
+            if (allow) {
+                iframe.setAttribute("allow", allow);
+            }
+
+            return iframe;
         }
 
         function showFallback(title, message, linkUrl, linkLabel, extraNote = "") {
             resetPdfState();
 
-            previewBody.innerHTML = `
-                <div class="preview-fallback">
-                    <h3>${title}</h3>
-                    <p>${message}</p>
-                    ${extraNote}
-                    <a href="${linkUrl}" target="_blank" class="btn link-btn preview-original-link">
-                        ${linkLabel}
-                    </a>
-                </div>
-            `;
+            const fallback = document.createElement("div");
+            fallback.className = "preview-fallback";
+
+            const heading = document.createElement("h3");
+            heading.textContent = title;
+
+            const paragraph = document.createElement("p");
+            paragraph.textContent = message;
+
+            fallback.append(heading, paragraph);
+
+            if (extraNote) {
+                const note = document.createElement("p");
+                note.className = "preview-access-note";
+                note.textContent = extraNote;
+                fallback.appendChild(note);
+            }
+
+            const link = createSafeExternalLink(
+                linkUrl,
+                linkLabel,
+                "btn link-btn preview-original-link"
+            );
+
+            if (link) {
+                fallback.appendChild(link);
+            }
+
+            previewBody.replaceChildren(fallback);
         }
 
-        function openModal(fileUrl, fileTitle) {
-            const safeFileUrl = encodeURI(fileUrl);
-
+        function openModal(fileUrl, fileTitle, downloadUrl = "") {
+            const parsedUrl = getSafeHttpUrl(fileUrl);
             openPreviewShell(fileTitle || "File Preview");
 
+            if (!parsedUrl) {
+                hideOpenTab();
+                hideHeaderDownload();
+                showFallback(
+                    "Preview unavailable",
+                    "The stored file URL is invalid.",
+                    window.location.href,
+                    "Return to page"
+                );
+                return;
+            }
+
+            const safeFileUrl = parsedUrl.href;
+
             showOpenTab(safeFileUrl);
-            showHeaderDownload(safeFileUrl, "Download", true);
+            showHeaderDownload(
+                downloadUrl || safeFileUrl,
+                "Download",
+                true
+            );
 
             if (isImageUrl(safeFileUrl)) {
-                resetPdfState();
-
-                previewBody.innerHTML = `
-                    <img src="${safeFileUrl}" alt="${fileTitle || "File Preview"}">
-                `;
+                loadImagePreview(
+                    safeFileUrl,
+                    fileTitle || "Image Preview"
+                );
             } else if (isPdfUrl(safeFileUrl)) {
                 loadPdfPreview(safeFileUrl);
             } else {
@@ -307,6 +442,205 @@
                     safeFileUrl,
                     "Open file"
                 );
+            }
+        }
+
+
+        function loadImagePreview(imageUrl, imageTitle) {
+            resetPdfState();
+
+            const viewer = document.createElement("div");
+            viewer.className = "image-viewer";
+
+            const toolbar = document.createElement("div");
+            toolbar.className = "pdf-toolbar image-toolbar";
+
+            const toolbarLeft = document.createElement("div");
+            toolbarLeft.className = "pdf-toolbar-left";
+
+            const toolbarTitle = document.createElement("strong");
+            toolbarTitle.textContent = "Image Viewer";
+            toolbarLeft.appendChild(toolbarTitle);
+
+            const toolbarRight = document.createElement("div");
+            toolbarRight.className = "pdf-toolbar-right";
+
+            const zoomOut = document.createElement("button");
+            zoomOut.type = "button";
+            zoomOut.className = "pdf-tool-btn";
+            zoomOut.id = "imageZoomOut";
+            zoomOut.setAttribute("aria-label", "Zoom image out");
+            zoomOut.textContent = "−";
+
+            const zoomLabel = document.createElement("span");
+            zoomLabel.className = "pdf-zoom-label";
+            zoomLabel.id = "imageZoomLabel";
+            zoomLabel.textContent = "100%";
+
+            const zoomIn = document.createElement("button");
+            zoomIn.type = "button";
+            zoomIn.className = "pdf-tool-btn";
+            zoomIn.id = "imageZoomIn";
+            zoomIn.setAttribute("aria-label", "Zoom image in");
+            zoomIn.textContent = "+";
+
+            toolbarRight.append(zoomOut, zoomLabel, zoomIn);
+            toolbar.append(toolbarLeft, toolbarRight);
+
+            const scrollContainer = document.createElement("div");
+            scrollContainer.className = "image-scroll-container";
+            scrollContainer.id = "imageScrollContainer";
+            scrollContainer.tabIndex = 0;
+
+            const stage = document.createElement("div");
+            stage.className = "image-preview-stage";
+            stage.id = "imagePreviewStage";
+
+            const image = document.createElement("img");
+            image.className = "image-preview-content";
+            image.id = "zoomablePreviewImage";
+            image.src = imageUrl;
+            image.alt = imageTitle;
+
+            image.addEventListener("load", function () {
+                currentImageNaturalWidth = image.naturalWidth;
+                currentImageNaturalHeight = image.naturalHeight;
+                currentImageScale = 1;
+                refreshImageBaseSize();
+                updateImageZoom();
+            });
+
+            image.addEventListener("error", function () {
+                showFallback(
+                    "Image loading failed",
+                    "The preview could not load this image.",
+                    imageUrl,
+                    "Open image"
+                );
+            });
+
+            stage.appendChild(image);
+            scrollContainer.appendChild(stage);
+            viewer.append(toolbar, scrollContainer);
+            previewBody.replaceChildren(viewer);
+        }
+
+        function getImageViewportSize() {
+            const container = document.getElementById(
+                "imageScrollContainer"
+            );
+
+            if (!container) {
+                return {
+                    width: 240,
+                    height: 240
+                };
+            }
+
+            const styles = window.getComputedStyle(container);
+            const horizontalPadding =
+                parseFloat(styles.paddingLeft || "0") +
+                parseFloat(styles.paddingRight || "0");
+            const verticalPadding =
+                parseFloat(styles.paddingTop || "0") +
+                parseFloat(styles.paddingBottom || "0");
+
+            return {
+                width: Math.max(
+                    240,
+                    container.clientWidth - horizontalPadding
+                ),
+                height: Math.max(
+                    180,
+                    container.clientHeight - verticalPadding
+                )
+            };
+        }
+
+        function refreshImageBaseSize() {
+            if (
+                !currentImageNaturalWidth ||
+                !currentImageNaturalHeight
+            ) {
+                return;
+            }
+
+            const viewport = getImageViewportSize();
+            const fitScale = Math.min(
+                viewport.width / currentImageNaturalWidth,
+                viewport.height / currentImageNaturalHeight,
+                1
+            );
+
+            currentImageBaseWidth = Math.max(
+                120,
+                Math.round(currentImageNaturalWidth * fitScale)
+            );
+        }
+
+        function updateImageZoom() {
+            const container = document.getElementById(
+                "imageScrollContainer"
+            );
+            const stage = document.getElementById(
+                "imagePreviewStage"
+            );
+            const image = document.getElementById(
+                "zoomablePreviewImage"
+            );
+            const label = document.getElementById(
+                "imageZoomLabel"
+            );
+
+            if (
+                !container ||
+                !stage ||
+                !image ||
+                !currentImageBaseWidth ||
+                !currentImageNaturalWidth ||
+                !currentImageNaturalHeight
+            ) {
+                return;
+            }
+
+            const viewport = getImageViewportSize();
+            const aspectRatio =
+                currentImageNaturalHeight /
+                currentImageNaturalWidth;
+
+            const renderedWidth = Math.max(
+                60,
+                Math.round(
+                    currentImageBaseWidth * currentImageScale
+                )
+            );
+            const renderedHeight = Math.max(
+                60,
+                Math.round(renderedWidth * aspectRatio)
+            );
+
+            const stageWidth = Math.max(
+                viewport.width,
+                renderedWidth
+            );
+            const stageHeight = Math.max(
+                viewport.height,
+                renderedHeight
+            );
+
+            stage.style.width = `${stageWidth}px`;
+            stage.style.height = `${stageHeight}px`;
+
+            image.style.width = `${renderedWidth}px`;
+            image.style.height = `${renderedHeight}px`;
+            image.style.left =
+                `${Math.round((stageWidth - renderedWidth) / 2)}px`;
+            image.style.top =
+                `${Math.round((stageHeight - renderedHeight) / 2)}px`;
+
+            if (label) {
+                label.textContent =
+                    `${Math.round(currentImageScale * 100)}%`;
             }
         }
 
@@ -490,7 +824,7 @@
 
             const defaultAspect = firstViewport.height / firstViewport.width;
 
-            column.innerHTML = "";
+            column.replaceChildren();
 
             for (let pageNumber = 1; pageNumber <= currentPdf.numPages; pageNumber += 1) {
                 const holder = document.createElement("section");
@@ -691,7 +1025,7 @@
 
         function closeModal() {
             modal.classList.remove("show");
-            previewBody.innerHTML = "";
+            previewBody.replaceChildren();
             document.body.style.overflow = "";
             hideOpenTab();
             hideHeaderDownload();
@@ -699,156 +1033,205 @@
         }
 
         function getYouTubeEmbedUrl(url) {
-            try {
-                const parsedUrl = new URL(url);
-                const hostname = parsedUrl.hostname;
+            const parsedUrl = getSafeHttpUrl(url);
 
-                if (hostname.includes("youtube.com")) {
-                    const videoId = parsedUrl.searchParams.get("v");
-
-                    if (videoId) {
-                        return `https://www.youtube.com/embed/${videoId}`;
-                    }
-
-                    if (parsedUrl.pathname.startsWith("/shorts/")) {
-                        const shortsId = parsedUrl.pathname.split("/shorts/")[1];
-
-                        if (shortsId) {
-                            return `https://www.youtube.com/embed/${shortsId}`;
-                        }
-                    }
-                }
-
-                if (hostname.includes("youtu.be")) {
-                    const videoId = parsedUrl.pathname.replace("/", "");
-
-                    if (videoId) {
-                        return `https://www.youtube.com/embed/${videoId}`;
-                    }
-                }
-
-                return null;
-            } catch (error) {
+            if (!parsedUrl) {
                 return null;
             }
+
+            const hostname = parsedUrl.hostname;
+
+            if (hostnameMatches(hostname, "youtube.com")) {
+                const videoId = parsedUrl.searchParams.get("v");
+
+                if (hasSafeId(videoId)) {
+                    return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}`;
+                }
+
+                if (parsedUrl.pathname.startsWith("/shorts/")) {
+                    const shortsId = parsedUrl.pathname.split("/shorts/")[1]?.split("/")[0];
+
+                    if (hasSafeId(shortsId)) {
+                        return `https://www.youtube.com/embed/${encodeURIComponent(shortsId)}`;
+                    }
+                }
+            }
+
+            if (hostnameMatches(hostname, "youtu.be")) {
+                const videoId = parsedUrl.pathname.split("/").filter(Boolean)[0];
+
+                if (hasSafeId(videoId)) {
+                    return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}`;
+                }
+            }
+
+            return null;
         }
 
         function getGoogleDrivePreviewUrl(url) {
-            try {
-                const parsedUrl = new URL(url);
-                const hostname = parsedUrl.hostname;
+            const parsedUrl = getSafeHttpUrl(url);
 
-                if (hostname.includes("docs.google.com")) {
-                    const docMatch = parsedUrl.pathname.match(/\/(document|spreadsheets|presentation)\/d\/([^/]+)/);
-
-                    if (docMatch && docMatch[1] && docMatch[2]) {
-                        const docType = docMatch[1];
-                        const docId = docMatch[2];
-
-                        return {
-                            type: "google_doc",
-                            previewUrl: `https://docs.google.com/${docType}/d/${docId}/preview`
-                        };
-                    }
-
-                    return {
-                        type: "unknown",
-                        previewUrl: url
-                    };
-                }
-
-                if (!hostname.includes("drive.google.com")) {
-                    return null;
-                }
-
-                const fileMatch = parsedUrl.pathname.match(/\/file\/d\/([^/]+)/);
-
-                if (fileMatch && fileMatch[1]) {
-                    return {
-                        type: "file",
-                        previewUrl: `https://drive.google.com/file/d/${fileMatch[1]}/preview`
-                    };
-                }
-
-                if (parsedUrl.pathname.includes("/open")) {
-                    const fileId = parsedUrl.searchParams.get("id");
-
-                    if (fileId) {
-                        return {
-                            type: "file",
-                            previewUrl: `https://drive.google.com/file/d/${fileId}/preview`
-                        };
-                    }
-                }
-
-               const folderMatch = parsedUrl.pathname.match(/\/drive\/folders\/([^/?#]+)/);
-
-if (folderMatch && folderMatch[1]) {
-    const folderId = folderMatch[1];
-    return {
-        type: "folder",
-        previewUrl: `https://drive.google.com/embeddedfolderview?id=${folderMatch[1]}#list`
-    };
-}
-                return {
-                    type: "unknown",
-                    previewUrl: url
-                };
-
-            } catch (error) {
+            if (!parsedUrl) {
                 return null;
             }
+
+            const hostname = parsedUrl.hostname;
+
+            if (
+                hostnameMatches(hostname, "docs.google.com") ||
+                hostnameMatches(hostname, "sheets.google.com") ||
+                hostnameMatches(hostname, "slides.google.com")
+            ) {
+                const docMatch = parsedUrl.pathname.match(
+                    /\/(document|spreadsheets|presentation)\/d\/([^/]+)/
+                );
+
+                if (docMatch && hasSafeId(docMatch[2])) {
+                    const docType = docMatch[1];
+                    const docId = encodeURIComponent(docMatch[2]);
+
+                    return {
+                        type: "google_doc",
+                        previewUrl: `https://docs.google.com/${docType}/d/${docId}/preview`
+                    };
+                }
+
+                return {
+                    type: "unknown",
+                    previewUrl: parsedUrl.href
+                };
+            }
+
+            if (!hostnameMatches(hostname, "drive.google.com")) {
+                return null;
+            }
+
+            const fileMatch = parsedUrl.pathname.match(/\/file\/d\/([^/]+)/);
+
+            if (fileMatch && hasSafeId(fileMatch[1])) {
+                return {
+                    type: "file",
+                    previewUrl: `https://drive.google.com/file/d/${encodeURIComponent(fileMatch[1])}/preview`
+                };
+            }
+
+            if (parsedUrl.pathname === "/open") {
+                const fileId = parsedUrl.searchParams.get("id");
+
+                if (hasSafeId(fileId)) {
+                    return {
+                        type: "file",
+                        previewUrl: `https://drive.google.com/file/d/${encodeURIComponent(fileId)}/preview`
+                    };
+                }
+            }
+
+            const folderMatch = parsedUrl.pathname.match(/\/drive\/folders\/([^/?#]+)/);
+
+            if (folderMatch && hasSafeId(folderMatch[1])) {
+                return {
+                    type: "folder",
+                    previewUrl: `https://drive.google.com/embeddedfolderview?id=${encodeURIComponent(folderMatch[1])}#list`
+                };
+            }
+
+            return {
+                type: "unknown",
+                previewUrl: parsedUrl.href
+            };
         }
 
         function openExternalPreview(url, title) {
-            const safeUrl = encodeURI(url);
-
+            const parsedUrl = getSafeHttpUrl(url);
             openPreviewShell(title || "Link Preview");
+
+            if (!parsedUrl) {
+                hideOpenTab();
+                hideHeaderDownload();
+                showFallback(
+                    "Preview unavailable",
+                    "This link is not a valid HTTP or HTTPS URL.",
+                    window.location.href,
+                    "Return to page"
+                );
+                return;
+            }
+
+            const safeUrl = parsedUrl.href;
 
             hideOpenTab();
             showHeaderDownload(safeUrl, "Open Original", false);
 
-            const youtubeEmbedUrl = getYouTubeEmbedUrl(url);
-            const drivePreviewUrl = getGoogleDrivePreviewUrl(url);
-            const googleAccessNote = getGoogleAccessNote(url);
+            const youtubeEmbedUrl = getYouTubeEmbedUrl(safeUrl);
+            const drivePreviewUrl = getGoogleDrivePreviewUrl(safeUrl);
+            const googleAccessNote = getGoogleAccessNote(safeUrl);
 
             if (youtubeEmbedUrl) {
                 resetPdfState();
 
-                const youtubeUrlWithOptions =
-                    `${youtubeEmbedUrl}?rel=0&modestbranding=1&origin=${encodeURIComponent(window.location.origin)}`;
+                const videoWrap = document.createElement("div");
+                videoWrap.className = "preview-video-wrap";
 
-                previewBody.innerHTML = `
-                    <div class="preview-video-wrap">
-                        <iframe
-                            src="${youtubeUrlWithOptions}"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            referrerpolicy="strict-origin-when-cross-origin"
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                `;
+                const youtubeUrl = new URL(youtubeEmbedUrl);
+                youtubeUrl.searchParams.set("rel", "0");
+                youtubeUrl.searchParams.set("modestbranding", "1");
+                youtubeUrl.searchParams.set("origin", window.location.origin);
+
+                const iframe = createPreviewIframe(
+                    youtubeUrl.href,
+                    "",
+                    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                );
+
+                if (iframe) {
+                    iframe.allowFullscreen = true;
+                    videoWrap.appendChild(iframe);
+                }
+
+                previewBody.replaceChildren(videoWrap);
             } else if (drivePreviewUrl) {
                 resetPdfState();
 
                 if (drivePreviewUrl.type === "file" || drivePreviewUrl.type === "google_doc") {
-                    previewBody.innerHTML = `
-                        <iframe class="preview-frame" src="${drivePreviewUrl.previewUrl}" allow="autoplay"></iframe>
-                    `;
-                } else if (drivePreviewUrl.type === "folder") {
-    previewBody.innerHTML = `
-        <div class="preview-folder-wrap">
-            <p class="preview-access-note">
-                This Google Drive folder may require BRACU GSuite access. If the preview does not load properly, use Open Original.
-            </p>
+                    const iframe = createPreviewIframe(
+                        drivePreviewUrl.previewUrl,
+                        "preview-frame",
+                        "autoplay"
+                    );
 
-            <iframe
-                class="preview-frame drive-folder-frame"
-                src="${drivePreviewUrl.previewUrl}">
-            </iframe>
-        </div>
-    `;
-} else {
+                    if (iframe) {
+                        previewBody.replaceChildren(iframe);
+                    } else {
+                        showFallback(
+                            "Preview unavailable",
+                            "The Google preview URL is invalid.",
+                            safeUrl,
+                            "Open original link",
+                            googleAccessNote
+                        );
+                    }
+                } else if (drivePreviewUrl.type === "folder") {
+                    const folderWrap = document.createElement("div");
+                    folderWrap.className = "preview-folder-wrap";
+
+                    const note = document.createElement("p");
+                    note.className = "preview-access-note";
+                    note.textContent =
+                        "This Google Drive folder may require BRACU GSuite access. If the preview does not load properly, use Open Original.";
+
+                    const iframe = createPreviewIframe(
+                        drivePreviewUrl.previewUrl,
+                        "preview-frame drive-folder-frame"
+                    );
+
+                    folderWrap.appendChild(note);
+
+                    if (iframe) {
+                        folderWrap.appendChild(iframe);
+                    }
+
+                    previewBody.replaceChildren(folderWrap);
+                } else {
                     showFallback(
                         "Preview may not be available",
                         "This Google link may not allow opening inside StudyBee.",
@@ -858,11 +1241,10 @@ if (folderMatch && folderMatch[1]) {
                     );
                 }
             } else if (isImageUrl(safeUrl)) {
-                resetPdfState();
-
-                previewBody.innerHTML = `
-                    <img src="${safeUrl}" alt="${title || "Image Preview"}">
-                `;
+                loadImagePreview(
+                    safeUrl,
+                    title || "Image Preview"
+                );
             } else if (isPdfUrl(safeUrl)) {
                 showOpenTab(safeUrl);
                 showHeaderDownload(safeUrl, "Download", true);
@@ -886,12 +1268,13 @@ if (folderMatch && folderMatch[1]) {
 
             const fileUrl = previewButton.dataset.fileUrl;
             const fileTitle = previewButton.dataset.fileTitle || "File Preview";
+            const downloadUrl = previewButton.dataset.downloadUrl || "";
 
             if (!fileUrl) {
                 return;
             }
 
-            openModal(fileUrl, fileTitle);
+            openModal(fileUrl, fileTitle, downloadUrl);
         });
 
         document.addEventListener("click", function (event) {
@@ -912,6 +1295,24 @@ if (folderMatch && folderMatch[1]) {
         });
 
         previewBody.addEventListener("click", function (event) {
+            if (event.target.id === "imageZoomIn") {
+                currentImageScale = Math.min(
+                    3,
+                    Number((currentImageScale + 0.15).toFixed(2))
+                );
+                updateImageZoom();
+                return;
+            }
+
+            if (event.target.id === "imageZoomOut") {
+                currentImageScale = Math.max(
+                    0.5,
+                    Number((currentImageScale - 0.15).toFixed(2))
+                );
+                updateImageZoom();
+                return;
+            }
+
             if (!currentPdf) {
                 return;
             }
@@ -928,14 +1329,22 @@ if (folderMatch && folderMatch[1]) {
         });
 
         window.addEventListener("resize", function () {
-            if (!currentPdf) {
-                return;
-            }
-
             clearTimeout(pdfResizeTimer);
+
             pdfResizeTimer = setTimeout(function () {
-                refreshPdfBaseWidth();
-                rerenderScrollablePdf();
+                const image = document.getElementById(
+                    "zoomablePreviewImage"
+                );
+
+                if (image && currentImageNaturalWidth) {
+                    refreshImageBaseSize();
+                    updateImageZoom();
+                }
+
+                if (currentPdf) {
+                    refreshPdfBaseWidth();
+                    rerenderScrollablePdf();
+                }
             }, 180);
         });
 
