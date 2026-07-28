@@ -7,6 +7,7 @@ values can be placed in an uncommitted .env file in the project root.
 
 import os
 import secrets
+import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -16,6 +17,8 @@ from dotenv import load_dotenv
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+TESTING = "test" in sys.argv
 
 # Load local development variables without overriding real platform variables.
 load_dotenv(BASE_DIR / ".env", override=False)
@@ -250,7 +253,11 @@ STORAGES = {
         },
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if TESTING
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        ),
     },
 }
 
