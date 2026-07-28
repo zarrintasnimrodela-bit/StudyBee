@@ -25,3 +25,5 @@ staticfiles/
 Thumbs.db
 StudyBee-code.zip
 StudyBee-step*.zip
+
+database_backup_*/
