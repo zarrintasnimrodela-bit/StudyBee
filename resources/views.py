@@ -66,13 +66,18 @@ def course_detail(request, course_id):
             Q(description__icontains=search_query)
         )
 
+    alphabetical_categories = sorted(
+        Resource.CATEGORY_CHOICES,
+        key=lambda choice: choice[1].lower(),
+    )
+
     category_order = Case(
         *[
             When(category=category_code, then=position)
             for position, (category_code, _label)
-            in enumerate(Resource.CATEGORY_CHOICES)
+            in enumerate(alphabetical_categories)
         ],
-        default=len(Resource.CATEGORY_CHOICES),
+        default=len(alphabetical_categories),
         output_field=IntegerField(),
     )
 
@@ -108,7 +113,7 @@ def course_detail(request, course_id):
 
     grouped_resources = []
 
-    for category_code, category_label in Resource.CATEGORY_CHOICES:
+    for category_code, category_label in alphabetical_categories:
         section_resources = resources_by_category.get(category_code)
 
         if not section_resources:
