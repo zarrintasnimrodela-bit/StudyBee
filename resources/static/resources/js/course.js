@@ -1402,3 +1402,92 @@
     setupPreviewModal();
     setupCopyResourceLinks();
 })();
+
+// Browser-local favorites and recently viewed courses.
+(function () {
+    const FAVORITES_KEY = "studybee_favorite_courses";
+    const RECENT_KEY = "studybee_recent_courses";
+    const MAX_RECENT_COURSES = 6;
+    const button = document.getElementById(
+        "courseFavoriteButton"
+    );
+
+    if (!button) {
+        return;
+    }
+
+    const course = {
+        id: String(button.dataset.courseId || ""),
+        code: button.dataset.courseCode || "",
+        title: button.dataset.courseTitle || "",
+        url: button.dataset.courseUrl || "",
+    };
+
+    function read(key) {
+        try {
+            const value = JSON.parse(
+                localStorage.getItem(key) || "[]"
+            );
+
+            return Array.isArray(value) ? value : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function write(key, value) {
+        try {
+            localStorage.setItem(
+                key,
+                JSON.stringify(value)
+            );
+        } catch (error) {
+            // Storage can be unavailable without breaking the page.
+        }
+    }
+
+    function isFavorite() {
+        return read(FAVORITES_KEY).some(
+            (item) => String(item.id) === course.id
+        );
+    }
+
+    function updateButton() {
+        const active = isFavorite();
+
+        button.classList.toggle("active", active);
+        button.textContent = (
+            active
+                ? "★ Favorited"
+                : "☆ Favorite"
+        );
+    }
+
+    function rememberRecent() {
+        const recent = read(RECENT_KEY).filter(
+            (item) => String(item.id) !== course.id
+        );
+
+        recent.unshift(course);
+        write(
+            RECENT_KEY,
+            recent.slice(0, MAX_RECENT_COURSES)
+        );
+    }
+
+    button.addEventListener("click", function () {
+        const favorites = read(FAVORITES_KEY).filter(
+            (item) => String(item.id) !== course.id
+        );
+
+        if (!isFavorite()) {
+            favorites.unshift(course);
+        }
+
+        write(FAVORITES_KEY, favorites);
+        updateButton();
+    });
+
+    rememberRecent();
+    updateButton();
+})();

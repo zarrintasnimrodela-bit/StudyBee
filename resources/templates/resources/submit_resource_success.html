@@ -1,0 +1,23 @@
+{% extends "resources/base_report.html" %}
+
+{% block title %}Submission Received - StudyBee{% endblock %}
+
+{% block content %}
+    <section class="report-card success-card">
+        <div class="success-icon">✓</div>
+        <h2>Submission received</h2>
+
+        {% if submitted_title %}
+            <p>
+                <strong>{{ submitted_title }}</strong> is now waiting for admin review.
+            </p>
+        {% else %}
+            <p>Your resource is now waiting for admin review.</p>
+        {% endif %}
+
+        <div class="success-actions">
+            <a href="{% url 'home' %}" class="btn primary-btn">Back to courses</a>
+            <a href="{% url 'submit_resource' %}" class="btn link-btn">Submit another</a>
+        </div>
+    </section>
+{% endblock %}

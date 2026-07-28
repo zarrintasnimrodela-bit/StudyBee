@@ -11,13 +11,25 @@
             <h2>Report an issue</h2>
         </div>
 
+        {% if linked_resource %}
+            <p class="linked-resource-notice">
+                Reporting:
+                <strong>{{ linked_resource.course.course_code }} — {{ linked_resource.title }}</strong>
+            </p>
+        {% endif %}
+
         <p class="report-intro">
-            Found a broken link, wrong resource, or want something removed? Submit it here and it will appear in the admin panel.
+            Found a broken link, wrong resource, or want something removed?
+            Submit it here and it will appear in the admin panel.
+            Add your email if you want a resolution update.
         </p>
 
         <form method="post" class="report-form">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ next_url }}">
+            {{ form.resource }}
+
+            {{ form.non_field_errors }}
 
             <div class="report-field">
                 <label>Issue type</label>
@@ -44,7 +56,7 @@
             </div>
 
             <div class="report-field">
-                <label>Contact email</label>
+                <label>Contact email <span>(optional)</span></label>
                 {{ form.contact_email }}
                 {{ form.contact_email.errors }}
             </div>

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}StudyBee{% endblock %}</title>
 
-    <link rel="stylesheet" href="{% static 'resources/css/course.css' %}">
+    <link rel="stylesheet" href="{% static 'resources/css/course.css' %}?v=7.0">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -22,6 +22,8 @@
 
         <nav class="nav-links">
             <a href="{% url 'home' %}">Courses</a>
+            <a href="{% url 'global_search' %}">Search</a>
+            <a href="{% url 'submit_resource' %}">Submit</a>
             <a href="/admin/">Admin</a>
         </nav>
     </header>

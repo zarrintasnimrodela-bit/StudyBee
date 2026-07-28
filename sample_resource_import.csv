@@ -1,0 +1,2 @@
+course_code,course_title,course_description,hard_prerequisite,soft_prerequisite,lab_type,title,category,exam_part,question_type,description,external_link,solution_link,semester_term,semester_year,verification_status
+CSE260,Digital Logic Design,,,CSE251,NO_LAB,Sample Lecture Notes,NOTE,MIDTERM,,Example bulk-imported resource,https://example.com/lecture-notes,,SUMMER,2026,UNVERIFIED

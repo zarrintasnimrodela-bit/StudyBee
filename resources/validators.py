@@ -1,6 +1,7 @@
-import os
-from pathlib import Path
+from pathlib import PurePath, PureWindowsPath
+
 from django.core.exceptions import ValidationError
+
 
 MAX_FILE_SIZE = 50 * 1024 * 1024
 
@@ -18,19 +19,32 @@ ALLOWED_EXTENSIONS = {
     ".jpeg",
 }
 
-def validate_resource_file(file):
-    ext = Path(file.name).suffix.lower()
-
-    if ext not in ALLOWED_EXTENSIONS:
-        raise ValidationError(
-            "Unsupported file type. Allowed: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, ZIP, PNG, JPG."
-        )
-
-    if file.size > MAX_FILE_SIZE:
-        raise ValidationError(
-            "File size exceeds the 50 MB limit."
-        )
 
 def sanitize_filename(filename):
-    name = os.path.basename(filename)
-    return name.replace("..", "").replace("/", "").replace("\\", "")
+    """Return a safe basename for Windows-style or POSIX-style paths."""
+    windows_name = PureWindowsPath(str(filename)).name
+    return PurePath(windows_name).name
+
+
+def validate_resource_file(uploaded_file):
+    if not uploaded_file:
+        return
+
+    safe_name = sanitize_filename(uploaded_file.name)
+    extension = PurePath(safe_name).suffix.lower()
+
+    if extension not in ALLOWED_EXTENSIONS:
+        allowed = ", ".join(
+            extension.lstrip(".").upper()
+            for extension in sorted(ALLOWED_EXTENSIONS)
+        )
+        raise ValidationError(
+            f"Unsupported file type. Allowed: {allowed}."
+        )
+
+    file_size = getattr(uploaded_file, "size", 0)
+
+    if file_size > MAX_FILE_SIZE:
+        raise ValidationError(
+            "File is too large. Maximum allowed size is 50 MB."
+        )

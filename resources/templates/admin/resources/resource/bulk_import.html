@@ -1,0 +1,42 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+    <div id="content-main">
+        <h1>Bulk import resources</h1>
+
+        <p>
+            Upload a UTF-8 CSV. Existing resources with the same course and title
+            are updated; other rows create new resources.
+        </p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <div class="submit-row">
+                <input type="submit" value="Import CSV" class="default">
+                <a href="{% url 'admin:resources_resource_changelist' %}">
+                    Cancel
+                </a>
+            </div>
+        </form>
+
+        <h2>Required columns</h2>
+        <pre>course_code,course_title,title,category,external_link</pre>
+
+        <h2>Optional columns</h2>
+        <pre>course_description,hard_prerequisite,soft_prerequisite,lab_type,exam_part,question_type,description,solution_link,semester_term,semester_year,verification_status</pre>
+
+        <p>
+            Accepted category values include either codes such as
+            <code>NOTE</code> or labels such as <code>Notes</code>.
+        </p>
+
+        <p>
+            Imported rows become normal resources immediately. Find them
+            in Admin → Resources, on the matching course page, or through
+            global search. Leave verification status blank or use
+            <code>UNVERIFIED</code> for community resources.
+        </p>
+    </div>
+{% endblock %}

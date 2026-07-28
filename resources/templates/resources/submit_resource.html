@@ -1,0 +1,122 @@
+{% extends "resources/base_report.html" %}
+
+{% block title %}Submit Resource - StudyBee{% endblock %}
+
+{% block content %}
+    <a href="{% url 'home' %}" class="back-link">← Back to courses</a>
+
+    <section class="report-card submission-card">
+        <div class="section-title">
+            <span>Student contribution</span>
+            <h2>Submit a resource</h2>
+        </div>
+
+        <p class="report-intro">
+            Your submission will stay pending until an admin reviews it.
+            Upload one supported file up to 50 MB or provide an external link.
+        </p>
+
+        <form method="post" enctype="multipart/form-data" class="report-form">
+            {% csrf_token %}
+            {{ form.website }}
+            {{ form.non_field_errors }}
+
+            <div class="submission-grid">
+                <div class="report-field">
+                    <label>Course</label>
+                    {{ form.course }}
+                    {{ form.course.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Resource title</label>
+                    {{ form.title }}
+                    {{ form.title.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Resource type</label>
+                    {{ form.category }}
+                    {{ form.category.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Syllabus</label>
+                    {{ form.exam_part }}
+                    {{ form.exam_part.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Question type</label>
+                    {{ form.question_type }}
+                    {{ form.question_type.errors }}
+                    <small>Only required when Resource type is Questions.</small>
+                </div>
+
+                <div class="report-field">
+                    <label>Semester term</label>
+                    {{ form.semester_term }}
+                    {{ form.semester_term.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Semester year</label>
+                    {{ form.semester_year }}
+                    {{ form.semester_year.errors }}
+                </div>
+
+                <div class="report-field submission-full">
+                    <label>Description</label>
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Main file</label>
+                    {{ form.file }}
+                    {{ form.file.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Main external link</label>
+                    {{ form.external_link }}
+                    {{ form.external_link.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Solution file</label>
+                    {{ form.solution_file }}
+                    {{ form.solution_file.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Solution link</label>
+                    {{ form.solution_link }}
+                    {{ form.solution_link.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Your name</label>
+                    {{ form.submitter_name }}
+                    {{ form.submitter_name.errors }}
+                </div>
+
+                <div class="report-field">
+                    <label>Your email</label>
+                    {{ form.submitter_email }}
+                    {{ form.submitter_email.errors }}
+                </div>
+
+                <div class="report-field submission-full">
+                    <label>Note to admin</label>
+                    {{ form.note_to_admin }}
+                    {{ form.note_to_admin.errors }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn primary-btn report-submit">
+                Submit for Review
+            </button>
+        </form>
+    </section>
+{% endblock %}

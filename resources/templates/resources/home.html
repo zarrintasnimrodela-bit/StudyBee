@@ -4,10 +4,9 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyBee - BRACU CSE Resource Hub</title>
+    <title>StudyBee - BRACU Resource Hub</title>
 
-    <link rel="stylesheet" href="{% static 'resources/css/home.css' %}">
-
+    <link rel="stylesheet" href="{% static 'resources/css/home.css' %}?v=7.0">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -20,14 +19,16 @@
                 <p>Your BRACU study hive</p>
             </div>
         </a>
-<nav class="nav-links">
-    <button type="button" class="nav-about-btn" id="aboutOpen">About</button>
-    <a href="/admin/">Admin</a>
-</nav>
+
+        <nav class="nav-links">
+            <a href="{% url 'global_search' %}">Search all</a>
+            <a href="{% url 'submit_resource' %}">Submit resource</a>
+            <button type="button" class="nav-about-btn" id="aboutOpen">About</button>
+            <a href="/admin/">Admin</a>
+        </nav>
     </header>
 
     <section class="hero">
-
         <div class="hero-bg"></div>
 
         <div class="hero-shape shape-one">✦</div>
@@ -36,10 +37,9 @@
         <div class="hero-shape shape-four">✏️</div>
 
         <div class="hero-inner">
-
             <div class="hero-text">
                 <div class="mini-label">
-                    <span>BRACU CSE</span>
+                    <span>BRACU</span>
                     <span>Resource Hive</span>
                 </div>
 
@@ -50,59 +50,108 @@
 
                 <p>
                     Find slides, notes, lab files, videos, questions and useful links
-                    neatly organized by courses and syllabus.
+                    neatly organized by courses and semester.
                 </p>
             </div>
 
             <div class="hero-visual">
-    <img src="{% static 'resources/images/hero.jpg' %}" alt="Study resources">
-</div>
-
+                <img src="{% static 'resources/images/hero.jpg' %}" alt="Study resources">
+            </div>
         </div>
     </section>
 
     <section class="search-wrapper">
-        <form method="GET" class="search-card">
-            <label>What course are you looking for?</label>
+        <form method="get" action="{% url 'global_search' %}" class="search-card">
+            <label for="courseSearchInput">What are you looking for?</label>
 
             <div class="search-row">
-                <input type="text" id="courseSearchInput" placeholder="Search by course code or title...">
-                <button type="submit">Search</button>
+                <input
+                    type="search"
+                    id="courseSearchInput"
+                    name="q"
+                    value="{{ query }}"
+                    placeholder="Search courses or resources..."
+                    autocomplete="off">
+                <button type="submit">Search all</button>
             </div>
+
+            <p class="search-helper">
+                Typing filters the course shelf instantly. Press Search all to search every resource.
+            </p>
         </form>
     </section>
 
-
-
-
     <main class="container" id="course-directory">
+
+        <section class="personal-course-section" id="favoriteCoursesSection" hidden>
+            <div class="section-header">
+                <div>
+                    <span class="section-kicker">Saved on this device</span>
+                    <h2>Favorite courses</h2>
+                    <p>Your starred courses appear here.</p>
+                </div>
+            </div>
+            <div class="personal-course-grid" id="favoriteCoursesGrid"></div>
+        </section>
+
+        <section class="personal-course-section" id="recentCoursesSection" hidden>
+            <div class="section-header">
+                <div>
+                    <span class="section-kicker">Quick return</span>
+                    <h2>Recently viewed</h2>
+                    <p>Your latest course visits on this browser.</p>
+                </div>
+            </div>
+            <div class="personal-course-grid" id="recentCoursesGrid"></div>
+        </section>
 
         <div class="section-header">
             <div>
                 <span class="section-kicker">Course shelf</span>
-                <h2>Browse CSE courses</h2>
+                <h2>Browse courses</h2>
                 <p>Pick a course and open its organized study resources.</p>
             </div>
         </div>
 
         <div class="course-grid">
             {% for course in courses %}
-                <a href="{% url 'course_detail' course.id %}" class="course-card reveal">
-                    <div class="course-icon">
-                        {{ course.course_code|slice:":3" }}
-                    </div>
+                <article
+                    class="course-card reveal"
+                    data-course-id="{{ course.id }}"
+                    data-course-code="{{ course.course_code }}"
+                    data-course-title="{{ course.course_title }}"
+                    data-course-url="{% url 'course_detail' course.id %}">
 
-                    <div class="course-info">
-                        <h3>{{ course.course_code }}</h3>
-                        <p class="course-title">{{ course.course_title }}</p>
+                    <a
+                        href="{% url 'course_detail' course.id %}"
+                        class="course-card-link">
 
-                        <p class="resource-count">
-                            {{ course.resource_count }} resource{% if course.resource_count != 1 %}s{% endif %} available
-                        </p>
-                    </div>
+                        <div class="course-icon">
+                            {{ course.course_code|slice:":3" }}
+                        </div>
 
-                    <div class="card-arrow">→</div>
-                </a>
+                        <div class="course-info">
+                            <h3>{{ course.course_code }}</h3>
+                            <p class="course-title">{{ course.course_title }}</p>
+
+                            <p class="resource-count">
+                                {{ course.resource_count }}
+                                resource{{ course.resource_count|pluralize }}
+                                available
+                            </p>
+                        </div>
+
+                        <div class="card-arrow">→</div>
+                    </a>
+
+                    <button
+                        type="button"
+                        class="favorite-course-btn"
+                        aria-label="Add {{ course.course_code }} to favorites"
+                        title="Favorite course">
+                        ☆
+                    </button>
+                </article>
             {% empty %}
                 <div class="empty reveal">
                     <p>No courses found.</p>
@@ -112,50 +161,48 @@
 
     </main>
 
-
     <footer class="site-footer">
-    <div class="footer-inner">
-        <div>
-            <h3>StudyBee 🐝</h3>
-            <p>Your BRACU study hive for organized course resources.</p>
+        <div class="footer-inner">
+            <div>
+                <h3>StudyBee 🐝</h3>
+                <p>Your BRACU study hive for organized course resources.</p>
 
-            <p class="footer-disclaimer">
-    Materials are collected from publicly shared Facebook posts and student-shared resources.
-    StudyBee only organizes them for easier access and is not an official BRACU website.
-</p>
+                <p class="footer-disclaimer">
+                    Materials are collected from publicly shared posts and student-shared resources.
+                    StudyBee organizes them for easier access and is not an official BRACU website.
+                </p>
+            </div>
+
+            <div class="footer-links">
+                <a href="{% url 'global_search' %}">Search all</a>
+                <a href="{% url 'submit_resource' %}">Submit resource</a>
+                <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">Report an issue</a>
+            </div>
         </div>
+    </footer>
 
-        <p class="footer-note">Made for BRACU students</p>
-        <p class="footer-note">
-    <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">Report an issue</a>
-</p>
+    <div class="about-modal" id="aboutModal">
+        <div class="about-modal-card">
+            <button type="button" class="about-close" id="aboutClose">×</button>
+
+            <span class="about-kicker">About StudyBee</span>
+            <h2>A cleaner way to find BRACU course resources.</h2>
+
+            <p>
+                StudyBee is a student-made resource hub that organizes publicly shared
+                materials, links, videos, notes, questions, and useful files in one place.
+            </p>
+
+            <p>
+                Favorites and recently viewed courses are saved only in your current browser.
+            </p>
+
+            <p class="about-note">
+                Course materials may vary by semester, so always follow your current faculty instructions.
+            </p>
+        </div>
     </div>
-</footer>
 
-<div class="about-modal" id="aboutModal">
-    <div class="about-modal-card">
-        <button type="button" class="about-close" id="aboutClose">×</button>
-
-        <span class="about-kicker">About StudyBee</span>
-        <h2>A cleaner way to find BRACU course resources.</h2>
-
-        <p>
-            StudyBee is a student-made BRACU course resource hub that organizes publicly shared materials,
-            links, videos, notes, questions, and useful files in one place.
-        </p>
-
-        <p>
-            It is built to help students find resources faster without scrolling through scattered posts,
-            folders, and links.
-        </p>
-
-        <p class="about-note">
-            Course materials may vary by semester, so always follow your current faculty instructions.
-        </p>
-    </div>
-</div>
-
-<script src="{% static 'resources/js/home.js' %}"></script>
-
+    <script src="{% static 'resources/js/home.js' %}?v=7.0"></script>
 </body>
 </html>
