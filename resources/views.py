@@ -217,7 +217,10 @@ def global_search(request):
 
 
 def course_detail(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(
+        Course,
+        course_code__iexact=course_code
+    )
 
     all_resources_count = _public_resources(
         course.resources.all()

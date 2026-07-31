@@ -120,10 +120,10 @@
                     data-course-id="{{ course.id }}"
                     data-course-code="{{ course.course_code }}"
                     data-course-title="{{ course.course_title }}"
-                    data-course-url="{% url 'course_detail' course.id %}">
+                    data-course-url="{% url 'course_detail' course.course_code %}">
 
                     <a
-                        href="{% url 'course_detail' course.id %}"
+                        href="{% url 'course_detail' course.course_code %}"
                         class="course-card-link">
 
                         <div class="course-icon">

@@ -51,7 +51,7 @@
                         data-course-id="{{ course.id }}"
                         data-course-code="{{ course.course_code }}"
                         data-course-title="{{ course.course_title }}"
-                        data-course-url="{% url 'course_detail' course.id %}">
+                        data-course-url="{% url 'course_detail' course.course_code %}">
                         ☆ Favorite
                     </button>
                 </div>
@@ -279,7 +279,7 @@
                     {% if focus_resource %}
                         <div class="focused-resource-banner">
                             <span>Showing one selected search result.</span>
-                            <a href="{% url 'course_detail' course.id %}">Show all course resources</a>
+                            <a href="{% url 'course_detail' course.course_code %}">Show all course resources</a>
                         </div>
                     {% endif %}
 

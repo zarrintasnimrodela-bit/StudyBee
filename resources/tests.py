@@ -192,7 +192,7 @@ class CourseDetailViewTests(TestCase):
         return self.client.get(
             reverse(
                 "course_detail",
-                args=[self.course.id],
+                args=[self.course.course_code],
             ),
             params,
         )
@@ -508,7 +508,7 @@ class StudentSubmissionTests(TestCase):
         course_response = self.client.get(
             reverse(
                 "course_detail",
-                args=[self.course.id],
+                args=[self.course.course_code],
             )
         )
         self.assertContains(
@@ -597,7 +597,7 @@ class ReportIssueViewTests(TestCase):
         course_response = self.client.get(
             reverse(
                 "course_detail",
-                args=[self.course.id],
+                args=[self.course.course_code],
             )
         )
         self.assertNotContains(
