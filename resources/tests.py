@@ -1,9 +1,9 @@
 from io import BytesIO
 
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core import mail
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -192,7 +192,11 @@ class CourseDetailViewTests(TestCase):
         return self.client.get(
             reverse(
                 "course_detail",
-                args=[self.course.course_code],
+                kwargs={
+                    "course_code": (
+                        self.course.course_code.lower()
+                    ),
+                },
             ),
             params,
         )
@@ -243,13 +247,18 @@ class CourseDetailViewTests(TestCase):
 
         prerequisite_url = reverse(
             "course_detail",
-            args=[self.prerequisite.id],
+            kwargs={
+                "course_code": (
+                    self.prerequisite.course_code.lower()
+                ),
+            },
         )
 
         self.assertContains(response, prerequisite_url)
 
     def test_sections_are_alphabetical(self):
         response = self.get_course()
+
         names = [
             section["name"]
             for section in response.context[
@@ -295,6 +304,7 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(second_page, "Previous")
 
         rendered = first_page.content.decode("utf-8")
+
         self.assertGreater(
             rendered.find(
                 'class="resource-pagination-panel"'
@@ -308,7 +318,9 @@ class CourseDetailViewTests(TestCase):
         response = self.client.get(
             reverse(
                 "course_detail",
-                args=[999999],
+                kwargs={
+                    "course_code": "missing-course",
+                },
             )
         )
 
@@ -462,6 +474,7 @@ class StudentSubmissionTests(TestCase):
             response,
             reverse("submit_resource_success"),
         )
+
         submission = ResourceSubmission.objects.get()
 
         self.assertEqual(
@@ -474,7 +487,9 @@ class StudentSubmissionTests(TestCase):
             ).exists()
         )
 
-    def test_admin_approval_creates_public_unverified_resource(self):
+    def test_admin_approval_creates_public_unverified_resource(
+        self,
+    ):
         submission = ResourceSubmission.objects.create(
             course=self.course,
             title="Approved Notes",
@@ -508,9 +523,14 @@ class StudentSubmissionTests(TestCase):
         course_response = self.client.get(
             reverse(
                 "course_detail",
-                args=[self.course.course_code],
+                kwargs={
+                    "course_code": (
+                        self.course.course_code.lower()
+                    ),
+                },
             )
         )
+
         self.assertContains(
             course_response,
             resource.title,
@@ -582,6 +602,7 @@ class ReportIssueViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
+
         report = ReportIssue.objects.get()
         self.resource.refresh_from_db()
 
@@ -597,9 +618,14 @@ class ReportIssueViewTests(TestCase):
         course_response = self.client.get(
             reverse(
                 "course_detail",
-                args=[self.course.course_code],
+                kwargs={
+                    "course_code": (
+                        self.course.course_code.lower()
+                    ),
+                },
             )
         )
+
         self.assertNotContains(
             course_response,
             self.resource.title,
@@ -661,15 +687,24 @@ class BulkImportTests(TestCase):
         response = self.client.get(
             reverse(
                 "course_detail",
-                args=[resource.course_id],
+                kwargs={
+                    "course_code": (
+                        resource.course.course_code.lower()
+                    ),
+                },
             )
         )
+
         self.assertContains(response, resource.title)
 
 
 @override_settings(
-    EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
-    DEFAULT_FROM_EMAIL="StudyBee <studybee@example.com>",
+    EMAIL_BACKEND=(
+        "django.core.mail.backends.locmem.EmailBackend"
+    ),
+    DEFAULT_FROM_EMAIL=(
+        "StudyBee <studybee@example.com>"
+    ),
 )
 class ReportIssueResolutionTests(TestCase):
     def setUp(self):
@@ -686,11 +721,16 @@ class ReportIssueResolutionTests(TestCase):
             title="Community Notes",
             category="NOTE",
             exam_part="GENERAL",
-            external_link="https://example.com/community-notes",
+            external_link=(
+                "https://example.com/community-notes"
+            ),
             verification_status="NEEDS_REVIEW",
         )
 
-    def create_report(self, email="student@example.com"):
+    def create_report(
+        self,
+        email="student@example.com",
+    ):
         return ReportIssue.objects.create(
             resource=self.resource,
             issue_type="BROKEN_LINK",
@@ -698,7 +738,9 @@ class ReportIssueResolutionTests(TestCase):
             contact_email=email,
         )
 
-    def test_resolve_and_republish_restores_resource_and_emails(self):
+    def test_resolve_and_republish_restores_resource_and_emails(
+        self,
+    ):
         report = self.create_report()
 
         with self.captureOnCommitCallbacks(execute=True):
@@ -710,20 +752,33 @@ class ReportIssueResolutionTests(TestCase):
         report.refresh_from_db()
         self.resource.refresh_from_db()
 
-        self.assertEqual(report.status, "RESOLVED")
-        self.assertEqual(report.resolution, "REPUBLISHED")
+        self.assertEqual(
+            report.status,
+            "RESOLVED",
+        )
+        self.assertEqual(
+            report.resolution,
+            "REPUBLISHED",
+        )
         self.assertEqual(
             self.resource.verification_status,
             "UNVERIFIED",
         )
-        self.assertIsNotNone(report.notification_sent_at)
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertIsNotNone(
+            report.notification_sent_at
+        )
+        self.assertEqual(
+            len(mail.outbox),
+            1,
+        )
         self.assertIn(
             "publicly available again",
             mail.outbox[0].body,
         )
 
-    def test_confirm_removed_keeps_resource_hidden_and_emails(self):
+    def test_confirm_removed_keeps_resource_hidden_and_emails(
+        self,
+    ):
         report = self.create_report()
 
         with self.captureOnCommitCallbacks(execute=True):
@@ -735,18 +790,26 @@ class ReportIssueResolutionTests(TestCase):
         report.refresh_from_db()
         self.resource.refresh_from_db()
 
-        self.assertEqual(report.resolution, "REMOVED")
+        self.assertEqual(
+            report.resolution,
+            "REMOVED",
+        )
         self.assertEqual(
             self.resource.verification_status,
             "BROKEN",
         )
-        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(
+            len(mail.outbox),
+            1,
+        )
         self.assertIn(
             "removed from the public StudyBee site",
             mail.outbox[0].body,
         )
 
-    def test_report_without_email_resolves_without_notification(self):
+    def test_report_without_email_resolves_without_notification(
+        self,
+    ):
         report = self.create_report(email="")
 
         with self.captureOnCommitCallbacks(execute=True):
@@ -757,7 +820,18 @@ class ReportIssueResolutionTests(TestCase):
 
         report.refresh_from_db()
 
-        self.assertEqual(report.status, "RESOLVED")
-        self.assertIsNone(report.notification_sent_at)
-        self.assertEqual(report.notification_error, "")
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(
+            report.status,
+            "RESOLVED",
+        )
+        self.assertIsNone(
+            report.notification_sent_at
+        )
+        self.assertEqual(
+            report.notification_error,
+            "",
+        )
+        self.assertEqual(
+            len(mail.outbox),
+            0,
+        )

@@ -216,10 +216,43 @@ def global_search(request):
     )
 
 
-def course_detail(request, course_id):
+def legacy_course_detail(request, course_id):
+    """
+    Redirect old numeric course URLs to clean course-code URLs.
+
+    Example:
+    /course/13/ -> /course/cse423/
+    """
     course = get_object_or_404(
         Course,
-        course_code__iexact=course_code
+        id=course_id,
+    )
+
+    destination = reverse(
+        "course_detail",
+        kwargs={
+            "course_code": course.course_code.lower(),
+        },
+    )
+
+    query_string = request.META.get(
+        "QUERY_STRING",
+        "",
+    )
+
+    if query_string:
+        destination = f"{destination}?{query_string}"
+
+    return redirect(
+        destination,
+        permanent=True,
+    )
+
+
+def course_detail(request, course_code):
+    course = get_object_or_404(
+        Course,
+        course_code__iexact=course_code,
     )
 
     all_resources_count = _public_resources(

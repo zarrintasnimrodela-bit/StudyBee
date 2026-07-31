@@ -6,16 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ course.course_code }} - StudyBee</title>
 
-    <link rel="stylesheet" href="{% static 'resources/css/course.css' %}?v=7.0">
-    <link rel="stylesheet" href="{% static 'resources/css/pdf_viewer.css' %}?v=7.0">
+    <link
+        rel="stylesheet"
+        href="{% static 'resources/css/course.css' %}?v=7.0">
 
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link
+        rel="stylesheet"
+        href="{% static 'resources/css/pdf_viewer.css' %}?v=7.0">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
 </head>
 <body>
 
     <header class="topbar">
         <a href="{% url 'home' %}" class="brand">
             <div class="logo-mark">🐝</div>
+
             <div>
                 <h1>StudyBee</h1>
                 <p>Your BRACU study hive</p>
@@ -32,7 +40,9 @@
 
     <main class="page">
 
-        <a href="{% url 'home' %}" class="back-link">← Back to courses</a>
+        <a href="{% url 'home' %}" class="back-link">
+            ← Back to courses
+        </a>
 
         <section class="course-hero">
             <div class="course-hero-info">
@@ -42,7 +52,9 @@
                 </div>
 
                 <div class="course-title-row">
-                    <h1>{{ course.course_code }} - {{ course.course_title }}</h1>
+                    <h1>
+                        {{ course.course_code }} - {{ course.course_title }}
+                    </h1>
 
                     <button
                         type="button"
@@ -51,45 +63,55 @@
                         data-course-id="{{ course.id }}"
                         data-course-code="{{ course.course_code }}"
                         data-course-title="{{ course.course_title }}"
-                        data-course-url="{% url 'course_detail' course.course_code %}">
+                        data-course-url="{% url 'course_detail' course.course_code|lower %}">
                         ☆ Favorite
                     </button>
                 </div>
 
                 <div class="course-quick-info">
                     <div class="prerequisite-group">
-                        <strong>Hard prerequisite:</strong>
+                        <strong>
+                            Hard prerequisite:
+                        </strong>
 
                         {% if hard_prerequisites %}
                             {% for prerequisite in hard_prerequisites %}
                                 {% if prerequisite.course %}
                                     <a
                                         class="prerequisite-link"
-                                        href="{% url 'course_detail' prerequisite.course.id %}">
+                                        href="{% url 'course_detail' prerequisite.course.course_code|lower %}">
                                         {{ prerequisite.code }}
                                     </a>
                                 {% else %}
-                                    <span class="prerequisite-text">{{ prerequisite.code }}</span>
+                                    <span class="prerequisite-text">
+                                        {{ prerequisite.code }}
+                                    </span>
                                 {% endif %}
                             {% endfor %}
                         {% else %}
-                            <span class="prerequisite-text">None</span>
+                            <span class="prerequisite-text">
+                                None
+                            </span>
                         {% endif %}
                     </div>
 
                     {% if soft_prerequisites %}
                         <div class="prerequisite-group">
-                            <strong>Soft prerequisite:</strong>
+                            <strong>
+                                Soft prerequisite:
+                            </strong>
 
                             {% for prerequisite in soft_prerequisites %}
                                 {% if prerequisite.course %}
                                     <a
                                         class="prerequisite-link"
-                                        href="{% url 'course_detail' prerequisite.course.id %}">
+                                        href="{% url 'course_detail' prerequisite.course.course_code|lower %}">
                                         {{ prerequisite.code }}
                                     </a>
                                 {% else %}
-                                    <span class="prerequisite-text">{{ prerequisite.code }}</span>
+                                    <span class="prerequisite-text">
+                                        {{ prerequisite.code }}
+                                    </span>
                                 {% endif %}
                             {% endfor %}
                         </div>
@@ -123,44 +145,51 @@
                                 All Types
                             </a>
 
-
-                            <a href="{% querystring category='SLIDE' question_type=None page=None focus=None %}"
-                               class="filter-chip {% if category == 'SLIDE' %}active{% endif %}">
+                            <a
+                                href="{% querystring category='SLIDE' question_type=None page=None focus=None %}"
+                                class="filter-chip {% if category == 'SLIDE' %}active{% endif %}">
                                 Slides
                             </a>
 
-                            <a href="{% querystring category='NOTE' question_type=None page=None focus=None %}"
-                               class="filter-chip {% if category == 'NOTE' %}active{% endif %}">
+                            <a
+                                href="{% querystring category='NOTE' question_type=None page=None focus=None %}"
+                                class="filter-chip {% if category == 'NOTE' %}active{% endif %}">
                                 Notes
                             </a>
 
-                            <a href="{% querystring category='QUESTION' page=None focus=None %}"
-                               class="filter-chip {% if category == 'QUESTION' %}active{% endif %}">
+                            <a
+                                href="{% querystring category='QUESTION' page=None focus=None %}"
+                                class="filter-chip {% if category == 'QUESTION' %}active{% endif %}">
                                 Questions
                             </a>
 
-                            <a href="{% querystring category='LAB' question_type=None page=None focus=None %}"
-                               class="filter-chip {% if category == 'LAB' %}active{% endif %}">
+                            <a
+                                href="{% querystring category='LAB' question_type=None page=None focus=None %}"
+                                class="filter-chip {% if category == 'LAB' %}active{% endif %}">
                                 Lab Files
                             </a>
 
-                            <a href="{% querystring category='VIDEO' question_type=None page=None focus=None %}"
-                               class="filter-chip {% if category == 'VIDEO' %}active{% endif %}">
+                            <a
+                                href="{% querystring category='VIDEO' question_type=None page=None focus=None %}"
+                                class="filter-chip {% if category == 'VIDEO' %}active{% endif %}">
                                 Videos
                             </a>
 
-                            <a href="{% querystring category='BOOK' question_type=None page=None focus=None %}"
-                               class="filter-chip {% if category == 'BOOK' %}active{% endif %}">
+                            <a
+                                href="{% querystring category='BOOK' question_type=None page=None focus=None %}"
+                                class="filter-chip {% if category == 'BOOK' %}active{% endif %}">
                                 Books
                             </a>
 
-                            <a href="{% querystring category='LINK' question_type=None page=None focus=None %}"
-                               class="filter-chip {% if category == 'LINK' %}active{% endif %}">
+                            <a
+                                href="{% querystring category='LINK' question_type=None page=None focus=None %}"
+                                class="filter-chip {% if category == 'LINK' %}active{% endif %}">
                                 Links
                             </a>
 
-                            <a href="{% querystring category='OTHER' question_type=None page=None focus=None %}"
-                               class="filter-chip {% if category == 'OTHER' %}active{% endif %}">
+                            <a
+                                href="{% querystring category='OTHER' question_type=None page=None focus=None %}"
+                                class="filter-chip {% if category == 'OTHER' %}active{% endif %}">
                                 Other
                             </a>
                         </div>
@@ -177,23 +206,27 @@
                                     All Questions
                                 </a>
 
-                                <a href="{% querystring question_type='PAST_EXAM' page=None focus=None %}"
-                                   class="filter-chip {% if question_type == 'PAST_EXAM' %}active{% endif %}">
+                                <a
+                                    href="{% querystring question_type='PAST_EXAM' page=None focus=None %}"
+                                    class="filter-chip {% if question_type == 'PAST_EXAM' %}active{% endif %}">
                                     Past Exam
                                 </a>
 
-                                <a href="{% querystring question_type='ASSIGNMENT' page=None focus=None %}"
-                                   class="filter-chip {% if question_type == 'ASSIGNMENT' %}active{% endif %}">
+                                <a
+                                    href="{% querystring question_type='ASSIGNMENT' page=None focus=None %}"
+                                    class="filter-chip {% if question_type == 'ASSIGNMENT' %}active{% endif %}">
                                     Assignment
                                 </a>
 
-                                <a href="{% querystring question_type='QUIZ' page=None focus=None %}"
-                                   class="filter-chip {% if question_type == 'QUIZ' %}active{% endif %}">
+                                <a
+                                    href="{% querystring question_type='QUIZ' page=None focus=None %}"
+                                    class="filter-chip {% if question_type == 'QUIZ' %}active{% endif %}">
                                     Quiz
                                 </a>
 
-                                <a href="{% querystring question_type='PRACTICE' page=None focus=None %}"
-                                   class="filter-chip {% if question_type == 'PRACTICE' %}active{% endif %}">
+                                <a
+                                    href="{% querystring question_type='PRACTICE' page=None focus=None %}"
+                                    class="filter-chip {% if question_type == 'PRACTICE' %}active{% endif %}">
                                     Practice
                                 </a>
                             </div>
@@ -210,18 +243,21 @@
                                 All
                             </a>
 
-                            <a href="{% querystring exam_part='MIDTERM' page=None focus=None %}"
-                               class="filter-chip {% if exam_part == 'MIDTERM' %}active{% endif %}">
+                            <a
+                                href="{% querystring exam_part='MIDTERM' page=None focus=None %}"
+                                class="filter-chip {% if exam_part == 'MIDTERM' %}active{% endif %}">
                                 Midterm
                             </a>
 
-                            <a href="{% querystring exam_part='FINAL' page=None focus=None %}"
-                               class="filter-chip {% if exam_part == 'FINAL' %}active{% endif %}">
+                            <a
+                                href="{% querystring exam_part='FINAL' page=None focus=None %}"
+                                class="filter-chip {% if exam_part == 'FINAL' %}active{% endif %}">
                                 Final
                             </a>
 
-                            <a href="{% querystring exam_part='GENERAL' page=None focus=None %}"
-                               class="filter-chip {% if exam_part == 'GENERAL' %}active{% endif %}">
+                            <a
+                                href="{% querystring exam_part='GENERAL' page=None focus=None %}"
+                                class="filter-chip {% if exam_part == 'GENERAL' %}active{% endif %}">
                                 General
                             </a>
                         </div>
@@ -264,10 +300,23 @@
                 </section>
 
                 <div class="sidebar-help-card">
-                    <h3>Help improve this course</h3>
-                    <p>Found a broken link or wrong material?</p>
-                    <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">Report an issue</a>
-                    <a href="{% url 'submit_resource' %}" class="sidebar-secondary-link">Submit a resource</a>
+                    <h3>
+                        Help improve this course
+                    </h3>
+
+                    <p>
+                        Found a broken link or wrong material?
+                    </p>
+
+                    <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">
+                        Report an issue
+                    </a>
+
+                    <a
+                        href="{% url 'submit_resource' %}"
+                        class="sidebar-secondary-link">
+                        Submit a resource
+                    </a>
                 </div>
 
             </aside>
@@ -278,8 +327,13 @@
 
                     {% if focus_resource %}
                         <div class="focused-resource-banner">
-                            <span>Showing one selected search result.</span>
-                            <a href="{% url 'course_detail' course.course_code %}">Show all course resources</a>
+                            <span>
+                                Showing one selected search result.
+                            </span>
+
+                            <a href="{% url 'course_detail' course.course_code|lower %}">
+                                Show all course resources
+                            </a>
                         </div>
                     {% endif %}
 
@@ -293,9 +347,13 @@
                             <div class="resource-heading-tools">
                                 <p class="resource-range-summary">
                                     Showing
-                                    <strong>{{ page_obj.start_index }}–{{ page_obj.end_index }}</strong>
+                                    <strong>
+                                        {{ page_obj.start_index }}–{{ page_obj.end_index }}
+                                    </strong>
                                     of
-                                    <strong>{{ page_obj.paginator.count }}</strong>
+                                    <strong>
+                                        {{ page_obj.paginator.count }}
+                                    </strong>
                                     resource{{ page_obj.paginator.count|pluralize }}
                                 </p>
 
@@ -311,11 +369,16 @@
                                                 ←
                                             </a>
                                         {% else %}
-                                            <span class="disabled-page-arrow" aria-hidden="true">←</span>
+                                            <span
+                                                class="disabled-page-arrow"
+                                                aria-hidden="true">
+                                                ←
+                                            </span>
                                         {% endif %}
 
                                         <span class="top-page-status">
-                                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                            Page {{ page_obj.number }}
+                                            of {{ page_obj.paginator.num_pages }}
                                         </span>
 
                                         {% if page_obj.has_next %}
@@ -325,7 +388,11 @@
                                                 →
                                             </a>
                                         {% else %}
-                                            <span class="disabled-page-arrow" aria-hidden="true">→</span>
+                                            <span
+                                                class="disabled-page-arrow"
+                                                aria-hidden="true">
+                                                →
+                                            </span>
                                         {% endif %}
                                     </nav>
                                 {% endif %}
@@ -341,7 +408,9 @@
                                         {{ section.name }}
 
                                         {% if section.continued_from_previous %}
-                                            <span class="section-continuation">continued</span>
+                                            <span class="section-continuation">
+                                                continued
+                                            </span>
                                         {% endif %}
                                     </h2>
                                 </div>
@@ -353,17 +422,25 @@
 
                                         <div class="badges">
                                             <div class="badge-left">
-                                                <span class="badge">{{ resource.get_exam_part_display }}</span>
-                                                <span class="badge">{{ resource.get_category_display }}</span>
+                                                <span class="badge">
+                                                    {{ resource.get_exam_part_display }}
+                                                </span>
+
+                                                <span class="badge">
+                                                    {{ resource.get_category_display }}
+                                                </span>
 
                                                 {% if resource.question_type %}
-                                                    <span class="badge">{{ resource.get_question_type_display }}</span>
+                                                    <span class="badge">
+                                                        {{ resource.get_question_type_display }}
+                                                    </span>
                                                 {% endif %}
 
                                                 {% if resource.semester_display %}
-                                                    <span class="semester-pill">{{ resource.semester_display }}</span>
+                                                    <span class="semester-pill">
+                                                        {{ resource.semester_display }}
+                                                    </span>
                                                 {% endif %}
-
                                             </div>
 
                                             {% if resource.file %}
@@ -388,17 +465,21 @@
                                         <div class="resource-main-row">
                                             <div class="resource-text">
                                                 <div class="title-line">
-                                                    <h3>{{ resource.title }}</h3>
+                                                    <h3>
+                                                        {{ resource.title }}
+                                                    </h3>
                                                 </div>
 
                                                 {% if resource.description %}
-                                                    <p class="description">{{ resource.description }}</p>
+                                                    <p class="description">
+                                                        {{ resource.description }}
+                                                    </p>
                                                 {% endif %}
 
                                                 <p class="resource-date">
-                                                    Last updated: {{ resource.updated_at|date:"M d, Y" }}
+                                                    Last updated:
+                                                    {{ resource.updated_at|date:"M d, Y" }}
                                                 </p>
-
 
                                                 <a
                                                     class="resource-report-link"
@@ -456,15 +537,22 @@
 
                                 {% if section.continues_next %}
                                     <p class="section-continues-note">
-                                        More {{ section.name|lower }} continue on the next page.
+                                        More {{ section.name|lower }}
+                                        continue on the next page.
                                     </p>
                                 {% endif %}
                             </div>
                         {% empty %}
                             <div class="empty-state">
                                 <div class="empty-icon">🍯</div>
-                                <h3>No resources found</h3>
-                                <p>Try another filter or submit a resource.</p>
+
+                                <h3>
+                                    No resources found
+                                </h3>
+
+                                <p>
+                                    Try another filter or submit a resource.
+                                </p>
                             </div>
                         {% endfor %}
                     </div>
@@ -473,19 +561,30 @@
                         <div class="resource-pagination-panel">
                             <div class="pagination-message">
                                 {% if page_obj.has_next %}
-                                    <strong>There are more resources.</strong>
+                                    <strong>
+                                        There are more resources.
+                                    </strong>
+
                                     <span>
                                         {{ remaining_resources }}
                                         resource{{ remaining_resources|pluralize }}
                                         remain after this page.
                                     </span>
                                 {% else %}
-                                    <strong>You reached the final page.</strong>
-                                    <span>All matching resources have now been shown.</span>
+                                    <strong>
+                                        You reached the final page.
+                                    </strong>
+
+                                    <span>
+                                        All matching resources have now been shown.
+                                    </span>
                                 {% endif %}
                             </div>
 
-                            <nav class="resource-pagination" aria-label="Resource pages">
+                            <nav
+                                class="resource-pagination"
+                                aria-label="Resource pages">
+
                                 {% if page_obj.has_previous %}
                                     <a
                                         class="pagination-arrow"
@@ -493,15 +592,25 @@
                                         ← Previous
                                     </a>
                                 {% else %}
-                                    <span class="pagination-arrow pagination-disabled" aria-hidden="true">← Previous</span>
+                                    <span
+                                        class="pagination-arrow pagination-disabled"
+                                        aria-hidden="true">
+                                        ← Previous
+                                    </span>
                                 {% endif %}
 
                                 <div class="pagination-numbers">
                                     {% for item in pagination_items %}
                                         {% if item.ellipsis %}
-                                            <span class="pagination-ellipsis">…</span>
+                                            <span class="pagination-ellipsis">
+                                                …
+                                            </span>
                                         {% elif item.current %}
-                                            <span class="current-page" aria-current="page">{{ item.number }}</span>
+                                            <span
+                                                class="current-page"
+                                                aria-current="page">
+                                                {{ item.number }}
+                                            </span>
                                         {% else %}
                                             <a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ item.number }}">
                                                 {{ item.number }}
@@ -517,7 +626,11 @@
                                         Next →
                                     </a>
                                 {% else %}
-                                    <span class="pagination-arrow pagination-next pagination-disabled" aria-hidden="true">Next →</span>
+                                    <span
+                                        class="pagination-arrow pagination-next pagination-disabled"
+                                        aria-hidden="true">
+                                        Next →
+                                    </span>
                                 {% endif %}
                             </nav>
                         </div>
@@ -532,8 +645,13 @@
         <div class="preview-content">
             <div class="preview-header">
                 <div class="preview-title-area">
-                    <span class="preview-kicker">StudyBee Preview</span>
-                    <h3 id="previewTitle">File Preview</h3>
+                    <span class="preview-kicker">
+                        StudyBee Preview
+                    </span>
+
+                    <h3 id="previewTitle">
+                        File Preview
+                    </h3>
                 </div>
 
                 <div class="preview-header-actions">
@@ -556,7 +674,12 @@
                         Download
                     </a>
 
-                    <button type="button" class="preview-close" id="previewClose">×</button>
+                    <button
+                        type="button"
+                        class="preview-close"
+                        id="previewClose">
+                        ×
+                    </button>
                 </div>
             </div>
 
@@ -576,15 +699,21 @@
                 </p>
 
                 <p class="footer-disclaimer desktop-footer-disclaimer">
-                    Materials are collected from publicly shared posts and student-shared resources.
-                    StudyBee only organizes them for easier access and is not an official BRACU website.
-                    Some links may require your BRACU account.
+                    Materials are collected from publicly shared posts and
+                    student-shared resources. StudyBee only organizes them for
+                    easier access and is not an official BRACU website. Some
+                    links may require your BRACU account.
                 </p>
             </div>
 
             <div class="footer-links">
-                <a href="{% url 'submit_resource' %}">Submit resource</a>
-                <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">Report issue</a>
+                <a href="{% url 'submit_resource' %}">
+                    Submit resource
+                </a>
+
+                <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">
+                    Report issue
+                </a>
             </div>
         </div>
     </footer>
@@ -593,6 +722,7 @@
         import * as pdfjsLib from "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.7.284/build/pdf.min.mjs";
 
         window.pdfjsLib = pdfjsLib;
+
         pdfjsLib.GlobalWorkerOptions.workerSrc =
             "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.7.284/build/pdf.worker.min.mjs";
 

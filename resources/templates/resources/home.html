@@ -91,7 +91,11 @@
                     <p>Your starred courses appear here.</p>
                 </div>
             </div>
-            <div class="personal-course-grid" id="favoriteCoursesGrid"></div>
+
+            <div
+                class="personal-course-grid"
+                id="favoriteCoursesGrid">
+            </div>
         </section>
 
         <section class="personal-course-section" id="recentCoursesSection" hidden>
@@ -102,7 +106,11 @@
                     <p>Your latest course visits on this browser.</p>
                 </div>
             </div>
-            <div class="personal-course-grid" id="recentCoursesGrid"></div>
+
+            <div
+                class="personal-course-grid"
+                id="recentCoursesGrid">
+            </div>
         </section>
 
         <div class="section-header">
@@ -120,10 +128,10 @@
                     data-course-id="{{ course.id }}"
                     data-course-code="{{ course.course_code }}"
                     data-course-title="{{ course.course_title }}"
-                    data-course-url="{% url 'course_detail' course.course_code %}">
+                    data-course-url="{% url 'course_detail' course.course_code|lower %}">
 
                     <a
-                        href="{% url 'course_detail' course.course_code %}"
+                        href="{% url 'course_detail' course.course_code|lower %}"
                         class="course-card-link">
 
                         <div class="course-icon">
@@ -132,7 +140,10 @@
 
                         <div class="course-info">
                             <h3>{{ course.course_code }}</h3>
-                            <p class="course-title">{{ course.course_title }}</p>
+
+                            <p class="course-title">
+                                {{ course.course_title }}
+                            </p>
 
                             <p class="resource-count">
                                 {{ course.resource_count }}
@@ -165,40 +176,65 @@
         <div class="footer-inner">
             <div>
                 <h3>StudyBee 🐝</h3>
-                <p>Your BRACU study hive for organized course resources.</p>
+
+                <p>
+                    Your BRACU study hive for organized course resources.
+                </p>
 
                 <p class="footer-disclaimer">
-                    Materials are collected from publicly shared posts and student-shared resources.
-                    StudyBee organizes them for easier access and is not an official BRACU website.
+                    Materials are collected from publicly shared posts and
+                    student-shared resources. StudyBee organizes them for easier
+                    access and is not an official BRACU website.
                 </p>
             </div>
 
             <div class="footer-links">
-                <a href="{% url 'global_search' %}">Search all</a>
-                <a href="{% url 'submit_resource' %}">Submit resource</a>
-                <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">Report an issue</a>
+                <a href="{% url 'global_search' %}">
+                    Search all
+                </a>
+
+                <a href="{% url 'submit_resource' %}">
+                    Submit resource
+                </a>
+
+                <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">
+                    Report an issue
+                </a>
             </div>
         </div>
     </footer>
 
     <div class="about-modal" id="aboutModal">
         <div class="about-modal-card">
-            <button type="button" class="about-close" id="aboutClose">×</button>
+            <button
+                type="button"
+                class="about-close"
+                id="aboutClose">
+                ×
+            </button>
 
-            <span class="about-kicker">About StudyBee</span>
-            <h2>A cleaner way to find BRACU course resources.</h2>
+            <span class="about-kicker">
+                About StudyBee
+            </span>
+
+            <h2>
+                A cleaner way to find BRACU course resources.
+            </h2>
 
             <p>
-                StudyBee is a student-made resource hub that organizes publicly shared
-                materials, links, videos, notes, questions, and useful files in one place.
+                StudyBee is a student-made resource hub that organizes publicly
+                shared materials, links, videos, notes, questions, and useful
+                files in one place.
             </p>
 
             <p>
-                Favorites and recently viewed courses are saved only in your current browser.
+                Favorites and recently viewed courses are saved only in your
+                current browser.
             </p>
 
             <p class="about-note">
-                Course materials may vary by semester, so always follow your current faculty instructions.
+                Course materials may vary by semester, so always follow your
+                current faculty instructions.
             </p>
         </div>
     </div>

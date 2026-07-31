@@ -6,15 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search - StudyBee</title>
 
-    <link rel="stylesheet" href="{% static 'resources/css/course.css' %}?v=7.0">
-    <link rel="stylesheet" href="{% static 'resources/css/search.css' %}?v=7.0">
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link
+        rel="stylesheet"
+        href="{% static 'resources/css/course.css' %}?v=7.0">
+
+    <link
+        rel="stylesheet"
+        href="{% static 'resources/css/search.css' %}?v=7.0">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
 </head>
 <body>
 
     <header class="topbar">
         <a href="{% url 'home' %}" class="brand">
             <div class="logo-mark">🐝</div>
+
             <div>
                 <h1>StudyBee</h1>
                 <p>Your BRACU study hive</p>
@@ -29,11 +38,16 @@
     </header>
 
     <main class="page search-page">
-        <a href="{% url 'home' %}" class="back-link">← Back to courses</a>
+        <a href="{% url 'home' %}" class="back-link">
+            ← Back to courses
+        </a>
 
         <section class="global-search-hero">
             <span>Global resource search</span>
-            <h1>Search every course and resource</h1>
+
+            <h1>
+                Search every course and resource
+            </h1>
 
             <form method="get" class="global-search-form">
                 <input
@@ -44,33 +58,50 @@
                     required>
 
                 <select name="category">
-                    <option value="">All resource types</option>
+                    <option value="">
+                        All resource types
+                    </option>
+
                     {% for code, label in category_choices %}
-                        <option value="{{ code }}" {% if category == code %}selected{% endif %}>
+                        <option
+                            value="{{ code }}"
+                            {% if category == code %}selected{% endif %}>
                             {{ label }}
                         </option>
                     {% endfor %}
                 </select>
 
                 <select name="semester_term">
-                    <option value="">All semesters</option>
+                    <option value="">
+                        All semesters
+                    </option>
+
                     {% for code, label in semester_term_choices %}
-                        <option value="{{ code }}" {% if semester_term == code %}selected{% endif %}>
+                        <option
+                            value="{{ code }}"
+                            {% if semester_term == code %}selected{% endif %}>
                             {{ label }}
                         </option>
                     {% endfor %}
                 </select>
 
                 <select name="semester_year">
-                    <option value="">All years</option>
+                    <option value="">
+                        All years
+                    </option>
+
                     {% for year in available_years %}
-                        <option value="{{ year }}" {% if semester_year == year|stringformat:"s" %}selected{% endif %}>
+                        <option
+                            value="{{ year }}"
+                            {% if semester_year == year|stringformat:"s" %}selected{% endif %}>
                             {{ year }}
                         </option>
                     {% endfor %}
                 </select>
 
-                <button type="submit">Search</button>
+                <button type="submit">
+                    Search
+                </button>
             </form>
         </section>
 
@@ -84,10 +115,22 @@
 
                     <div class="search-course-grid">
                         {% for course in courses %}
-                            <a href="{% url 'course_detail' course.course_code %}" class="search-course-card">
-                                <strong>{{ course.course_code }}</strong>
-                                <span>{{ course.course_title }}</span>
-                                <small>{{ course.resource_count }} resource{{ course.resource_count|pluralize }}</small>
+                            <a
+                                href="{% url 'course_detail' course.course_code|lower %}"
+                                class="search-course-card">
+
+                                <strong>
+                                    {{ course.course_code }}
+                                </strong>
+
+                                <span>
+                                    {{ course.course_title }}
+                                </span>
+
+                                <small>
+                                    {{ course.resource_count }}
+                                    resource{{ course.resource_count|pluralize }}
+                                </small>
                             </a>
                         {% endfor %}
                     </div>
@@ -100,67 +143,104 @@
                         <span>Resource matches</span>
                         <h2>Resources</h2>
                     </div>
-                    <p>{{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }}</p>
+
+                    <p>
+                        {{ page_obj.paginator.count }}
+                        result{{ page_obj.paginator.count|pluralize }}
+                    </p>
                 </div>
 
                 <div class="global-resource-list">
                     {% for resource in resources %}
                         <article class="global-resource-card">
                             <div class="global-resource-meta">
-                                <span>{{ resource.course.course_code }}</span>
-                                <span>{{ resource.get_category_display }}</span>
+                                <span>
+                                    {{ resource.course.course_code }}
+                                </span>
+
+                                <span>
+                                    {{ resource.get_category_display }}
+                                </span>
 
                                 {% if resource.semester_display %}
-                                    <span>{{ resource.semester_display }}</span>
+                                    <span>
+                                        {{ resource.semester_display }}
+                                    </span>
                                 {% endif %}
-
                             </div>
 
-                            <h3>{{ resource.title }}</h3>
+                            <h3>
+                                {{ resource.title }}
+                            </h3>
 
                             {% if resource.description %}
-                                <p>{{ resource.description|truncatechars:180 }}</p>
+                                <p>
+                                    {{ resource.description|truncatechars:180 }}
+                                </p>
                             {% endif %}
 
-                            <a href="{% url 'course_detail' resource.course_id %}?focus={{ resource.id }}">
+                            <a href="{% url 'course_detail' resource.course.course_code|lower %}?focus={{ resource.id }}">
                                 View this resource →
                             </a>
                         </article>
                     {% empty %}
                         <div class="empty-state">
                             <div class="empty-icon">🍯</div>
-                            <h3>No matching resources</h3>
-                            <p>Try a broader search or remove a filter.</p>
+
+                            <h3>
+                                No matching resources
+                            </h3>
+
+                            <p>
+                                Try a broader search or remove a filter.
+                            </p>
                         </div>
                     {% endfor %}
                 </div>
 
                 {% if page_obj.paginator.num_pages > 1 %}
-                    <nav class="search-pagination" aria-label="Search result pages">
+                    <nav
+                        class="search-pagination"
+                        aria-label="Search result pages">
+
                         {% if page_obj.has_previous %}
-                            <a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}">← Previous</a>
+                            <a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                                ← Previous
+                            </a>
                         {% endif %}
 
                         {% for item in pagination_items %}
                             {% if item.ellipsis %}
                                 <span>…</span>
                             {% elif item.current %}
-                                <strong>{{ item.number }}</strong>
+                                <strong>
+                                    {{ item.number }}
+                                </strong>
                             {% else %}
-                                <a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ item.number }}">{{ item.number }}</a>
+                                <a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ item.number }}">
+                                    {{ item.number }}
+                                </a>
                             {% endif %}
                         {% endfor %}
 
                         {% if page_obj.has_next %}
-                            <a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}">Next →</a>
+                            <a href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}">
+                                Next →
+                            </a>
                         {% endif %}
                     </nav>
                 {% endif %}
             </section>
         {% else %}
             <section class="search-start-card">
-                <h2>Start with a course code or resource title.</h2>
-                <p>Examples: CSE260, digital logic, midterm question, lecture slides.</p>
+                <h2>
+                    Start with a course code or resource title.
+                </h2>
+
+                <p>
+                    Examples: CSE260, digital logic, midterm question,
+                    lecture slides.
+                </p>
             </section>
         {% endif %}
     </main>
