@@ -256,7 +256,7 @@ document.addEventListener("click", function (event) {
 
     setTimeout(function () {
         window.location.href = url;
-    }, 220);
+    }, 110);
 });
 
 
@@ -311,7 +311,7 @@ document.addEventListener("click", function (event) {
 
         setTimeout(function () {
             card.classList.add("show");
-        }, index * 70);
+        }, index * 25);
     }
 
     function filterCourses() {
@@ -353,50 +353,6 @@ document.addEventListener("click", function (event) {
 })();
 
 
-// About modal.
-(function () {
-    const aboutOpen = document.getElementById("aboutOpen");
-    const aboutModal = document.getElementById("aboutModal");
-    const aboutClose = document.getElementById("aboutClose");
-
-    if (!aboutOpen || !aboutModal || !aboutClose) {
-        return;
-    }
-
-    function openAbout() {
-        aboutModal.classList.add("show");
-        document.body.style.overflow = "hidden";
-    }
-
-    function closeAbout() {
-        aboutModal.classList.remove("show");
-        document.body.style.overflow = "";
-    }
-
-    aboutOpen.addEventListener("click", openAbout);
-    aboutClose.addEventListener("click", closeAbout);
-
-    aboutModal.addEventListener(
-        "click",
-        function (event) {
-            if (event.target === aboutModal) {
-                closeAbout();
-            }
-        }
-    );
-
-    document.addEventListener(
-        "keydown",
-        function (event) {
-            if (
-                event.key === "Escape"
-                && aboutModal.classList.contains("show")
-            ) {
-                closeAbout();
-            }
-        }
-    );
-})();
 
 
 syncFavoriteButtons();

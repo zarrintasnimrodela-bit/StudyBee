@@ -1,0 +1,17 @@
+{% extends "resources/base_report.html" %}
+{% block title %}Log in — StudyBee{% endblock %}
+{% block report_content %}
+    <a href="{% url 'home' %}?auth=login" class="back-link">← Back to StudyBee</a>
+    <section class="auth-card">
+        <div class="auth-icon" aria-hidden="true">🔐</div>
+        <span class="section-kicker">Student account</span>
+        <h1 class="auth-page-title">Log in to StudyBee</h1>
+        <p>
+            Use your verified <strong>@{{ allowed_domain }}</strong> email and
+            the StudyBee password you created during sign up.
+        </p>
+        <p>
+            <a class="primary-btn" href="{% url 'home' %}?auth=login">Open login</a>
+        </p>
+    </section>
+{% endblock %}

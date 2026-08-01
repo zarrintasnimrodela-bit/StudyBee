@@ -1,44 +1,17 @@
+{% extends "resources/base.html" %}
 {% load static resource_extras %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ course.course_code }} - StudyBee</title>
+{% block title %}{{ course.course_code }} — StudyBee{% endblock %}
+{% block body_class %}course-page-body{% endblock %}
 
-    <link
-        rel="stylesheet"
-        href="{% static 'resources/css/course.css' %}?v=7.0">
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'resources/css/course.css' %}?v=8.5">
+    <link rel="stylesheet" href="{% static 'resources/css/pdf_viewer.css' %}?v=8.0">
+{% endblock %}
 
-    <link
-        rel="stylesheet"
-        href="{% static 'resources/css/pdf_viewer.css' %}?v=7.0">
+{% block content %}
+    <div class="page">
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap"
-        rel="stylesheet">
-</head>
-<body>
-
-    <header class="topbar">
-        <a href="{% url 'home' %}" class="brand">
-            <div class="logo-mark">🐝</div>
-
-            <div>
-                <h1>StudyBee</h1>
-                <p>Your BRACU study hive</p>
-            </div>
-        </a>
-
-        <nav class="nav-links">
-            <a href="{% url 'home' %}">Courses</a>
-            <a href="{% url 'global_search' %}">Search</a>
-            <a href="{% url 'submit_resource' %}">Submit</a>
-            <a href="/admin/">Admin</a>
-        </nav>
-    </header>
-
-    <main class="page">
 
         <a href="{% url 'home' %}" class="back-link">
             ← Back to courses
@@ -55,17 +28,6 @@
                     <h1>
                         {{ course.course_code }} - {{ course.course_title }}
                     </h1>
-
-                    <button
-                        type="button"
-                        id="courseFavoriteButton"
-                        class="course-favorite-button"
-                        data-course-id="{{ course.id }}"
-                        data-course-code="{{ course.course_code }}"
-                        data-course-title="{{ course.course_title }}"
-                        data-course-url="{% url 'course_detail' course.course_code|lower %}">
-                        ☆ Favorite
-                    </button>
                 </div>
 
                 <div class="course-quick-info">
@@ -123,15 +85,38 @@
                 </div>
             </div>
 
-            <div class="course-bubble">
-                <span>Resources</span>
-                <strong>{{ all_resources_count }}</strong>
+            <div class="course-hero-summary">
+                <button
+                    type="button"
+                    id="courseFavoriteButton"
+                    class="course-favorite-button"
+                    data-course-id="{{ course.id }}"
+                    data-course-code="{{ course.course_code }}"
+                    data-course-title="{{ course.course_title }}"
+                    data-course-url="{% url 'course_detail' course.course_code|lower %}">
+                    ☆ Favorite
+                </button>
+
+                <div class="course-bubble">
+                    <span>Resources</span>
+                    <strong>{{ all_resources_count }}</strong>
+                </div>
             </div>
         </section>
 
+        <button
+            type="button"
+            class="mobile-filter-toggle"
+            aria-controls="courseFilters"
+            aria-expanded="false"
+            data-filter-toggle>
+            <span data-filter-label>Show filters</span>
+            <span aria-hidden="true">☰</span>
+        </button>
+
         <div class="course-content-layout">
 
-            <aside class="filter-sidebar">
+            <aside class="filter-sidebar" id="courseFilters" data-filter-sidebar>
 
                 <section class="filter-panel">
 
@@ -263,39 +248,6 @@
                         </div>
                     </div>
 
-                    {% if semester_term_choices %}
-                        <div class="filter-group">
-                            <p>Semester</p>
-
-                            <div class="filter-row">
-                                <a
-                                    href="{% querystring semester_term=None semester_year=None page=None focus=None %}"
-                                    class="filter-chip {% if not semester_term and not semester_year %}active{% endif %}">
-                                    All
-                                </a>
-
-                                {% for code, label in semester_term_choices %}
-                                    <a
-                                        href="{% querystring semester_term=code page=None focus=None %}"
-                                        class="filter-chip {% if semester_term == code %}active{% endif %}">
-                                        {{ label }}
-                                    </a>
-                                {% endfor %}
-                            </div>
-
-                            {% if available_years %}
-                                <div class="filter-row filter-row-secondary">
-                                    {% for year in available_years %}
-                                        <a
-                                            href="{% querystring semester_year=year page=None focus=None %}"
-                                            class="filter-chip {% if semester_year == year|stringformat:'s' %}active{% endif %}">
-                                            {{ year }}
-                                        </a>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
 
                 </section>
 
@@ -308,15 +260,25 @@
                         Found a broken link or wrong material?
                     </p>
 
-                    <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">
-                        Report an issue
-                    </a>
+                    <p class="course-access-note">
+                        <span aria-hidden="true">🔐</span>
+                        Some Drive links may require your BRACU GSuite account.
+                    </p>
 
-                    <a
-                        href="{% url 'submit_resource' %}"
-                        class="sidebar-secondary-link">
-                        Submit a resource
-                    </a>
+                    <div class="sidebar-help-actions">
+                        <a
+                            href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}"
+                            data-modal-open="report"
+                            data-report-course="{{ course.course_code }}">
+                            Report an issue
+                        </a>
+
+                        <a
+                            href="{% url 'submit_resource' %}"
+                            class="sidebar-secondary-link">
+                            Submit a resource
+                        </a>
+                    </div>
                 </div>
 
             </aside>
@@ -417,7 +379,7 @@
 
                                 {% for resource in section.resources %}
                                     <article
-                                        class="resource-card reveal"
+                                        class="resource-card reveal{% if not resource.description %} resource-card--no-description{% endif %}"
                                         id="resource-{{ resource.id }}">
 
                                         <div class="badges">
@@ -433,12 +395,6 @@
                                                 {% if resource.question_type %}
                                                     <span class="badge">
                                                         {{ resource.get_question_type_display }}
-                                                    </span>
-                                                {% endif %}
-
-                                                {% if resource.semester_display %}
-                                                    <span class="semester-pill">
-                                                        {{ resource.semester_display }}
                                                     </span>
                                                 {% endif %}
                                             </div>
@@ -468,6 +424,11 @@
                                                     <h3>
                                                         {{ resource.title }}
                                                     </h3>
+                                                    {% if resource.semester_display %}
+                                                        <span class="semester-pill">
+                                                            {{ resource.semester_display }}
+                                                        </span>
+                                                    {% endif %}
                                                 </div>
 
                                                 {% if resource.description %}
@@ -480,12 +441,6 @@
                                                     Last updated:
                                                     {{ resource.updated_at|date:"M d, Y" }}
                                                 </p>
-
-                                                <a
-                                                    class="resource-report-link"
-                                                    href="{% url 'report_issue' %}?resource={{ resource.id }}&next={{ request.get_full_path|urlencode }}">
-                                                    Report this resource
-                                                </a>
                                             </div>
 
                                             <div class="resource-actions">
@@ -530,6 +485,16 @@
                                                         </button>
                                                     {% endif %}
                                                 {% endif %}
+
+                                                <a
+                                                    class="resource-report-link resource-report-action"
+                                                    href="{% url 'report_issue' %}?resource={{ resource.id }}&next={{ request.get_full_path|urlencode }}"
+                                                    data-modal-open="report"
+                                                    data-report-resource="{{ resource.id }}"
+                                                    data-report-course="{{ resource.course.course_code }}"
+                                                    data-report-title="{{ resource.title }}">
+                                                    Report this resource
+                                                </a>
                                             </div>
                                         </div>
                                     </article>
@@ -639,9 +604,10 @@
 
             </div>
         </div>
-    </main>
+    
+    </div>
 
-    <div class="preview-modal" id="previewModal">
+<div class="preview-modal" id="previewModal">
         <div class="preview-content">
             <div class="preview-header">
                 <div class="preview-title-area">
@@ -688,45 +654,14 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <div>
-                <h3>StudyBee 🐝</h3>
-
-                <p class="footer-tagline">
-                    Your BRACU study hive for organized course resources.
-                </p>
-
-                <p class="footer-disclaimer desktop-footer-disclaimer">
-                    Materials are collected from publicly shared posts and
-                    student-shared resources. StudyBee only organizes them for
-                    easier access and is not an official BRACU website. Some
-                    links may require your BRACU account.
-                </p>
-            </div>
-
-            <div class="footer-links">
-                <a href="{% url 'submit_resource' %}">
-                    Submit resource
-                </a>
-
-                <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">
-                    Report issue
-                </a>
-            </div>
-        </div>
-    </footer>
-
+{% block page_js %}
     <script type="module">
         import * as pdfjsLib from "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.7.284/build/pdf.min.mjs";
-
         window.pdfjsLib = pdfjsLib;
-
         pdfjsLib.GlobalWorkerOptions.workerSrc =
             "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.7.284/build/pdf.worker.min.mjs";
-
-        await import("{% static 'resources/js/course.js' %}?v=7.0");
+        await import("{% static 'resources/js/course.js' %}?v=8.1");
     </script>
-</body>
-</html>
+{% endblock %}

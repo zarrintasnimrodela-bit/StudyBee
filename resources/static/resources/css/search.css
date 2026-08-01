@@ -226,3 +226,43 @@
         grid-column: auto;
     }
 }
+
+.global-search-hero > p {
+    margin: 8px 0 22px;
+    color: #64748b;
+    font-weight: 750;
+}
+
+.search-summary-row {
+    margin: 22px 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.search-summary-row p {
+    color: #475569;
+    font-weight: 800;
+}
+
+.search-summary-row a {
+    color: #a85518;
+    font-weight: 900;
+}
+
+.search-start-card > div {
+    font-size: 34px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

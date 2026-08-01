@@ -1,36 +1,12 @@
+{% extends "resources/base.html" %}
 {% load static %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}StudyBee{% endblock %}</title>
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'resources/css/course.css' %}?v=8.0">
+{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'resources/css/course.css' %}?v=7.0">
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-</head>
-<body>
-
-    <header class="topbar">
-        <a href="{% url 'home' %}" class="brand">
-            <div class="logo-mark">🐝</div>
-            <div>
-                <h1>StudyBee</h1>
-                <p>Your BRACU study hive</p>
-            </div>
-        </a>
-
-        <nav class="nav-links">
-            <a href="{% url 'home' %}">Courses</a>
-            <a href="{% url 'global_search' %}">Search</a>
-            <a href="{% url 'submit_resource' %}">Submit</a>
-            <a href="/admin/">Admin</a>
-        </nav>
-    </header>
-
-    <main class="page">
-        {% block content %}{% endblock %}
-    </main>
-
-</body>
-</html>
+{% block content %}
+    <div class="page form-page">
+        {% block report_content %}{% endblock %}
+    </div>
+{% endblock %}

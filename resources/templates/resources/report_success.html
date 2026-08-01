@@ -1,15 +1,14 @@
 {% extends "resources/base_report.html" %}
-
-{% block title %}Report Submitted - StudyBee{% endblock %}
-
-{% block content %}
-    <section class="report-card success-card">
-        <div class="empty-icon">🍯</div>
-        <h2>Report submitted</h2>
-        <p>Thanks for helping improve StudyBee. The report is now saved for admin review. If you entered an email address, StudyBee will send you the final outcome after an admin resolves it.</p>
-
-        <a href="{{ next_url }}" class="btn primary-btn">
-            {{ back_label }}
-        </a>
+{% block title %}Report received — StudyBee{% endblock %}
+{% block report_content %}
+    <section class="auth-card success-card">
+        <div class="auth-icon" aria-hidden="true">✓</div>
+        <h1>Report received</h1>
+        <p>Thank you for helping keep StudyBee accurate. The resource will remain hidden while it is reviewed.</p>
+        {% if reference_code %}<p class="otp-email-pill">Reference: {{ reference_code }}</p>{% endif %}
+        <div class="auth-actions">
+            <a class="primary-btn" href="{{ next_url }}">{{ back_label|cut:'← ' }}</a>
+            {% if request.user.is_authenticated %}<a class="auth-secondary-link" href="{% url 'student_account' %}">View my activity</a>{% endif %}
+        </div>
     </section>
 {% endblock %}

@@ -1,40 +1,19 @@
+{% extends "resources/base.html" %}
 {% load static %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyBee - BRACU Resource Hub</title>
+{% block title %}StudyBee — BRACU Resource Hub{% endblock %}
+{% block body_class %}home-page{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'resources/css/home.css' %}?v=7.0">
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-</head>
-<body>
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'resources/css/home.css' %}?v=8.5">
+{% endblock %}
 
-    <header class="topbar">
-        <a href="{% url 'home' %}" class="brand">
-            <div class="logo-mark">🐝</div>
-            <div>
-                <h1>StudyBee</h1>
-                <p>Your BRACU study hive</p>
-            </div>
-        </a>
-
-        <nav class="nav-links">
-            <a href="{% url 'global_search' %}">Search all</a>
-            <a href="{% url 'submit_resource' %}">Submit resource</a>
-            <button type="button" class="nav-about-btn" id="aboutOpen">About</button>
-            <a href="/admin/">Admin</a>
-        </nav>
-    </header>
-
+{% block content %}
     <section class="hero">
         <div class="hero-bg"></div>
-
-        <div class="hero-shape shape-one">✦</div>
-        <div class="hero-shape shape-two">📚</div>
-        <div class="hero-shape shape-three">🍯</div>
-        <div class="hero-shape shape-four">✏️</div>
+        <div class="hero-shape shape-one" aria-hidden="true">✦</div>
+        <div class="hero-shape shape-two" aria-hidden="true">📚</div>
+        <div class="hero-shape shape-three" aria-hidden="true">🍯</div>
 
         <div class="hero-inner">
             <div class="hero-text">
@@ -43,46 +22,51 @@
                     <span>Resource Hive</span>
                 </div>
 
-                <h2>
-                    Gather your course resources<br>
-                    without the chaos.
-                </h2>
-
+                <h1><span>Your course resources,</span><span>organized in one place.</span></h1>
                 <p>
                     Find slides, notes, lab files, videos, questions and useful links
-                    neatly organized by courses and semester.
+                    neatly organized by course and semester.
                 </p>
+
+                <div class="hero-trust-row" aria-label="StudyBee benefits">
+                    <span>Free to browse</span>
+                    <span>Student-organized</span>
+                    <span>Mobile friendly</span>
+                </div>
+
             </div>
 
             <div class="hero-visual">
-                <img src="{% static 'resources/images/hero.jpg' %}" alt="Study resources">
+                <img
+                    src="{% static 'resources/images/hero.jpg' %}"
+                    alt="A calm study desk with books and notes"
+                    width="780"
+                    height="660"
+                    fetchpriority="high">
             </div>
         </div>
     </section>
 
-    <section class="search-wrapper">
+    <section class="search-wrapper" aria-label="Search StudyBee">
         <form method="get" action="{% url 'global_search' %}" class="search-card">
             <label for="courseSearchInput">What are you looking for?</label>
-
             <div class="search-row">
                 <input
                     type="search"
                     id="courseSearchInput"
                     name="q"
                     value="{{ query }}"
-                    placeholder="Search courses or resources..."
+                    placeholder="Try CSE260, lecture slides, or midterm question..."
                     autocomplete="off">
                 <button type="submit">Search all</button>
             </div>
-
             <p class="search-helper">
-                Typing filters the course shelf instantly. Press Search all to search every resource.
+                Typing filters the course shelf instantly. Search all also checks resource titles and descriptions.
             </p>
         </form>
     </section>
 
-    <main class="container" id="course-directory">
-
+    <div class="container" id="course-directory">
         <section class="personal-course-section" id="favoriteCoursesSection" hidden>
             <div class="section-header">
                 <div>
@@ -91,11 +75,7 @@
                     <p>Your starred courses appear here.</p>
                 </div>
             </div>
-
-            <div
-                class="personal-course-grid"
-                id="favoriteCoursesGrid">
-            </div>
+            <div class="personal-course-grid" id="favoriteCoursesGrid"></div>
         </section>
 
         <section class="personal-course-section" id="recentCoursesSection" hidden>
@@ -106,19 +86,16 @@
                     <p>Your latest course visits on this browser.</p>
                 </div>
             </div>
-
-            <div
-                class="personal-course-grid"
-                id="recentCoursesGrid">
-            </div>
+            <div class="personal-course-grid" id="recentCoursesGrid"></div>
         </section>
 
-        <div class="section-header">
+        <div class="section-header course-shelf-heading">
             <div>
                 <span class="section-kicker">Course shelf</span>
                 <h2>Browse courses</h2>
                 <p>Pick a course and open its organized study resources.</p>
             </div>
+            <a class="section-action-link" href="{% url 'global_search' %}">Search every resource →</a>
         </div>
 
         <div class="course-grid">
@@ -130,115 +107,35 @@
                     data-course-title="{{ course.course_title }}"
                     data-course-url="{% url 'course_detail' course.course_code|lower %}">
 
-                    <a
-                        href="{% url 'course_detail' course.course_code|lower %}"
-                        class="course-card-link">
-
-                        <div class="course-icon">
-                            {{ course.course_code|slice:":3" }}
-                        </div>
-
+                    <a href="{% url 'course_detail' course.course_code|lower %}" class="course-card-link">
+                        <div class="course-icon" aria-hidden="true">{{ course.course_code|slice:":3" }}</div>
                         <div class="course-info">
                             <h3>{{ course.course_code }}</h3>
-
-                            <p class="course-title">
-                                {{ course.course_title }}
-                            </p>
-
+                            <p class="course-title">{{ course.course_title }}</p>
                             <p class="resource-count">
-                                {{ course.resource_count }}
-                                resource{{ course.resource_count|pluralize }}
-                                available
+                                {{ course.resource_count }} resource{{ course.resource_count|pluralize }} available
                             </p>
                         </div>
-
-                        <div class="card-arrow">→</div>
+                        <div class="card-arrow" aria-hidden="true">→</div>
                     </a>
 
                     <button
                         type="button"
                         class="favorite-course-btn"
                         aria-label="Add {{ course.course_code }} to favorites"
-                        title="Favorite course">
-                        ☆
-                    </button>
+                        title="Favorite course">☆</button>
                 </article>
             {% empty %}
                 <div class="empty reveal">
-                    <p>No courses found.</p>
+                    <h3>No courses found</h3>
+                    <p>Try another search or return to the full course shelf.</p>
                 </div>
             {% endfor %}
         </div>
-
-    </main>
-
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <div>
-                <h3>StudyBee 🐝</h3>
-
-                <p>
-                    Your BRACU study hive for organized course resources.
-                </p>
-
-                <p class="footer-disclaimer">
-                    Materials are collected from publicly shared posts and
-                    student-shared resources. StudyBee organizes them for easier
-                    access and is not an official BRACU website.
-                </p>
-            </div>
-
-            <div class="footer-links">
-                <a href="{% url 'global_search' %}">
-                    Search all
-                </a>
-
-                <a href="{% url 'submit_resource' %}">
-                    Submit resource
-                </a>
-
-                <a href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}">
-                    Report an issue
-                </a>
-            </div>
-        </div>
-    </footer>
-
-    <div class="about-modal" id="aboutModal">
-        <div class="about-modal-card">
-            <button
-                type="button"
-                class="about-close"
-                id="aboutClose">
-                ×
-            </button>
-
-            <span class="about-kicker">
-                About StudyBee
-            </span>
-
-            <h2>
-                A cleaner way to find BRACU course resources.
-            </h2>
-
-            <p>
-                StudyBee is a student-made resource hub that organizes publicly
-                shared materials, links, videos, notes, questions, and useful
-                files in one place.
-            </p>
-
-            <p>
-                Favorites and recently viewed courses are saved only in your
-                current browser.
-            </p>
-
-            <p class="about-note">
-                Course materials may vary by semester, so always follow your
-                current faculty instructions.
-            </p>
-        </div>
     </div>
 
-    <script src="{% static 'resources/js/home.js' %}?v=7.0"></script>
-</body>
-</html>
+{% endblock %}
+
+{% block page_js %}
+    <script src="{% static 'resources/js/home.js' %}?v=8.3" defer></script>
+{% endblock %}

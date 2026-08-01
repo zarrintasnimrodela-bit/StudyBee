@@ -1,0 +1,17 @@
+{% extends "resources/base_report.html" %}
+{% block title %}Account verification — StudyBee{% endblock %}
+{% block report_content %}
+    <a href="{% url 'home' %}?auth=signup" class="back-link">← Back to sign up</a>
+    <section class="auth-card">
+        <div class="auth-icon" aria-hidden="true">✉️</div>
+        <span class="section-kicker">Account verification</span>
+        <h1>Verify your BRACU email</h1>
+        <p>
+            Sign-up and password-reset verification now happen inside the
+            StudyBee account popup.
+        </p>
+        <p>
+            <a class="primary-btn" href="{% url 'home' %}?auth=signup">Open sign up</a>
+        </p>
+    </section>
+{% endblock %}

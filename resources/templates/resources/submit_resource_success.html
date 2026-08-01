@@ -1,23 +1,15 @@
 {% extends "resources/base_report.html" %}
-
-{% block title %}Submission Received - StudyBee{% endblock %}
-
-{% block content %}
-    <section class="report-card success-card">
-        <div class="success-icon">✓</div>
-        <h2>Submission received</h2>
-
-        {% if submitted_title %}
-            <p>
-                <strong>{{ submitted_title }}</strong> is now waiting for admin review.
-            </p>
-        {% else %}
-            <p>Your resource is now waiting for admin review.</p>
-        {% endif %}
-
-        <div class="success-actions">
-            <a href="{% url 'home' %}" class="btn primary-btn">Back to courses</a>
-            <a href="{% url 'submit_resource' %}" class="btn link-btn">Submit another</a>
+{% block title %}Submission received — StudyBee{% endblock %}
+{% block report_content %}
+    <section class="auth-card success-card">
+        <div class="auth-icon" aria-hidden="true">🍯</div>
+        <h1>Submission received</h1>
+        {% if submitted_title %}<p><strong>{{ submitted_title }}</strong> is now waiting for admin review.</p>{% else %}<p>Your resource is now waiting for admin review.</p>{% endif %}
+        {% if reference_code %}<p class="otp-email-pill">Reference: {{ reference_code }}</p>{% endif %}
+        <p>A confirmation was sent to your verified BRACU email. You will receive another update after review.</p>
+        <div class="auth-actions">
+            <a class="primary-btn" href="{% url 'student_account' %}">View my submissions</a>
+            <a class="auth-secondary-link" href="{% url 'home' %}">Back to courses</a>
         </div>
     </section>
 {% endblock %}

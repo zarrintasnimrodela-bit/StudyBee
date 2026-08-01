@@ -279,6 +279,11 @@ body::after {
 }
 
 .course-quick-info .lab-pill {
+    min-height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 16px;
     color: #ea580c;
     font-weight: 1000;
 }
@@ -2169,11 +2174,14 @@ body::after {
 }
 
 .course-favorite-button.active {
-    background: #172033;
-    color: #facc15;
+    background: #ffe1cc;
+    color: #9a4c12;
+    border-color: rgba(234, 88, 12, 0.34);
+    box-shadow: 0 10px 20px rgba(180, 83, 9, 0.12);
 }
 
 .prerequisite-group {
+    min-height: 46px;
     display: flex;
     align-items: center;
     gap: 7px;
@@ -2344,3 +2352,271 @@ body::after {
         flex-direction: column;
     }
 }
+
+
+/* StudyBee 8.2 course metadata and help-card polish */
+.course-quick-info {
+    align-items: stretch;
+}
+
+.prerequisite-group,
+.course-quick-info .lab-pill {
+    min-height: 46px;
+    border: 1px solid rgba(255, 159, 104, 0.22);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.7);
+    box-sizing: border-box;
+}
+
+.course-access-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 4px 0 16px !important;
+    padding: 11px 12px;
+    border: 1px solid rgba(255, 159, 104, 0.22);
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.62);
+    color: #6b4b2f !important;
+    font-size: 12.5px !important;
+    line-height: 1.45 !important;
+}
+
+.sidebar-help-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.sidebar-help-actions a {
+    margin: 0 !important;
+}
+
+.sidebar-help-actions .sidebar-secondary-link {
+    background: #fff;
+    color: #172033;
+    border: 1px solid rgba(23, 32, 51, 0.08);
+    box-shadow: 0 10px 20px rgba(23, 32, 51, 0.07);
+}
+
+/* StudyBee 8.3 compact resource-card hierarchy */
+.resource-card {
+    padding: 16px 24px !important;
+}
+
+.badges {
+    margin-bottom: 5px !important;
+}
+
+.resource-main-row {
+    grid-template-columns: minmax(0, 1fr) 170px !important;
+    align-items: stretch !important;
+    gap: 22px !important;
+    margin-top: 2px !important;
+}
+
+.resource-text {
+    padding-left: 0 !important;
+}
+
+.title-line {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+}
+
+.resource-card h3 {
+    margin: 0 !important;
+}
+
+.semester-pill {
+    flex: 0 0 auto;
+    margin: 0 !important;
+    padding: 4px 9px !important;
+    border-radius: 999px !important;
+    font-size: 10.5px !important;
+    line-height: 1.1 !important;
+    font-weight: 1000 !important;
+}
+
+.description {
+    margin: 5px 0 0 !important;
+    line-height: 1.4 !important;
+}
+
+.resource-date {
+    margin: 6px 0 0 !important;
+}
+
+.resource-actions {
+    width: 170px !important;
+    min-height: 100%;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    padding-top: 8px;
+}
+
+.resource-actions .btn {
+    min-width: 150px !important;
+}
+
+.resource-report-action {
+    margin-top: auto !important;
+    color: #64748b;
+    font-size: 12.5px;
+    text-align: center;
+}
+
+@media (max-width: 700px) {
+    .resource-card {
+        padding: 14px 16px !important;
+    }
+
+    .resource-main-row {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    .title-line {
+        display: flex !important;
+    }
+
+    .resource-actions {
+        width: 100% !important;
+        min-height: 0;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        flex-wrap: wrap !important;
+        padding-top: 0;
+    }
+
+    .resource-actions .btn {
+        width: auto !important;
+        min-width: 92px !important;
+    }
+
+    .resource-report-action {
+        width: 100%;
+        margin-top: 0 !important;
+        text-align: left;
+    }
+}
+
+/* StudyBee 8.4 adaptive resource-card spacing */
+.badges {
+    margin-bottom: 13px !important;
+}
+
+.resource-main-row {
+    margin-top: 0 !important;
+}
+
+.resource-actions {
+    gap: 14px !important;
+    padding-top: 0 !important;
+}
+
+.resource-actions .btn {
+    min-height: 48px;
+}
+
+.resource-report-action {
+    margin-top: auto !important;
+}
+
+.resource-card--no-description .resource-main-row {
+    align-items: center !important;
+}
+
+.resource-card--no-description .resource-date {
+    margin-top: 8px !important;
+}
+
+.resource-card--no-description .resource-actions {
+    min-height: 82px;
+}
+
+@media (max-width: 700px) {
+    .badges {
+        margin-bottom: 11px !important;
+    }
+
+    .resource-actions {
+        gap: 9px !important;
+    }
+
+    .resource-card--no-description .resource-actions {
+        min-height: 0;
+    }
+}
+
+/* StudyBee 8.5 course summary control placement */
+.course-hero-summary {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+}
+
+.course-hero-summary .course-favorite-button {
+    width: 122px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 13px;
+}
+
+.course-title-row {
+    display: block;
+}
+
+.course-title-row h1 {
+    width: 100%;
+}
+
+@media (max-width: 700px) {
+    .course-hero {
+        display: flex !important;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .course-hero .mini-label {
+        max-width: 100%;
+    }
+
+    .course-hero-summary {
+        position: static;
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .course-hero-summary .course-favorite-button {
+        width: auto;
+        min-width: 112px;
+        min-height: 48px;
+    }
+
+    .course-hero .course-bubble {
+        position: static !important;
+        width: 74px;
+        min-width: 74px;
+        height: 52px;
+        margin: 0;
+        transform: none;
+    }
+}
+

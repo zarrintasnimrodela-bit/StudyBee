@@ -1,0 +1,420 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#fff8ec">
+    <meta name="description" content="StudyBee organizes BRACU course resources into a calm, searchable study hub.">
+    <title>{% block title %}StudyBee{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    {% block page_css %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'resources/css/site.css' %}?v=8.5">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <header class="site-header" data-site-header>
+        <div class="site-header-inner">
+            <a href="{% url 'home' %}" class="brand" aria-label="StudyBee home">
+                <span class="logo-mark" aria-hidden="true">🐝</span>
+                <span class="brand-copy">
+                    <strong>StudyBee</strong>
+                    <small>Your BRACU study hive</small>
+                </span>
+            </a>
+
+            <button
+                type="button"
+                class="mobile-menu-button"
+                aria-label="Open navigation"
+                aria-controls="siteNavigation"
+                aria-expanded="false"
+                data-menu-toggle>
+                <span></span><span></span><span></span>
+            </button>
+
+            <nav class="site-navigation" id="siteNavigation" aria-label="Primary navigation" data-site-nav>
+                <a class="{% if request.resolver_match.url_name == 'home' %}is-current{% endif %}" href="{% url 'home' %}">Home</a>
+                <a class="{% if request.resolver_match.url_name == 'course_detail' %}is-current{% endif %}" href="{% url 'home' %}#course-directory">Courses</a>
+                <a class="{% if request.resolver_match.url_name == 'global_search' %}is-current{% endif %}" href="{% url 'global_search' %}">Search</a>
+
+                {% if student_verified %}
+                    <a class="{% if request.resolver_match.url_name == 'submit_resource' %}is-current{% endif %}" href="{% url 'submit_resource' %}">Submit</a>
+                {% else %}
+                    <a
+                        href="{% url 'student_login' %}?next={% url 'submit_resource' %}"
+                        data-modal-open="auth"
+                        data-auth-next="{% url 'submit_resource' %}">Submit</a>
+                {% endif %}
+
+
+                {% if student_verified %}
+                    <a class="nav-account {% if request.resolver_match.url_name == 'student_account' %}is-current{% endif %}" href="{% url 'student_account' %}">
+                        <span aria-hidden="true">●</span>
+                        My StudyBee
+                    </a>
+                    <button type="button" class="nav-logout-button" data-modal-open="logout">Log out</button>
+                {% else %}
+                    <a
+                        class="nav-sign-in {% if request.resolver_match.url_name == 'student_login' or request.resolver_match.url_name == 'student_signup_request' or request.resolver_match.url_name == 'student_password_reset_request' %}is-current{% endif %}"
+                        href="{% url 'student_login' %}?next={{ request.get_full_path|urlencode }}"
+                        data-modal-open="auth"
+                        data-auth-next="{{ request.get_full_path }}">Log in / Sign up</a>
+                {% endif %}
+
+                {% if request.user.is_staff %}
+                    <a href="/admin/">Admin</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    {% if messages %}
+        <div class="message-stack" aria-live="polite">
+            {% for message in messages %}
+                <div class="site-message site-message-{{ message.tags|default:'info' }}">
+                    <span>{{ message }}</span>
+                    <button type="button" aria-label="Dismiss message" data-message-dismiss>×</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main id="main-content" class="site-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand-block">
+                <h2>StudyBee <span aria-hidden="true">🐝</span></h2>
+                <p>Your BRACU study hive for organized course resources.</p>
+                <p class="footer-disclaimer">
+                    Materials are collected from publicly shared posts and student-shared resources.
+                    StudyBee organizes them for easier access and is not an official BRAC University website.
+                </p>
+            </div>
+
+            <div class="footer-link-group footer-primary-links">
+                <a href="#about" data-modal-open="about">About</a>
+                <a
+                    href="{% url 'report_issue' %}?next={{ request.get_full_path|urlencode }}"
+                    data-modal-open="report">Report an issue</a>
+                <a href="{% url 'privacy_policy' %}" data-modal-open="privacy">Privacy</a>
+                <a href="{% url 'terms_of_use' %}" data-modal-open="terms">Terms</a>
+            </div>
+        </div>
+    </footer>
+
+    {% if not student_verified %}
+        <div class="site-modal" id="authModal" data-modal="auth" aria-hidden="true" hidden>
+            <div class="site-modal-backdrop" data-modal-close></div>
+            <section class="site-modal-dialog auth-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+                <button type="button" class="site-modal-close" aria-label="Close account popup" data-modal-close>×</button>
+
+                <div class="auth-mode-tabs" role="tablist" aria-label="StudyBee account access">
+                    <button type="button" class="is-active" role="tab" aria-selected="true" data-auth-show="login">Log in</button>
+                    <button type="button" role="tab" aria-selected="false" data-auth-show="signup">Sign up</button>
+                </div>
+
+                <div data-auth-panel="login">
+                    <div class="auth-icon" aria-hidden="true">🔐</div>
+                    <span class="section-kicker">Student account</span>
+                    <h2 class="auth-modal-title" id="authModalTitle">Log in to StudyBee</h2>
+                    <p class="modal-intro">
+                        Use the StudyBee password you created after verifying your
+                        <strong>@g.bracu.ac.bd</strong> email.
+                    </p>
+
+                    <form method="post" action="{% url 'student_login' %}" class="auth-form" data-auth-login-form novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}" data-auth-next-input>
+                        <div class="modal-form-errors" data-auth-errors="login" aria-live="polite"></div>
+                        <div class="report-field">
+                            <label for="authLoginEmail">BRACU email</label>
+                            <input class="report-input" type="email" id="authLoginEmail" name="email" autocomplete="email" inputmode="email" placeholder="student@g.bracu.ac.bd" required>
+                        </div>
+                        <div class="report-field">
+                            <label for="authLoginPassword">Password</label>
+                            <div class="password-field-wrap">
+                                <input class="report-input" type="password" id="authLoginPassword" name="password" autocomplete="current-password" placeholder="Your StudyBee password" required>
+                                <button type="button" class="password-toggle" data-password-toggle aria-label="Show password">Show</button>
+                            </div>
+                        </div>
+                        <label class="auth-checkbox">
+                            <input type="checkbox" name="remember_me" value="on">
+                            <span>Keep me logged in</span>
+                        </label>
+                        <button type="submit" class="primary-btn auth-submit-button">Log in</button>
+                    </form>
+
+                    <div class="auth-footer-actions">
+                        <button type="button" class="auth-inline-link" data-auth-show="reset">Forgot password?</button>
+                        <p>Don’t have an account? <button type="button" class="auth-inline-link" data-auth-show="signup">Sign up</button></p>
+                    </div>
+                </div>
+
+                <div data-auth-panel="signup" hidden>
+                    <div class="auth-icon" aria-hidden="true">✉️</div>
+                    <span class="section-kicker">New student account</span>
+                    <h2>Create your StudyBee account</h2>
+                    <p class="modal-intro">
+                        We will send one verification code to your
+                        <strong>@g.bracu.ac.bd</strong> email. You will then create a StudyBee password.
+                    </p>
+
+                    <form method="post" action="{% url 'student_signup_request' %}" class="auth-form" data-auth-signup-request-form novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}" data-auth-next-input>
+                        <div class="modal-form-errors" data-auth-errors="signup" aria-live="polite"></div>
+                        <div class="report-field">
+                            <label for="authSignupEmail">BRACU email</label>
+                            <input class="report-input" type="email" id="authSignupEmail" name="email" autocomplete="email" inputmode="email" placeholder="student@g.bracu.ac.bd" required>
+                        </div>
+                        <button type="submit" class="primary-btn auth-submit-button">Send sign-up code</button>
+                    </form>
+
+                    <div class="auth-footer-actions">
+                        <p>Already have an account? <button type="button" class="auth-inline-link" data-auth-show="login">Log in</button></p>
+                    </div>
+                </div>
+
+                <div data-auth-panel="signup-complete" hidden>
+                    <div class="auth-icon" aria-hidden="true">✅</div>
+                    <span class="section-kicker">Verify and finish</span>
+                    <h2>Enter the code and create a password</h2>
+                    <p class="modal-intro">Code sent to <strong data-signup-email-display></strong>.</p>
+
+                    <form method="post" action="{% url 'student_signup_complete' %}" class="auth-form" data-auth-signup-complete-form novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}" data-auth-next-input>
+                        <div class="modal-form-errors" data-auth-errors="signup-complete" aria-live="polite"></div>
+                        <div class="report-field">
+                            <label for="authSignupCode">Six-digit code</label>
+                            <input class="report-input otp-code-input" type="text" id="authSignupCode" name="code" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" required>
+                        </div>
+                        <div class="report-field">
+                            <label for="authSignupPassword1">Create password</label>
+                            <div class="password-field-wrap">
+                                <input class="report-input" type="password" id="authSignupPassword1" name="password1" autocomplete="new-password" placeholder="At least 8 characters" required>
+                                <button type="button" class="password-toggle" data-password-toggle aria-label="Show password">Show</button>
+                            </div>
+                        </div>
+                        <div class="report-field">
+                            <label for="authSignupPassword2">Confirm password</label>
+                            <div class="password-field-wrap">
+                                <input class="report-input" type="password" id="authSignupPassword2" name="password2" autocomplete="new-password" placeholder="Repeat your password" required>
+                                <button type="button" class="password-toggle" data-password-toggle aria-label="Show password">Show</button>
+                            </div>
+                        </div>
+                        <p class="field-hint">Use at least 8 characters. A longer passphrase is safer.</p>
+                        <button type="submit" class="primary-btn auth-submit-button">Create account</button>
+                    </form>
+                    <button type="button" class="modal-text-button" data-auth-show="signup">Use another email</button>
+                </div>
+
+                <div data-auth-panel="reset" hidden>
+                    <div class="auth-icon" aria-hidden="true">🗝️</div>
+                    <span class="section-kicker">Password recovery</span>
+                    <h2>Reset your password</h2>
+                    <p class="modal-intro">Enter your verified BRACU email and we will send a one-time reset code.</p>
+
+                    <form method="post" action="{% url 'student_password_reset_request' %}" class="auth-form" data-auth-reset-request-form novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}" data-auth-next-input>
+                        <div class="modal-form-errors" data-auth-errors="reset" aria-live="polite"></div>
+                        <div class="report-field">
+                            <label for="authResetEmail">BRACU email</label>
+                            <input class="report-input" type="email" id="authResetEmail" name="email" autocomplete="email" inputmode="email" placeholder="student@g.bracu.ac.bd" required>
+                        </div>
+                        <button type="submit" class="primary-btn auth-submit-button">Send reset code</button>
+                    </form>
+                    <button type="button" class="modal-text-button" data-auth-show="login">Back to log in</button>
+                </div>
+
+                <div data-auth-panel="reset-complete" hidden>
+                    <div class="auth-icon" aria-hidden="true">🔄</div>
+                    <span class="section-kicker">Choose a new password</span>
+                    <h2>Enter the reset code</h2>
+                    <p class="modal-intro">Code sent to <strong data-reset-email-display></strong>.</p>
+
+                    <form method="post" action="{% url 'student_password_reset_complete' %}" class="auth-form" data-auth-reset-complete-form novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}" data-auth-next-input>
+                        <div class="modal-form-errors" data-auth-errors="reset-complete" aria-live="polite"></div>
+                        <div class="report-field">
+                            <label for="authResetCode">Six-digit code</label>
+                            <input class="report-input otp-code-input" type="text" id="authResetCode" name="code" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" required>
+                        </div>
+                        <div class="report-field">
+                            <label for="authResetPassword1">New password</label>
+                            <div class="password-field-wrap">
+                                <input class="report-input" type="password" id="authResetPassword1" name="password1" autocomplete="new-password" placeholder="At least 8 characters" required>
+                                <button type="button" class="password-toggle" data-password-toggle aria-label="Show password">Show</button>
+                            </div>
+                        </div>
+                        <div class="report-field">
+                            <label for="authResetPassword2">Confirm new password</label>
+                            <div class="password-field-wrap">
+                                <input class="report-input" type="password" id="authResetPassword2" name="password2" autocomplete="new-password" placeholder="Repeat your password" required>
+                                <button type="button" class="password-toggle" data-password-toggle aria-label="Show password">Show</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="primary-btn auth-submit-button">Set new password</button>
+                    </form>
+                    <button type="button" class="modal-text-button" data-auth-show="reset">Request another code</button>
+                </div>
+            </section>
+        </div>
+    {% endif %}
+    <div class="site-modal" id="reportModal" data-modal="report" aria-hidden="true" hidden>
+        <div class="site-modal-backdrop" data-modal-close></div>
+        <section class="site-modal-dialog report-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle">
+            <button type="button" class="site-modal-close" aria-label="Close report popup" data-modal-close>×</button>
+
+            <div data-report-form-panel>
+                <span class="section-kicker">Help improve StudyBee</span>
+                <h2 id="reportModalTitle">Report an issue</h2>
+                <p class="modal-intro" data-report-context>
+                    Tell us about a broken link, wrong resource, removal request, or another problem.
+                </p>
+
+                <form method="post" action="{% url 'report_issue' %}" class="report-popup-form" data-report-form novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="resource" value="" data-report-resource>
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}" data-report-next>
+                    <input type="text" name="website" value="" tabindex="-1" autocomplete="off" class="honeypot-field" aria-hidden="true">
+                    <div class="modal-form-errors" data-report-errors aria-live="polite"></div>
+
+                    <div class="report-popup-grid">
+                        <div class="report-field">
+                            <label for="reportIssueType">Issue type</label>
+                            <select class="report-input" id="reportIssueType" name="issue_type" required>
+                                <option value="BROKEN_LINK">Broken link</option>
+                                <option value="WRONG_RESOURCE">Wrong course/resource</option>
+                                <option value="REMOVAL_REQUEST">Request removal</option>
+                                <option value="SUGGEST_RESOURCE">Suggest new resource</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        <div class="report-field">
+                            <label for="reportCourseCode">Course code</label>
+                            <input class="report-input" id="reportCourseCode" name="course_code" placeholder="Example: CSE421" autocomplete="off" data-report-course>
+                        </div>
+                        <div class="report-field report-popup-full">
+                            <label for="reportResourceTitle">Resource title or link</label>
+                            <input class="report-input" id="reportResourceTitle" name="resource_title_or_link" placeholder="Resource title or link" data-report-title>
+                        </div>
+                        <div class="report-field report-popup-full">
+                            <label for="reportDetails">Details</label>
+                            <textarea class="report-input report-textarea" id="reportDetails" name="details" rows="5" placeholder="Explain what is wrong and what you expected..." required></textarea>
+                        </div>
+                        <div class="report-field report-popup-full">
+                            <label for="reportEmail">Contact email <span>(optional)</span></label>
+                            <input
+                                class="report-input"
+                                id="reportEmail"
+                                name="contact_email"
+                                type="email"
+                                autocomplete="email"
+                                placeholder="Email for a resolution update"
+                                {% if student_verified and request.user.email %}value="{{ request.user.email }}" readonly aria-readonly="true"{% endif %}>
+                        </div>
+                    </div>
+                    <button type="submit" class="primary-btn modal-primary-button report-submit-button">Submit report</button>
+                </form>
+            </div>
+
+            <div class="modal-success-panel" data-report-success hidden>
+                <div class="modal-success-icon" aria-hidden="true">✓</div>
+                <span class="section-kicker">Report received</span>
+                <h2>Thank you for helping StudyBee.</h2>
+                <p>Your reference is <strong data-report-reference></strong>.</p>
+                <button type="button" class="primary-btn" data-modal-close>Done</button>
+            </div>
+        </section>
+    </div>
+
+    <div class="site-modal" id="aboutModal" data-modal="about" aria-hidden="true" hidden>
+        <div class="site-modal-backdrop" data-modal-close></div>
+        <article class="site-modal-dialog content-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle">
+            <button type="button" class="site-modal-close" aria-label="Close About popup" data-modal-close>×</button>
+            <span class="section-kicker">About StudyBee</span>
+            <h2 id="aboutModalTitle">A cleaner way to find BRACU course resources.</h2>
+            <p>
+                StudyBee is a student-made resource hub that organizes publicly shared materials,
+                links, videos, notes, questions, and useful files in one place.
+            </p>
+            <p>Favorites and recently viewed courses are saved only in your current browser.</p>
+            <p class="modal-note">
+                Course materials may vary by semester, so always follow your current faculty instructions.
+            </p>
+        </article>
+    </div>
+
+    <div class="site-modal" id="privacyModal" data-modal="privacy" aria-hidden="true" hidden>
+        <div class="site-modal-backdrop" data-modal-close></div>
+        <article class="site-modal-dialog content-modal-dialog legal-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle">
+            <button type="button" class="site-modal-close" aria-label="Close Privacy popup" data-modal-close>×</button>
+            <span class="section-kicker">Privacy</span>
+            <h2 id="privacyModalTitle">How StudyBee uses your information</h2>
+            <p>StudyBee is a student-made resource hub. Public browsing does not require an account.</p>
+            <h3>Student login and sign up</h3>
+            <p>Sign up requires a one-time code sent to a BRACU email. Password reset also uses a one-time code. Normal logins use the separate StudyBee password you create. StudyBee never asks for your BRACU Google password, and the StudyBee password is stored only as a secure hash.</p>
+            <h3>Submissions and reports</h3>
+            <p>Submission and report details are stored so administrators can review them. Your email may be used to send receipt, approval, rejection, or resolution updates.</p>
+            <h3>Browser storage</h3>
+            <p>Favorites and recently viewed courses are stored locally in your browser. They are not uploaded to StudyBee.</p>
+            <h3>Files and hosting</h3>
+            <p>Uploaded resources may be stored in StudyBee’s configured cloud storage. Do not submit private, restricted, or personally sensitive documents.</p>
+            <a class="modal-fallback-link" href="{% url 'privacy_policy' %}">Open Privacy as a page</a>
+        </article>
+    </div>
+
+    <div class="site-modal" id="termsModal" data-modal="terms" aria-hidden="true" hidden>
+        <div class="site-modal-backdrop" data-modal-close></div>
+        <article class="site-modal-dialog content-modal-dialog legal-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="termsModalTitle">
+            <button type="button" class="site-modal-close" aria-label="Close Terms popup" data-modal-close>×</button>
+            <span class="section-kicker">Terms of use</span>
+            <h2 id="termsModalTitle">Use StudyBee responsibly</h2>
+            <p>StudyBee organizes student-shared and publicly available study materials. It is not an official BRAC University service.</p>
+            <h3>Resources</h3>
+            <p>Materials may be incomplete, outdated, or specific to a past semester. Students remain responsible for following current faculty instructions.</p>
+            <h3>Contributions</h3>
+            <p>Submit only materials you are allowed to share. Do not upload private student information, leaked examinations, copyrighted books without permission, or harmful files.</p>
+            <h3>Moderation</h3>
+            <p>Administrators may reject, hide, edit, or remove resources and may restrict abusive use of the submission or reporting systems.</p>
+            <h3>Availability</h3>
+            <p>StudyBee may change or become temporarily unavailable. No guarantee is made that every file or external link will remain accessible.</p>
+            <a class="modal-fallback-link" href="{% url 'terms_of_use' %}">Open Terms as a page</a>
+        </article>
+    </div>
+
+    {% if student_verified %}
+        <div class="site-modal" id="logoutModal" data-modal="logout" aria-hidden="true" hidden>
+            <div class="site-modal-backdrop" data-modal-close></div>
+            <section class="site-modal-dialog compact-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle">
+                <button type="button" class="site-modal-close" aria-label="Close logout confirmation" data-modal-close>×</button>
+                <span class="section-kicker">Account</span>
+                <h2 id="logoutModalTitle">Log out of StudyBee?</h2>
+                <p class="modal-intro">You can continue browsing publicly and log in again anytime.</p>
+                <div class="modal-button-row">
+                    <button type="button" class="secondary-modal-button" data-modal-close>Cancel</button>
+                    <form method="post" action="{% url 'student_logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="primary-btn logout-confirm-button">Log out</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    {% endif %}
+
+    <script src="{% static 'resources/js/site.js' %}?v=8.3" defer></script>
+    {% block page_js %}{% endblock %}
+</body>
+</html>

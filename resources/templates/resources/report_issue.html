@@ -1,8 +1,8 @@
 {% extends "resources/base_report.html" %}
 
-{% block title %}Report Issue - StudyBee{% endblock %}
+{% block title %}Report an issue — StudyBee{% endblock %}
 
-{% block content %}
+{% block report_content %}
     <a href="{{ next_url }}" class="back-link">{{ back_label }}</a>
 
     <section class="report-card">
@@ -12,58 +12,78 @@
         </div>
 
         {% if linked_resource %}
-            <p class="linked-resource-notice">
-                Reporting:
+            <div class="linked-resource-notice">
+                <span>Reporting</span>
                 <strong>{{ linked_resource.course.course_code }} — {{ linked_resource.title }}</strong>
-            </p>
+            </div>
         {% endif %}
 
         <p class="report-intro">
-            Found a broken link, wrong resource, or want something removed?
-            Submit it here and it will appear in the admin panel.
-            Add your email if you want a resolution update.
+            Found a broken link, misplaced material, or something that should be removed?
+            Send a quick report and the resource will be hidden while an admin reviews it.
         </p>
+
+        {% if report_user %}
+            <div class="verified-identity">
+                <span aria-hidden="true">✓</span>
+                <div>
+                    <strong>Signed in</strong>
+                    <span>Updates will be sent to {{ request.user.email }}.</span>
+                </div>
+            </div>
+        {% else %}
+            <div class="workflow-note">
+                You can report without logging in. Add an email below to receive the final resolution,
+                or <a href="{% url 'student_login' %}?next={{ request.get_full_path|urlencode }}">log in with your BRACU email</a>.
+            </div>
+        {% endif %}
 
         <form method="post" class="report-form">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ next_url }}">
             {{ form.resource }}
-
+            {{ form.website }}
             {{ form.non_field_errors }}
 
-            <div class="report-field">
-                <label>Issue type</label>
-                {{ form.issue_type }}
-                {{ form.issue_type.errors }}
+            <div class="form-section">
+                <div class="form-section-heading">
+                    <span class="form-step">1</span>
+                    <div><h3>What happened?</h3><p>Give the reviewer enough detail to reproduce the problem.</p></div>
+                </div>
+
+                <div class="report-field">
+                    <label for="{{ form.issue_type.id_for_label }}">Issue type</label>
+                    {{ form.issue_type }}{{ form.issue_type.errors }}
+                </div>
+                <div class="submission-grid">
+                    <div class="report-field">
+                        <label for="{{ form.course_code.id_for_label }}">Course code</label>
+                        {{ form.course_code }}{{ form.course_code.errors }}
+                    </div>
+                    <div class="report-field">
+                        <label for="{{ form.resource_title_or_link.id_for_label }}">Resource title or link</label>
+                        {{ form.resource_title_or_link }}{{ form.resource_title_or_link.errors }}
+                    </div>
+                </div>
+                <div class="report-field">
+                    <label for="{{ form.details.id_for_label }}">Details</label>
+                    {{ form.details }}{{ form.details.errors }}
+                </div>
             </div>
 
-            <div class="report-field">
-                <label>Course code</label>
-                {{ form.course_code }}
-                {{ form.course_code.errors }}
+            <div class="form-section">
+                <div class="form-section-heading">
+                    <span class="form-step">2</span>
+                    <div><h3>Resolution update</h3><p>This is optional for guests and automatic for logged-in students.</p></div>
+                </div>
+                <div class="report-field">
+                    <label for="{{ form.contact_email.id_for_label }}">Contact email <span>(optional for guests)</span></label>
+                    {{ form.contact_email }}{{ form.contact_email.errors }}
+                    {% if form.contact_email.help_text %}<small>{{ form.contact_email.help_text }}</small>{% endif %}
+                </div>
             </div>
 
-            <div class="report-field">
-                <label>Resource title or link</label>
-                {{ form.resource_title_or_link }}
-                {{ form.resource_title_or_link.errors }}
-            </div>
-
-            <div class="report-field">
-                <label>Details</label>
-                {{ form.details }}
-                {{ form.details.errors }}
-            </div>
-
-            <div class="report-field">
-                <label>Contact email <span>(optional)</span></label>
-                {{ form.contact_email }}
-                {{ form.contact_email.errors }}
-            </div>
-
-            <button type="submit" class="btn primary-btn report-submit">
-                Submit Report
-            </button>
+            <button type="submit" class="btn primary-btn report-submit">Submit report</button>
         </form>
     </section>
 {% endblock %}

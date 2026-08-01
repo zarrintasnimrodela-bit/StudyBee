@@ -183,6 +183,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "resources.context_processors.student_session",
             ],
         },
     },
@@ -405,3 +406,28 @@ BREVO_SENDER_NAME = os.environ.get(
     "StudyBee",
 )
 
+
+# StudyBee verified student email login
+BRACU_ALLOWED_EMAIL_DOMAIN = os.environ.get(
+    "BRACU_ALLOWED_EMAIL_DOMAIN",
+    "g.bracu.ac.bd",
+).strip().lower()
+STUDENT_OTP_LIFETIME_MINUTES = env_int(
+    "STUDENT_OTP_LIFETIME_MINUTES",
+    default=10,
+)
+STUDENT_OTP_MAX_REQUESTS_PER_HOUR = env_int(
+    "STUDENT_OTP_MAX_REQUESTS_PER_HOUR",
+    default=5,
+)
+STUDENT_OTP_MAX_REQUESTS_PER_IP_PER_HOUR = env_int(
+    "STUDENT_OTP_MAX_REQUESTS_PER_IP_PER_HOUR",
+    default=20,
+)
+STUDENT_PASSWORD_MIN_LENGTH = env_int(
+    "STUDENT_PASSWORD_MIN_LENGTH",
+    default=8,
+)
+LOGIN_URL = "/account/login/"
+SESSION_COOKIE_AGE = env_int("SESSION_COOKIE_AGE", default=60 * 60 * 24 * 30)
+SESSION_SAVE_EVERY_REQUEST = False

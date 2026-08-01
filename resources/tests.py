@@ -7,12 +7,16 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from .authentication import student_is_verified
 from .importers import import_resources_from_csv
 from .models import (
     Course,
+    EmailVerificationCode,
     ReportIssue,
     Resource,
     ResourceSubmission,
+    StudentProfile,
+    student_name_from_email,
 )
 from .validators import (
     MAX_FILE_SIZE,
@@ -49,6 +53,13 @@ class HomeViewTests(TestCase):
         self.assertContains(response, "CSE421")
         self.assertContains(response, "CSE370")
 
+    def test_home_uses_compact_two_line_hero_copy(self):
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, "Your course resources,")
+        self.assertContains(response, "organized in one place.")
+        self.assertNotContains(response, "shape-four")
+
     def test_home_search_matches_course_code(self):
         response = self.client.get(
             reverse("home"),
@@ -69,6 +80,35 @@ class HomeViewTests(TestCase):
             response,
             reverse("global_search"),
         )
+
+    def test_primary_navigation_separates_home_and_courses(self):
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, ">Home</a>", html=False)
+        self.assertContains(response, 'href="/#course-directory">Courses</a>')
+        self.assertNotContains(
+            response,
+            'data-modal-open="report">Report</a>',
+        )
+
+    def test_footer_keeps_only_support_links(self):
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, "footer-primary-links")
+        self.assertContains(response, ">About</a>")
+        self.assertContains(response, ">Report an issue</a>")
+        self.assertContains(response, ">Privacy</a>")
+        self.assertContains(response, ">Terms</a>")
+        self.assertNotContains(response, ">Explore</strong>")
+
+        # The header legitimately contains <strong>StudyBee</strong> as the
+        # main brand. Only check the footer so the test targets the duplicate
+        # footer heading that this UI change removed.
+        footer_html = response.content.decode("utf-8").split(
+            '<footer class="site-footer">',
+            1,
+        )[1]
+        self.assertNotIn("<strong>StudyBee</strong>", footer_html)
 
 
 class GlobalSearchTests(TestCase):
@@ -221,14 +261,12 @@ class CourseDetailViewTests(TestCase):
         self.assertContains(response, self.note.title)
         self.assertNotContains(response, self.slide.title)
 
-    def test_semester_filter(self):
-        response = self.get_course(
-            semester_term="FALL",
-            semester_year="2026",
-        )
+    def test_course_filters_omit_semester_controls(self):
+        response = self.get_course()
 
-        self.assertContains(response, self.note.title)
-        self.assertNotContains(response, self.slide.title)
+        self.assertNotContains(response, "<p>Semester</p>", html=False)
+        self.assertContains(response, "Fall 2026")
+        self.assertContains(response, 'class="title-line"')
 
     def test_focus_resource_from_global_search(self):
         response = self.get_course(
@@ -431,21 +469,299 @@ class UploadValidatorTests(TestCase):
         )
 
 
+class StudentIdentityTests(TestCase):
+    def test_name_is_derived_from_email_separators(self):
+        self.assertEqual(
+            student_name_from_email(
+                "zarrin.tasnim-rodela_student@g.bracu.ac.bd"
+            ),
+            "Zarrin Tasnim Rodela Student",
+        )
+
+    def test_profile_uses_readable_email_name(self):
+        user = get_user_model().objects.create_user(
+            username="named-student",
+            email="zarrin.tasnim.rodela@g.bracu.ac.bd",
+        )
+        profile = StudentProfile.objects.create(
+            user=user,
+            verified_email=user.email,
+            display_name="Old Name",
+        )
+
+        self.assertEqual(profile.display_name, "Zarrin Tasnim Rodela")
+
+    @override_settings(BRACU_ALLOWED_EMAIL_DOMAIN="g.bracu.ac.bd")
+    def test_non_bracu_profile_is_not_verified(self):
+        user = get_user_model().objects.create_user(
+            username="legacy-gmail-student",
+            email="student@gmail.com",
+        )
+        StudentProfile.objects.create(
+            user=user,
+            verified_email=user.email,
+        )
+
+        self.assertFalse(student_is_verified(user))
+
+    @override_settings(BRACU_ALLOWED_EMAIL_DOMAIN="g.bracu.ac.bd")
+    def test_non_bracu_legacy_session_shows_login_not_student_account(self):
+        user = get_user_model().objects.create_user(
+            username="legacy-session",
+            email="legacy@gmail.com",
+        )
+        StudentProfile.objects.create(
+            user=user,
+            verified_email=user.email,
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, "Log in / Sign up")
+        self.assertNotContains(response, "My StudyBee")
+
+
+@override_settings(
+    EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+    DEFAULT_FROM_EMAIL="StudyBee <studybee@example.com>",
+    BREVO_API_KEY="",
+    BREVO_SENDER_EMAIL="",
+    BRACU_ALLOWED_EMAIL_DOMAIN="g.bracu.ac.bd",
+    STUDENT_PASSWORD_MIN_LENGTH=8,
+)
+class StudentAccountAccessTests(TestCase):
+    password = "Correct horse battery staple 2026!"
+
+    def extract_code(self):
+        import re
+        return re.search(r"\b(\d{6})\b", mail.outbox[-1].body).group(1)
+
+    def create_verified_user(self, email="student@g.bracu.ac.bd", password=None):
+        user = get_user_model().objects.create_user(
+            username=email,
+            email=email,
+            password=password or self.password,
+        )
+        StudentProfile.objects.create(
+            user=user,
+            verified_email=email,
+        )
+        return user
+
+    def test_non_bracu_signup_email_is_rejected(self):
+        response = self.client.post(
+            reverse("student_signup_request"),
+            {"email": "student@gmail.com"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("@g.bracu.ac.bd", str(response.json()["errors"]))
+        self.assertFalse(EmailVerificationCode.objects.exists())
+
+    def test_signup_verifies_email_and_creates_password_account(self):
+        email = "new.student@g.bracu.ac.bd"
+        response = self.client.post(
+            reverse("student_signup_request"),
+            {"email": email, "next": reverse("submit_resource")},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["ok"])
+        self.assertEqual(len(mail.outbox), 1)
+        code = self.extract_code()
+        otp = EmailVerificationCode.objects.get(email=email)
+        self.assertEqual(otp.purpose, "SIGNUP")
+
+        response = self.client.post(
+            reverse("student_signup_complete"),
+            {
+                "code": code,
+                "password1": self.password,
+                "password2": self.password,
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["ok"])
+        self.assertEqual(response.json()["redirect"], reverse("submit_resource"))
+        user = get_user_model().objects.get(email=email)
+        self.assertTrue(user.check_password(self.password))
+        self.assertTrue(student_is_verified(user))
+        self.assertEqual(int(self.client.session["_auth_user_id"]), user.pk)
+
+    def test_login_uses_password_and_does_not_send_code(self):
+        user = self.create_verified_user()
+        mail.outbox.clear()
+        response = self.client.post(
+            reverse("student_login"),
+            {
+                "email": user.email,
+                "password": self.password,
+                "remember_me": "on",
+                "next": reverse("student_account"),
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["ok"])
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(int(self.client.session["_auth_user_id"]), user.pk)
+
+    def test_wrong_password_is_rejected(self):
+        user = self.create_verified_user()
+        response = self.client.post(
+            reverse("student_login"),
+            {"email": user.email, "password": "wrong-password"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(response.json()["ok"])
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_password_reset_uses_code_then_sets_new_password(self):
+        user = self.create_verified_user()
+        new_password = "A newer memorable StudyBee password 2026!"
+        response = self.client.post(
+            reverse("student_password_reset_request"),
+            {"email": user.email},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        code = self.extract_code()
+        otp = EmailVerificationCode.objects.get(email=user.email)
+        self.assertEqual(otp.purpose, "PASSWORD_RESET")
+
+        response = self.client.post(
+            reverse("student_password_reset_complete"),
+            {
+                "code": code,
+                "password1": new_password,
+                "password2": new_password,
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        user.refresh_from_db()
+        self.assertTrue(user.check_password(new_password))
+        self.assertEqual(int(self.client.session["_auth_user_id"]), user.pk)
+
+    def test_legacy_passwordless_student_can_finish_signup(self):
+        email = "legacy.student@g.bracu.ac.bd"
+        user = get_user_model().objects.create_user(
+            username=email,
+            email=email,
+        )
+        user.set_unusable_password()
+        user.save(update_fields=["password"])
+        StudentProfile.objects.create(user=user, verified_email=email)
+
+        response = self.client.post(
+            reverse("student_signup_request"),
+            {"email": email},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        code = self.extract_code()
+        response = self.client.post(
+            reverse("student_signup_complete"),
+            {
+                "code": code,
+                "password1": self.password,
+                "password2": self.password,
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        user.refresh_from_db()
+        self.assertTrue(user.check_password(self.password))
+
+    def test_account_popup_uses_login_signup_and_password_language(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "Don’t have an account?")
+        self.assertContains(response, "Send sign-up code")
+        self.assertContains(response, "Forgot password?")
+        self.assertNotContains(response, "Email me a login code")
+
+    def test_eight_character_password_is_accepted(self):
+        email = "eight.chars@g.bracu.ac.bd"
+        self.client.post(
+            reverse("student_signup_request"),
+            {"email": email},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        code = self.extract_code()
+        response = self.client.post(
+            reverse("student_signup_complete"),
+            {
+                "code": code,
+                "password1": "BeeHive8",
+                "password2": "BeeHive8",
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["ok"])
+
+    def test_seven_character_password_is_rejected(self):
+        email = "seven.chars@g.bracu.ac.bd"
+        self.client.post(
+            reverse("student_signup_request"),
+            {"email": email},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        code = self.extract_code()
+        response = self.client.post(
+            reverse("student_signup_complete"),
+            {
+                "code": code,
+                "password1": "Bee1234",
+                "password2": "Bee1234",
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("at least 8", str(response.json()["errors"]).lower())
+
+
 class StudentSubmissionTests(TestCase):
     def setUp(self):
         self.course = Course.objects.create(
             course_code="CSE330",
             course_title="Numerical Methods",
         )
-
-    def test_submission_page_loads(self):
-        response = self.client.get(
-            reverse("submit_resource")
+        self.student = get_user_model().objects.create_user(
+            username="student@g.bracu.ac.bd",
+            email="student@g.bracu.ac.bd",
+        )
+        self.student.set_unusable_password()
+        self.student.save()
+        StudentProfile.objects.create(
+            user=self.student,
+            verified_email=self.student.email,
+            display_name="Student",
         )
 
-        self.assertEqual(response.status_code, 200)
+    def test_anonymous_student_is_sent_to_login(self):
+        response = self.client.get(reverse("submit_resource"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("home"), response.url)
+        self.assertIn("auth=1", response.url)
+        self.assertIn("next=%2Fsubmit%2F", response.url)
 
+    def test_submission_page_loads_for_verified_student(self):
+        self.client.force_login(self.student)
+        response = self.client.get(reverse("submit_resource"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.student.email)
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        BREVO_API_KEY="",
+        BREVO_SENDER_EMAIL="",
+    )
     def test_valid_submission_is_pending(self):
+        self.client.force_login(self.student)
         response = self.client.post(
             reverse("submit_resource"),
             {
@@ -457,88 +773,45 @@ class StudentSubmissionTests(TestCase):
                 "semester_term": "SUMMER",
                 "semester_year": "2026",
                 "description": "Shared notes",
-                "external_link": (
-                    "https://example.com/student-notes"
-                ),
+                "external_link": "https://example.com/student-notes",
                 "solution_link": "",
-                "submitter_name": "Student",
-                "submitter_email": (
-                    "student@example.com"
-                ),
                 "note_to_admin": "Shared in class",
                 "website": "",
             },
         )
-
-        self.assertRedirects(
-            response,
-            reverse("submit_resource_success"),
-        )
-
+        self.assertRedirects(response, reverse("submit_resource_success"))
         submission = ResourceSubmission.objects.get()
+        self.assertEqual(submission.status, "PENDING")
+        self.assertEqual(submission.submitted_by, self.student)
+        self.assertEqual(submission.submitter_email, self.student.email)
+        self.assertFalse(Resource.objects.filter(title="Student Notes").exists())
+        self.assertEqual(len(mail.outbox), 1)
 
-        self.assertEqual(
-            submission.status,
-            "PENDING",
-        )
-        self.assertFalse(
-            Resource.objects.filter(
-                title="Student Notes"
-            ).exists()
-        )
-
-    def test_admin_approval_creates_public_unverified_resource(
-        self,
-    ):
+    def test_admin_approval_creates_public_unverified_resource(self):
         submission = ResourceSubmission.objects.create(
             course=self.course,
             title="Approved Notes",
             category="NOTE",
             exam_part="GENERAL",
-            external_link=(
-                "https://example.com/approved"
-            ),
+            external_link="https://example.com/approved",
         )
         user = get_user_model().objects.create_user(
             username="reviewer",
             password="test-password",
         )
-
         resource = submission.approve(user=user)
-
-        self.assertEqual(
-            submission.status,
-            "APPROVED",
-        )
-        self.assertEqual(
-            resource.verification_status,
-            "UNVERIFIED",
-        )
+        self.assertEqual(submission.status, "APPROVED")
+        self.assertEqual(resource.verification_status, "UNVERIFIED")
         self.assertIsNone(resource.verified_by)
-        self.assertEqual(
-            submission.published_resource,
-            resource,
-        )
-
+        self.assertEqual(submission.published_resource, resource)
         course_response = self.client.get(
             reverse(
                 "course_detail",
-                kwargs={
-                    "course_code": (
-                        self.course.course_code.lower()
-                    ),
-                },
+                kwargs={"course_code": self.course.course_code.lower()},
             )
         )
-
-        self.assertContains(
-            course_response,
-            resource.title,
-        )
-        self.assertNotContains(
-            course_response,
-            "Verified",
-        )
+        self.assertContains(course_response, resource.title)
+        self.assertNotContains(course_response, "Verified")
 
     def test_manually_approved_submission_can_be_repaired(self):
         submission = ResourceSubmission.objects.create(
@@ -549,23 +822,12 @@ class StudentSubmissionTests(TestCase):
             external_link="https://example.com/repair-me",
             status="APPROVED",
         )
-
         first_resource = submission.approve()
         second_resource = submission.approve()
-
         submission.refresh_from_db()
-
         self.assertEqual(first_resource, second_resource)
-        self.assertEqual(
-            submission.published_resource,
-            first_resource,
-        )
-        self.assertEqual(
-            Resource.objects.filter(
-                title="Repair Me"
-            ).count(),
-            1,
-        )
+        self.assertEqual(submission.published_resource, first_resource)
+        self.assertEqual(Resource.objects.filter(title="Repair Me").count(), 1)
 
 
 class ReportIssueViewTests(TestCase):
@@ -645,6 +907,26 @@ class ReportIssueViewTests(TestCase):
             response.context["next_url"],
             reverse("home"),
         )
+
+    def test_popup_report_returns_json_reference(self):
+        response = self.client.post(
+            reverse("report_issue"),
+            {
+                "resource": self.resource.id,
+                "issue_type": "BROKEN_LINK",
+                "course_code": self.course.course_code,
+                "resource_title_or_link": self.resource.title,
+                "details": "The popup report says the link is broken.",
+                "contact_email": "",
+                "next": reverse("home"),
+                "website": "",
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["ok"])
+        self.assertTrue(response.json()["reference"])
+        self.assertEqual(ReportIssue.objects.count(), 1)
 
 
 class BulkImportTests(TestCase):
@@ -835,3 +1117,114 @@ class ReportIssueResolutionTests(TestCase):
             len(mail.outbox),
             0,
         )
+
+@override_settings(
+    EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+    DEFAULT_FROM_EMAIL="StudyBee <studybee@example.com>",
+    BREVO_API_KEY="",
+    BREVO_SENDER_EMAIL="",
+)
+class StudentWorkflowEmailTests(TestCase):
+    def setUp(self):
+        self.course = Course.objects.create(
+            course_code="CSE250",
+            course_title="Circuits and Electronics",
+        )
+        self.student = get_user_model().objects.create_user(
+            username="workflow-student",
+            email="workflow@g.bracu.ac.bd",
+        )
+        StudentProfile.objects.create(
+            user=self.student,
+            verified_email=self.student.email,
+            display_name="Workflow Student",
+        )
+
+    def make_submission(self):
+        return ResourceSubmission.objects.create(
+            course=self.course,
+            submitted_by=self.student,
+            submitter_name="Workflow Student",
+            submitter_email=self.student.email,
+            title="Circuit Notes",
+            category="NOTE",
+            exam_part="GENERAL",
+            external_link="https://example.com/circuit-notes",
+        )
+
+    def test_approval_sends_student_update(self):
+        submission = self.make_submission()
+
+        with self.captureOnCommitCallbacks(execute=True):
+            submission.approve()
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("approved and published", mail.outbox[0].body)
+        self.assertIn(submission.reference_code, mail.outbox[0].body)
+
+    def test_rejection_sends_review_note(self):
+        submission = self.make_submission()
+        submission.review_notes = "Please provide a working public link."
+        submission.save(update_fields=["review_notes"])
+
+        with self.captureOnCommitCallbacks(execute=True):
+            submission.reject()
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("not approved", mail.outbox[0].body)
+        self.assertIn("working public link", mail.outbox[0].body)
+
+    def test_verified_report_uses_account_email_and_sends_receipt(self):
+        resource = Resource.objects.create(
+            course=self.course,
+            title="Old Slides",
+            category="SLIDE",
+            exam_part="MIDTERM",
+            external_link="https://example.com/old-slides",
+        )
+        self.client.force_login(self.student)
+
+        response = self.client.post(
+            reverse("report_issue"),
+            {
+                "resource": resource.pk,
+                "issue_type": "BROKEN_LINK",
+                "course_code": self.course.course_code,
+                "resource_title_or_link": resource.title,
+                "details": "The link returns an error.",
+                "contact_email": "spoofed@example.com",
+                "website": "",
+                "next": reverse("home"),
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        report = ReportIssue.objects.get()
+        self.assertEqual(report.reporter, self.student)
+        self.assertEqual(report.contact_email, self.student.email)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(report.reference_code, mail.outbox[0].body)
+
+
+class CoursePolishTests(TestCase):
+    def test_course_page_has_access_note_and_matching_lab_pill(self):
+        course = Course.objects.create(
+            course_code="CSE260",
+            course_title="Digital Logic Design",
+            hard_prerequisite="CSE110",
+            lab_type="NO_LAB",
+        )
+
+        response = self.client.get(
+            reverse(
+                "course_detail",
+                kwargs={"course_code": course.course_code.lower()},
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Some Drive links may require your BRACU GSuite account.",
+        )
+        self.assertContains(response, 'class="lab-pill"')

@@ -1,10 +1,13 @@
 import re
+import secrets
+from datetime import timedelta
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.utils import timezone
+from django.utils.crypto import constant_time_compare, salted_hmac
 
 from .validators import validate_resource_file
 
@@ -14,6 +17,17 @@ SEMESTER_TERM_CHOICES = [
     ("SUMMER", "Summer"),
     ("FALL", "Fall"),
 ]
+
+
+def student_name_from_email(email):
+    """Build a readable student name from the email's local part."""
+    local_part = (email or "").strip().split("@", 1)[0]
+    words = [
+        word
+        for word in re.split(r"[._-]+", local_part)
+        if word
+    ]
+    return " ".join(word.capitalize() for word in words)
 
 
 def parse_legacy_semester(value):
@@ -27,6 +41,120 @@ def parse_legacy_semester(value):
         return "", None
 
     return match.group(1).upper(), int(match.group(2))
+
+
+class StudentProfile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="student_profile",
+    )
+    display_name = models.CharField(max_length=120, blank=True)
+    verified_email = models.EmailField(unique=True)
+    email_verified_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        self.verified_email = self.verified_email.strip().lower()
+        self.display_name = student_name_from_email(self.verified_email)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.verified_email
+
+
+class EmailVerificationCode(models.Model):
+    PURPOSE_CHOICES = [
+        ("SIGNUP", "Sign up"),
+        ("PASSWORD_RESET", "Password reset"),
+    ]
+
+    email = models.EmailField(db_index=True)
+    purpose = models.CharField(
+        max_length=20,
+        choices=PURPOSE_CHOICES,
+        default="SIGNUP",
+        db_index=True,
+    )
+    code_digest = models.CharField(max_length=64)
+    request_ip = models.GenericIPAddressField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    expires_at = models.DateTimeField(db_index=True)
+    used_at = models.DateTimeField(blank=True, null=True)
+    attempts = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(
+                fields=["email", "created_at"],
+                name="otp_email_created_idx",
+            ),
+            models.Index(
+                fields=["email", "purpose", "created_at"],
+                name="otp_email_purpose_idx",
+            ),
+        ]
+
+    @staticmethod
+    def digest_for(email, code):
+        normalized_email = email.strip().lower()
+        return salted_hmac(
+            "studybee.email-otp",
+            f"{normalized_email}:{code}",
+        ).hexdigest()
+
+    @classmethod
+    def issue(
+        cls,
+        *,
+        email,
+        purpose="SIGNUP",
+        request_ip=None,
+        lifetime_minutes=10,
+    ):
+        normalized_email = email.strip().lower()
+        code = f"{secrets.randbelow(1_000_000):06d}"
+
+        cls.objects.filter(
+            email=normalized_email,
+            purpose=purpose,
+            used_at__isnull=True,
+        ).update(used_at=timezone.now())
+
+        record = cls.objects.create(
+            email=normalized_email,
+            purpose=purpose,
+            code_digest=cls.digest_for(normalized_email, code),
+            request_ip=request_ip or None,
+            expires_at=(
+                timezone.now() + timedelta(minutes=lifetime_minutes)
+            ),
+        )
+        return record, code
+
+    @property
+    def is_expired(self):
+        return self.expires_at <= timezone.now()
+
+    @property
+    def is_usable(self):
+        return (
+            self.used_at is None
+            and not self.is_expired
+            and self.attempts < 5
+        )
+
+    def matches(self, code):
+        expected = self.digest_for(self.email, str(code).strip())
+        return constant_time_compare(self.code_digest, expected)
+
+    def __str__(self):
+        return (
+            f"{self.get_purpose_display()} OTP for {self.email} "
+            f"at {self.created_at:%Y-%m-%d %H:%M}"
+        )
 
 
 class Course(models.Model):
@@ -354,6 +482,14 @@ class ResourceSubmission(models.Model):
         related_name="resource_submissions",
     )
 
+    submitted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="resource_submissions",
+    )
+
     title = models.CharField(max_length=200)
 
     category = models.CharField(
@@ -454,6 +590,10 @@ class ResourceSubmission(models.Model):
         ordering = ["-submitted_at"]
 
     @property
+    def reference_code(self):
+        return f"SB-S{self.pk:06d}" if self.pk else "Pending"
+
+    @property
     def semester_display(self):
         if self.semester_term and self.semester_year:
             label = dict(SEMESTER_TERM_CHOICES).get(
@@ -534,6 +674,8 @@ class ResourceSubmission(models.Model):
 
     @transaction.atomic
     def approve(self, user=None):
+        previous_status = self.status
+
         if self.published_resource_id:
             resource = self.published_resource
         else:
@@ -585,9 +727,16 @@ class ResourceSubmission(models.Model):
             ]
         )
 
+        if previous_status != "APPROVED":
+            submission_id = self.pk
+            transaction.on_commit(
+                lambda: self._notify_review_after_commit(submission_id)
+            )
+
         return resource
 
     def reject(self, user=None):
+        previous_status = self.status
         self.status = "REJECTED"
         self.reviewed_by = user
         self.reviewed_at = timezone.now()
@@ -598,6 +747,18 @@ class ResourceSubmission(models.Model):
                 "reviewed_at",
             ]
         )
+
+        if previous_status != "REJECTED":
+            submission_id = self.pk
+            transaction.on_commit(
+                lambda: self._notify_review_after_commit(submission_id)
+            )
+
+    @staticmethod
+    def _notify_review_after_commit(submission_id):
+        from .notifications import send_submission_review_email
+
+        send_submission_review_email(submission_id)
 
     def __str__(self):
         return (
@@ -638,6 +799,14 @@ class ReportIssue(models.Model):
 
     resource = models.ForeignKey(
         Resource,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="issue_reports",
+    )
+
+    reporter = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -728,6 +897,10 @@ class ReportIssue(models.Model):
                 self.resource_title_or_link = self.resource.title
 
         super().save(*args, **kwargs)
+
+    @property
+    def reference_code(self):
+        return f"SB-R{self.pk:06d}" if self.pk else "Pending"
 
     @property
     def resource_label(self):

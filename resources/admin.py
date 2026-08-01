@@ -9,10 +9,23 @@ from .importers import BulkImportError, import_resources_from_csv
 from .notifications import send_report_resolution_email
 from .models import (
     Course,
+    EmailVerificationCode,
     ReportIssue,
     Resource,
     ResourceSubmission,
+    StudentProfile,
 )
+
+
+def _status_badge(value, label=None):
+    css_value = (value or "unknown").lower()
+    return format_html(
+        '<span class="sb-status sb-status-{}">{}</span>',
+        css_value,
+        label or str(value).replace("_", " ").title(),
+    )
+
+
 
 
 @admin.register(Course)
@@ -69,7 +82,8 @@ class ResourceAdmin(admin.ModelAdmin):
         "category",
         "exam_part",
         "semester_label",
-        "verification_status",
+        "verification_badge",
+        "public_page",
         "has_solution",
         "has_file",
         "has_link",
@@ -249,6 +263,25 @@ class ResourceAdmin(admin.ModelAdmin):
             context,
         )
 
+    @admin.display(description="Status", ordering="verification_status")
+    def verification_badge(self, obj):
+        return _status_badge(
+            obj.verification_status,
+            obj.get_verification_status_display(),
+        )
+
+    @admin.display(description="Public page")
+    def public_page(self, obj):
+        url = reverse(
+            "course_detail",
+            kwargs={"course_code": obj.course.course_code.lower()},
+        )
+        return format_html(
+            '<a href="{}?focus={}" target="_blank" rel="noopener">Preview ↗</a>',
+            url,
+            obj.pk,
+        )
+
     @admin.display(description="Semester")
     def semester_label(self, obj):
         return obj.semester_display or "—"
@@ -326,11 +359,12 @@ class ResourceAdmin(admin.ModelAdmin):
 @admin.register(ResourceSubmission)
 class ResourceSubmissionAdmin(admin.ModelAdmin):
     list_display = (
+        "reference_code_display",
         "title",
         "course",
         "category",
         "semester_label",
-        "status",
+        "status_badge",
         "published_resource_link",
         "submitter_email",
         "submitted_at",
@@ -358,6 +392,7 @@ class ResourceSubmissionAdmin(admin.ModelAdmin):
         "reviewed_by",
         "status",
         "published_resource",
+        "submitted_by",
     )
 
     actions = (
@@ -389,6 +424,7 @@ class ResourceSubmissionAdmin(admin.ModelAdmin):
             "Submitter",
             {
                 "fields": (
+                    "submitted_by",
                     "submitter_name",
                     "submitter_email",
                     "note_to_admin",
@@ -409,6 +445,14 @@ class ResourceSubmissionAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    @admin.display(description="Reference")
+    def reference_code_display(self, obj):
+        return obj.reference_code
+
+    @admin.display(description="Status", ordering="status")
+    def status_badge(self, obj):
+        return _status_badge(obj.status, obj.get_status_display())
 
     @admin.display(description="Semester")
     def semester_label(self, obj):
@@ -474,10 +518,11 @@ class ResourceSubmissionAdmin(admin.ModelAdmin):
 @admin.register(ReportIssue)
 class ReportIssueAdmin(admin.ModelAdmin):
     list_display = (
+        "reference_code_display",
         "issue_type",
         "linked_resource",
         "course_code",
-        "status",
+        "status_badge",
         "resolution",
         "notification_status",
         "submitted_at",
@@ -507,6 +552,7 @@ class ReportIssueAdmin(admin.ModelAdmin):
         "resource_title_or_link",
         "details",
         "contact_email",
+        "reporter",
         "status",
         "resolution",
         "resolved_by",
@@ -537,6 +583,7 @@ class ReportIssueAdmin(admin.ModelAdmin):
                     "resource_title_or_link",
                     "details",
                     "contact_email",
+                    "reporter",
                     "submitted_at",
                 )
             },
@@ -567,6 +614,14 @@ class ReportIssueAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    @admin.display(description="Reference")
+    def reference_code_display(self, obj):
+        return obj.reference_code
+
+    @admin.display(description="Status", ordering="status")
+    def status_badge(self, obj):
+        return _status_badge(obj.status, obj.get_status_display())
 
     @admin.display(description="Resource")
     def linked_resource(self, obj):
@@ -684,3 +739,57 @@ class ReportIssueAdmin(admin.ModelAdmin):
             ),
         )
 
+
+
+@admin.register(StudentProfile)
+class StudentProfileAdmin(admin.ModelAdmin):
+    list_display = (
+        "verified_email",
+        "display_name",
+        "email_verified_at",
+        "created_at",
+    )
+    search_fields = ("verified_email", "display_name", "user__username")
+    readonly_fields = (
+        "user",
+        "verified_email",
+        "email_verified_at",
+        "created_at",
+        "updated_at",
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(EmailVerificationCode)
+class EmailVerificationCodeAdmin(admin.ModelAdmin):
+    list_display = (
+        "email",
+        "purpose",
+        "created_at",
+        "expires_at",
+        "attempts",
+        "used_at",
+        "request_ip",
+    )
+    list_filter = ("purpose", "created_at", "used_at")
+    search_fields = ("email", "request_ip")
+    readonly_fields = (
+        "email",
+        "purpose",
+        "code_digest",
+        "request_ip",
+        "created_at",
+        "expires_at",
+        "used_at",
+        "attempts",
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+
+admin.site.site_header = "StudyBee administration"
+admin.site.site_title = "StudyBee admin"
+admin.site.index_title = "Moderation dashboard"

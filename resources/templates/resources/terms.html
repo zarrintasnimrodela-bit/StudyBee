@@ -1,0 +1,18 @@
+{% extends "resources/base_report.html" %}
+{% block title %}Terms — StudyBee{% endblock %}
+{% block report_content %}
+    <a href="{% url 'home' %}" class="back-link">← Back to StudyBee</a>
+    <article class="policy-card">
+        <span class="section-kicker">Terms of use</span>
+        <h1>Use StudyBee responsibly</h1>
+        <p>StudyBee organizes student-shared and publicly available study materials. It is not an official BRAC University service.</p>
+        <h2>Resources</h2>
+        <p>Materials may be incomplete, outdated, or specific to a past semester. Students remain responsible for following current faculty instructions.</p>
+        <h2>Contributions</h2>
+        <p>Submit only materials you are allowed to share. Do not upload private student information, leaked examinations, copyrighted books without permission, or harmful files.</p>
+        <h2>Moderation</h2>
+        <p>Administrators may reject, hide, edit, or remove resources and may restrict abusive use of the submission or reporting systems.</p>
+        <h2>Availability</h2>
+        <p>StudyBee may change or become temporarily unavailable. No guarantee is made that every file or external link will remain accessible.</p>
+    </article>
+{% endblock %}

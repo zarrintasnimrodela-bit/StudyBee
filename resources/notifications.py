@@ -167,3 +167,177 @@ def send_report_resolution_email(report_id):
         notification_error="",
     )
     return True
+
+
+def send_account_code_email(*, email, code, lifetime_minutes, purpose):
+    labels = {
+        "SIGNUP": (
+            "Your StudyBee sign-up code",
+            "sign-up verification code",
+        ),
+        "PASSWORD_RESET": (
+            "Your StudyBee password reset code",
+            "password reset code",
+        ),
+    }
+    subject, code_label = labels.get(
+        purpose,
+        ("Your StudyBee verification code", "verification code"),
+    )
+    body = "\n".join(
+        [
+            "Hello,",
+            "",
+            f"Your StudyBee {code_label} is: {code}",
+            "",
+            f"This code expires in {lifetime_minutes} minutes and can be used once.",
+            "If you did not request this code, you can ignore this email.",
+            "",
+            "StudyBee will never ask for your BRACU Google password.",
+            "",
+            "— StudyBee",
+        ]
+    )
+    return send_studybee_email(
+        subject=subject,
+        body=body,
+        recipient=email,
+    )
+
+
+def send_login_code_email(*, email, code, lifetime_minutes):
+    """Backward-compatible wrapper for older callers."""
+    return send_account_code_email(
+        email=email,
+        code=code,
+        lifetime_minutes=lifetime_minutes,
+        purpose="SIGNUP",
+    )
+
+
+def _send_workflow_email(*, subject, body, recipient, context):
+    """Send a non-critical workflow email without breaking the user action."""
+    try:
+        return send_studybee_email(
+            subject=subject,
+            body=body,
+            recipient=recipient,
+        )
+    except Exception:
+        logger.exception("Could not send StudyBee %s email to %s", context, recipient)
+        return False
+
+
+def send_submission_received_email(submission_id):
+    from .models import ResourceSubmission
+
+    submission = ResourceSubmission.objects.select_related("course").filter(
+        pk=submission_id
+    ).first()
+    if not submission or not submission.submitter_email:
+        return False
+
+    subject = f"StudyBee received {submission.reference_code}"
+    body = "\n".join(
+        [
+            "Hello,",
+            "",
+            "Your resource submission has been received and is waiting for review.",
+            "",
+            f"Reference: {submission.reference_code}",
+            f"Course: {submission.course.course_code}",
+            f"Resource: {submission.title}",
+            f"Status: {submission.get_status_display()}",
+            "",
+            "You can log in to StudyBee to view its current status.",
+            "",
+            "— StudyBee",
+        ]
+    )
+    return _send_workflow_email(
+        subject=subject,
+        body=body,
+        recipient=submission.submitter_email,
+        context="submission receipt",
+    )
+
+
+def send_submission_review_email(submission_id):
+    from .models import ResourceSubmission
+
+    submission = ResourceSubmission.objects.select_related("course").filter(
+        pk=submission_id
+    ).first()
+    if (
+        not submission
+        or not submission.submitter_email
+        or submission.status not in {"APPROVED", "REJECTED"}
+    ):
+        return False
+
+    if submission.status == "APPROVED":
+        outcome = "approved and published"
+        next_step = (
+            "The resource is now available on the public StudyBee course page."
+        )
+    else:
+        outcome = "not approved"
+        next_step = (
+            "You may submit a corrected version after reviewing the note below."
+        )
+
+    lines = [
+        "Hello,",
+        "",
+        f"Your StudyBee submission has been {outcome}.",
+        "",
+        f"Reference: {submission.reference_code}",
+        f"Course: {submission.course.course_code}",
+        f"Resource: {submission.title}",
+        f"Status: {submission.get_status_display()}",
+        "",
+        next_step,
+    ]
+    if submission.review_notes:
+        lines.extend(["", "Reviewer note:", submission.review_notes])
+    lines.extend(["", "— StudyBee"])
+
+    return _send_workflow_email(
+        subject=f"StudyBee submission update: {submission.reference_code}",
+        body="\n".join(lines),
+        recipient=submission.submitter_email,
+        context="submission review",
+    )
+
+
+def send_report_received_email(report_id):
+    report = ReportIssue.objects.select_related(
+        "resource",
+        "resource__course",
+    ).filter(pk=report_id).first()
+
+    if not report or not report.contact_email:
+        return False
+
+    body = "\n".join(
+        [
+            "Hello,",
+            "",
+            "StudyBee received your report and placed it in the moderation queue.",
+            "",
+            f"Reference: {report.reference_code}",
+            f"Resource: {report.resource_label}",
+            f"Issue: {report.get_issue_type_display()}",
+            f"Status: {report.get_status_display()}",
+            "",
+            "You will receive another email after an admin resolves the report.",
+            "",
+            "— StudyBee",
+        ]
+    )
+    return _send_workflow_email(
+        subject=f"StudyBee received {report.reference_code}",
+        body=body,
+        recipient=report.contact_email,
+        context="report receipt",
+    )

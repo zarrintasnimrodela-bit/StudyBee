@@ -1,58 +1,194 @@
-/* Make Django admin use more page width */
-#content {
-    width: auto !important;
-    max-width: 1400px !important;
-    margin: 30px auto !important;
-    padding: 0 40px !important;
+:root {
+    --primary: #172033;
+    --secondary: #d9550b;
+    --accent: #facc15;
+    --header-bg: #172033;
+    --header-color: #fff8ec;
+    --breadcrumbs-bg: #fff1e6;
+    --breadcrumbs-fg: #7c2d12;
+    --link-fg: #a43f0a;
+    --link-hover-color: #172033;
 }
 
-/* Make the admin dashboard layout wider */
+body {
+    background: #f6f3ee;
+}
+
+#header {
+    min-height: 68px;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+#branding h1,
+#branding #site-name {
+    margin: 0;
+}
+
+#site-name a {
+    color: #fff8ec;
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.admin-brand-note {
+    display: block;
+    margin-top: 3px;
+    color: rgba(255, 255, 255, 0.66);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.admin-public-link {
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 999px;
+    color: #fff !important;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+#content {
+    width: auto !important;
+    max-width: 1500px !important;
+    margin: 26px auto !important;
+    padding: 0 34px !important;
+}
+
 .dashboard #content {
     max-width: 1500px !important;
 }
 
-/* Make the app list wider */
-#content-main {
+.dashboard #content-main {
     width: 70% !important;
 }
 
-/* Recent actions panel */
 #content-related {
-    width: 26% !important;
+    width: 27% !important;
     margin-right: 0 !important;
 }
 
-/* Make tables use available space */
-.results {
-    width: 100% !important;
+.admin-welcome {
+    margin-bottom: 18px;
+    padding: 24px 28px;
+    border: 1px solid rgba(255, 159, 104, 0.28);
+    border-radius: 22px;
+    background: linear-gradient(135deg, #fff8ec, #ffe1cc);
+    box-shadow: 0 15px 40px rgba(23, 32, 51, 0.07);
 }
 
+.admin-welcome span {
+    color: #d9550b;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.admin-welcome h1 {
+    margin: 5px 0 2px;
+    color: #172033;
+    font-size: 29px;
+}
+
+.admin-welcome p {
+    margin: 0;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.admin-metric-grid {
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.admin-metric-card {
+    display: grid;
+    padding: 18px;
+    border: 1px solid rgba(23, 32, 51, 0.09);
+    border-radius: 18px;
+    background: #fff;
+    color: #172033 !important;
+    text-decoration: none;
+    box-shadow: 0 10px 28px rgba(23, 32, 51, 0.06);
+}
+
+.admin-metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 34px rgba(23, 32, 51, 0.1);
+}
+
+.admin-metric-card strong {
+    font-size: 30px;
+}
+
+.admin-metric-card span {
+    margin-top: 2px;
+    font-weight: 800;
+}
+
+.admin-metric-card small {
+    margin-top: 5px;
+    color: #64748b;
+}
+
+.metric-warning { border-top: 4px solid #f59e0b; }
+.metric-info { border-top: 4px solid #3b82f6; }
+.metric-danger { border-top: 4px solid #ef4444; }
+.metric-neutral { border-top: 4px solid #64748b; }
+
+.module,
+.inline-group,
+#changelist-filter {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(23, 32, 51, 0.05);
+}
+
+.results,
 #changelist {
     width: 100% !important;
 }
 
-/* Improve admin form width */
-.form-row {
-    max-width: 1000px;
+.form-row,
+.submit-row {
+    max-width: 1100px;
 }
 
 .aligned label {
-    width: 180px;
+    width: 190px;
 }
 
-.submit-row {
-    max-width: 1000px;
+.sb-status {
+    display: inline-flex;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
-/* For smaller screens */
-@media (max-width: 900px) {
-    #content {
-        padding: 0 18px !important;
-    }
+.sb-status-pending,
+.sb-status-needs_review { background: #fef3c7; color: #854d0e; }
+.sb-status-approved,
+.sb-status-verified,
+.sb-status-resolved { background: #dcfce7; color: #166534; }
+.sb-status-rejected,
+.sb-status-broken { background: #fee2e2; color: #991b1b; }
+.sb-status-unverified,
+.sb-status-checked { background: #dbeafe; color: #1e40af; }
 
-    #content-main,
-    #content-related {
-        width: 100% !important;
-        float: none !important;
-    }
+@media (max-width: 1000px) {
+    .admin-metric-grid { grid-template-columns: 1fr 1fr; }
+    #content { padding: 0 18px !important; }
+    .dashboard #content-main,
+    #content-related { width: 100% !important; float: none !important; }
+}
+
+@media (max-width: 600px) {
+    #header { padding: 12px 16px; align-items: flex-start; }
+    .admin-metric-grid { grid-template-columns: 1fr; }
 }

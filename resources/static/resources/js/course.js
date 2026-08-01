@@ -331,7 +331,7 @@
                 return "";
             }
 
-            return "This Google Drive or document link may require you to sign in with your BRACU GSuite account.";
+            return "This Google Drive or document link may require you to log in with your BRACU Google account.";
         }
 
         function createSafeExternalLink(url, label, className) {

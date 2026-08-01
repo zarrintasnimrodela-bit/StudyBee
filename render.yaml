@@ -32,6 +32,21 @@ services:
       - key: BREVO_SENDER_NAME
         value: StudyBee
 
+      - key: BRACU_ALLOWED_EMAIL_DOMAIN
+        value: g.bracu.ac.bd
+
+      - key: STUDENT_PASSWORD_MIN_LENGTH
+        value: "8"
+
+      - key: STUDENT_OTP_LIFETIME_MINUTES
+        value: "10"
+
+      - key: STUDENT_OTP_MAX_REQUESTS_PER_HOUR
+        value: "5"
+
+      - key: STUDENT_OTP_MAX_REQUESTS_PER_IP_PER_HOUR
+        value: "20"
+
       - key: USE_CLOUD_STORAGE
         value: "True"
 

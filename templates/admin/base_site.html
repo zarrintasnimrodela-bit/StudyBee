@@ -1,7 +1,20 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/base.html" %}
 {% load static %}
+
+{% block title %}{{ title }} | StudyBee administration{% endblock %}
+
+{% block branding %}
+    <div id="site-name">
+        <a href="{% url 'admin:index' %}">StudyBee administration</a>
+        <span class="admin-brand-note">Resource moderation and publishing</span>
+    </div>
+{% endblock %}
+
+{% block nav-global %}
+    <a class="admin-public-link" href="{% url 'home' %}" target="_blank" rel="noopener">Open public site ↗</a>
+{% endblock %}
 
 {% block extrastyle %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static 'resources/css/admin_custom.css' %}">
+    <link rel="stylesheet" href="{% static 'resources/css/admin_custom.css' %}?v=8.0">
 {% endblock %}

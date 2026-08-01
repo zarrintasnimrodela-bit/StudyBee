@@ -1,0 +1,18 @@
+{% extends "resources/base_report.html" %}
+{% block title %}Privacy — StudyBee{% endblock %}
+{% block report_content %}
+    <a href="{% url 'home' %}" class="back-link">← Back to StudyBee</a>
+    <article class="policy-card">
+        <span class="section-kicker">Privacy</span>
+        <h1>How StudyBee uses your information</h1>
+        <p>StudyBee is a student-made resource hub. Public browsing does not require an account.</p>
+        <h2>Student login and sign up</h2>
+        <p>New accounts must verify a BRACU email using a one-time code, then create a separate StudyBee password. Normal logins use that StudyBee password. Password-reset requests also require an emailed code. StudyBee never asks for your BRACU Google password, and StudyBee passwords are stored only as secure hashes.</p>
+        <h2>Submissions and reports</h2>
+        <p>Submission and report details are stored so administrators can review them. Your email may be used to send receipt, approval, rejection, or resolution updates.</p>
+        <h2>Browser storage</h2>
+        <p>Favorites and recently viewed courses are stored locally in your browser. They are not uploaded to StudyBee.</p>
+        <h2>Files and hosting</h2>
+        <p>Uploaded resources may be stored in StudyBee’s configured cloud storage. Do not submit private, restricted, or personally sensitive documents.</p>
+    </article>
+{% endblock %}

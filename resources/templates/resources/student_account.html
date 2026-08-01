@@ -1,0 +1,69 @@
+{% extends "resources/base.html" %}
+{% load static %}
+{% block title %}My StudyBee{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'resources/css/course.css' %}?v=8.0">{% endblock %}
+{% block content %}
+    <div class="account-page">
+        <section class="account-hero">
+            <span class="section-kicker">Verified student space</span>
+            <h1>My StudyBee</h1>
+            <p>Track your submitted resources and issue reports in one place.</p>
+            <div class="verified-identity account-identity">
+                <span aria-hidden="true">✓</span>
+                <div>
+                    <strong>{{ student_name }}</strong>
+                    <span>Verified BRACU email: {{ student_email }}</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="account-grid">
+            <section class="account-section">
+                <div class="account-section-header">
+                    <div><span class="section-kicker">Contribution history</span><h2>My submissions</h2></div>
+                    <a href="{% url 'submit_resource' %}">Submit new →</a>
+                </div>
+                <div class="status-list">
+                    {% for submission in submissions %}
+                        <article class="status-card">
+                            <div class="status-card-top">
+                                <span class="status-reference">{{ submission.reference_code }}</span>
+                                <span class="status-pill status-{{ submission.status|lower }}">{{ submission.get_status_display }}</span>
+                            </div>
+                            <h3>{{ submission.course.course_code }} — {{ submission.title }}</h3>
+                            <p>Submitted {{ submission.submitted_at|date:"M d, Y" }}</p>
+                            {% if submission.review_notes %}<p><strong>Reviewer note:</strong> {{ submission.review_notes }}</p>{% endif %}
+                            {% if submission.published_resource %}
+                                <p><a href="{% url 'course_detail' submission.course.course_code|lower %}?focus={{ submission.published_resource_id }}">Open published resource →</a></p>
+                            {% endif %}
+                        </article>
+                    {% empty %}
+                        <div class="empty-dashboard-state">No submissions yet. Share a useful course resource when you are ready.</div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="account-section">
+                <div class="account-section-header">
+                    <div><span class="section-kicker">Accuracy history</span><h2>My reports</h2></div>
+                    <a href="{% url 'report_issue' %}" data-modal-open="report">Report issue →</a>
+                </div>
+                <div class="status-list">
+                    {% for report in reports %}
+                        <article class="status-card">
+                            <div class="status-card-top">
+                                <span class="status-reference">{{ report.reference_code }}</span>
+                                <span class="status-pill status-{{ report.status|lower }}">{{ report.get_status_display }}</span>
+                            </div>
+                            <h3>{{ report.resource_label }}</h3>
+                            <p>{{ report.get_issue_type_display }} · {{ report.submitted_at|date:"M d, Y" }}</p>
+                            {% if report.admin_response %}<p><strong>Admin response:</strong> {{ report.admin_response }}</p>{% endif %}
+                        </article>
+                    {% empty %}
+                        <div class="empty-dashboard-state">No reports yet. Broken or misplaced resources can be reported in a few seconds.</div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}
